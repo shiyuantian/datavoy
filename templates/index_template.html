@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datavoy | 旅数参考</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root { --primary:#0e7490; --primary-light:#ecfeff; --accent:#0d9488; --success:#059669; --warning:#d97706; --danger:#dc2626; --text:#0f172a; --muted:#64748b; --bg:#f0f9ff; --card:rgba(255,255,255,0.92); --border:#e2e8f0; --shadow:0 4px 20px rgba(14,116,144,.08); }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif; margin:0; background:linear-gradient(180deg,#f0f9ff 0%,#e0f2fe 40%,#ccfbf1 100%) fixed; color:var(--text); line-height:1.55; }
+body::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:0; background:radial-gradient(circle at 8% 12%,rgba(14,165,233,.12) 0%,transparent 28%),radial-gradient(circle at 92% 88%,rgba(13,148,136,.10) 0%,transparent 30%); }
+header { background:rgba(255,255,255,.82); backdrop-filter:saturate(180%) blur(12px); border-bottom:1px solid rgba(226,232,240,.85); padding:14px 24px; position:sticky; top:0; z-index:50; }
+.nav { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.brand { display:flex; align-items:center; gap:10px; font-weight:700; font-size:18px; color:var(--primary); }
+.brand-icon { width:34px; height:34px; background:linear-gradient(135deg,var(--primary),var(--accent)); border-radius:10px; display:grid; place-items:center; color:#fff; box-shadow:0 4px 12px rgba(14,116,144,.25); }
+.brand-icon svg { width:20px; height:20px; fill:currentColor; }
+.tabs { display:flex; gap:8px; }
+.tab { padding:8px 16px; border-radius:20px; border:1px solid transparent; background:transparent; cursor:pointer; font-size:14px; color:#475569; transition:all .15s ease; }
+.tab:hover { background:rgba(14,116,144,.06); color:var(--primary); }
+.tab.active { background:var(--primary-light); border-color:rgba(14,116,144,.18); color:var(--primary); font-weight:600; }
+main { max-width:1200px; margin:0 auto; padding:28px 24px; position:relative; z-index:1; }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; animation:fadeIn .35s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:none;} }
+.hero { margin-bottom:28px; }
+.hero h1 { margin:0 0 8px; font-size:28px; }
+.hero p { margin:0; color:var(--muted); font-size:15px; }
+.card { background:var(--card); border-radius:16px; padding:22px; box-shadow:var(--shadow); border:1px solid rgba(226,232,240,.7); margin-bottom:20px; backdrop-filter:blur(6px); }
+.filter-bar { display:flex; flex-wrap:wrap; gap:24px; align-items:flex-start; }
+.filter-group { display:flex; flex-direction:column; gap:10px; flex:1; min-width:220px; }
+.filter-group label { font-weight:600; font-size:13px; color:#374151; }
+.filter-options { display:flex; flex-wrap:wrap; gap:8px; }
+.filter-chip { display:inline-flex; align-items:center; gap:5px; padding:6px 12px; border-radius:20px; border:1px solid var(--border); background:#f8fafc; cursor:pointer; font-size:13px; color:#4b5563; transition:all .15s ease; user-select:none; }
+.filter-chip:hover { border-color:var(--primary); color:var(--primary); }
+.filter-chip.active { background:var(--primary-light); border-color:var(--primary); color:var(--primary); }
+.btn { padding:6px 12px; font-size:12px; border-radius:6px; border:1px solid var(--border); background:#fff; cursor:pointer; color:#4b5563; }
+.btn:hover { background:#f3f4f6; }
+.count { margin-bottom:12px; font-size:13px; color:var(--muted); }
+table { width:100%; border-collapse:collapse; background:var(--card); border-radius:16px; overflow:hidden; box-shadow:var(--shadow); border:1px solid rgba(226,232,240,.7); }
+th,td { padding:12px 14px; text-align:left; font-size:13px; border-bottom:1px solid #f1f5f9; }
+th { background:#f8fafc; font-weight:600; color:#374151; }
+tbody tr:hover { background:#f8fafc; }
+.metric { display:flex; flex-direction:column; gap:2px; }
+.metric-value { font-weight:600; }
+.metric-unit { font-size:11px; color:var(--muted); }
+.yoy { font-size:12px; font-weight:500; }
+.yoy.positive { color:var(--success); }
+.yoy.negative { color:var(--danger); }
+.yoy.neutral { color:var(--muted); }
+.yoy-note { font-size:11px; color:#94a3b8; margin-left:4px; }
+.tooltip { position:relative; cursor:help; border-bottom:1px dashed #cbd5e1; }
+.tooltip::after { content:attr(data-tip); position:absolute; left:0; bottom:130%; max-width:280px; width:max-content; padding:10px 12px; background:#1e293b; color:#fff; font-size:12px; line-height:1.5; border-radius:8px; white-space:normal; opacity:0; visibility:hidden; transition:opacity .15s ease; pointer-events:none; z-index:100; box-shadow:0 4px 12px rgba(0,0,0,.15); }
+.tooltip:hover::after { opacity:1; visibility:visible; }
+a { color:inherit; text-decoration:none; }
+a:hover { color:var(--primary); text-decoration:underline; }
+.tag { display:inline-block; padding:4px 10px; border-radius:12px; background:var(--primary-light); color:var(--primary); font-size:12px; font-weight:500; }
+.empty { padding:50px; text-align:center; color:var(--muted); }
+.chart-header { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px; margin-bottom:16px; }
+.chart-title { font-size:16px; font-weight:600; }
+.chart-subtitle { font-size:12px; color:var(--muted); margin-top:2px; }
+.chart-canvas-wrap { position:relative; height:320px; }
+.metric-toggle { display:flex; flex-wrap:wrap; gap:12px; }
+.metric-toggle label { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#4b5563; cursor:pointer; }
+.chart-divider { border:none; border-top:1px solid #f1f5f9; margin:28px 0; }
+.source-note { font-size:12px; color:var(--muted); margin-top:8px; }
+.expand-btn { margin-left:6px; padding:2px 8px; font-size:11px; border-radius:10px; border:1px solid var(--border); background:#fff; cursor:pointer; color:var(--primary); vertical-align:middle; }
+.expand-btn:hover { background:var(--primary-light); }
+.detail-row { background:#f8fafc; }
+.detail-row td { padding:0 14px 14px; border-bottom:1px solid #f1f5f9; }
+.detail-card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
+.detail-title { font-size:12px; font-weight:600; margin-bottom:10px; color:#374151; }
+.detail-table { width:100%; border-collapse:collapse; }
+.detail-table th, .detail-table td { padding:8px 10px; font-size:12px; text-align:left; border-bottom:1px solid #f1f5f9; }
+.detail-table th { background:#f8fafc; font-weight:600; color:#6b7280; }
+.detail-table tr:last-child td { border-bottom:none; }
+.daily-cell { display:flex; flex-direction:column; gap:2px; align-items:flex-start; }
+
+/* Scenic hero */
+.hero-scene { position:relative; border-radius:24px; padding:76px 24px 92px; text-align:center; overflow:hidden; background:linear-gradient(135deg,#ecfeff 0%,#cffafe 55%,#99f6e4 100%); border:1px solid rgba(255,255,255,.7); box-shadow:var(--shadow); margin-bottom:28px; }
+.scene-sun { position:absolute; top:28px; right:8%; width:90px; height:90px; border-radius:50%; background:radial-gradient(circle at 30% 30%,#fef3c7,#fbbf24); opacity:.35; filter:blur(1px); }
+.scene-plane { position:absolute; top:18%; right:12%; width:64px; height:64px; color:var(--primary); fill:currentColor; opacity:.55; animation:float 6s ease-in-out infinite; }
+.scene-mountains { position:absolute; bottom:-1px; left:0; width:100%; height:150px; opacity:.28; color:var(--accent); pointer-events:none; }
+.scene-waves { position:absolute; bottom:-1px; left:0; width:100%; height:48px; opacity:.45; color:var(--primary); pointer-events:none; }
+@keyframes float { 0%,100%{transform:translateY(0) rotate(-6deg);} 50%{transform:translateY(-10px) rotate(-2deg);} }
+.hero-content { position:relative; z-index:2; }
+.brand-wordmark { font-size:22px; font-weight:800; letter-spacing:.5px; color:var(--primary); margin-bottom:4px; }
+.hero-scene h1 { font-size:46px; margin:0 0 10px; font-weight:800; color:var(--text); }
+.hero-scene .subtitle { font-size:20px; color:var(--primary); font-weight:600; margin-bottom:14px; }
+.hero-scene .lead { font-size:16px; color:var(--muted); max-width:640px; margin:0 auto; line-height:1.7; }
+.hero-actions { margin-top:26px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.hero-btn { padding:10px 22px; border-radius:24px; border:none; background:linear-gradient(135deg,var(--primary),var(--accent)); color:#fff; font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 4px 14px rgba(14,116,144,.3); transition:transform .15s ease,box-shadow .15s ease; }
+.hero-btn:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(14,116,144,.35); }
+.hero-btn.secondary { background:#fff; color:var(--primary); border:1px solid rgba(14,116,144,.2); box-shadow:0 2px 8px rgba(14,116,144,.08); }
+.hero-btn.secondary:hover { background:var(--primary-light); }
+.section-title { font-size:18px; font-weight:700; margin-bottom:16px; color:var(--text); display:flex; align-items:center; gap:8px; }
+.section-title svg { width:22px; height:22px; color:var(--primary); fill:currentColor; }
+.mission-card p { margin:0; font-size:15px; color:var(--muted); line-height:1.8; }
+.values-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:20px; }
+.value-item { display:flex; flex-direction:column; gap:12px; padding:24px; background:var(--card); border-radius:16px; border:1px solid var(--border); border-top:3px solid var(--accent); box-shadow:var(--shadow); }
+.value-icon { width:44px; height:44px; display:grid; place-items:center; border-radius:12px; background:var(--primary-light); color:var(--primary); }
+.value-icon svg { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.value-title { font-size:16px; font-weight:700; color:var(--text); }
+.value-desc { font-size:13px; color:var(--muted); line-height:1.6; }
+.modules-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:20px; }
+.module-item { padding:24px; border:1px solid var(--border); border-radius:16px; background:#fff; cursor:pointer; transition:all .15s ease; box-shadow:var(--shadow); }
+.module-item:hover { border-color:var(--primary); box-shadow:0 8px 24px rgba(14,116,144,.12); transform:translateY(-3px); }
+.module-header { display:flex; align-items:center; gap:14px; margin-bottom:12px; }
+.module-icon { width:48px; height:48px; display:grid; place-items:center; border-radius:14px; background:linear-gradient(135deg,var(--primary-light),#fff); color:var(--primary); border:1px solid rgba(14,116,144,.12); }
+.module-icon svg { width:26px; height:26px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.module-title { font-size:16px; font-weight:700; color:var(--text); }
+.module-desc { font-size:13px; color:var(--muted); line-height:1.6; }
+.status-list { display:flex; flex-direction:column; gap:10px; }
+.status-item { display:flex; align-items:center; gap:10px; font-size:14px; color:var(--muted); }
+.status-dot { width:8px; height:8px; border-radius:50%; }
+.status-dot.green { background:var(--success); }
+footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; color:var(--muted); text-align:center; position:relative; z-index:1; }
+</style>
+</head>
+<body>
+<!-- icon symbols -->
+<svg style="display:none;">
+  <symbol id="icon-compass" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z"/></symbol>
+  <symbol id="icon-plane" viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></symbol>
+  <symbol id="icon-train" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="15" rx="3"/><path d="M4 15h16M2 21l2-4M22 21l-2-4M7 19v2M17 19v2M8 7h8M8 10h8"/></symbol>
+  <symbol id="icon-building" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></symbol>
+  <symbol id="icon-shield-check" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 12 15 16 10"/></symbol>
+  <symbol id="icon-compass-needle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></symbol>
+  <symbol id="icon-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><circle cx="16" cy="8" r="3"/></symbol>
+</svg>
+
+<header>
+  <div class="nav">
+    <div class="brand"><div class="brand-icon"><svg><use href="#icon-compass"></use></svg></div><div>Datavoy</div></div>
+    <div class="tabs">
+      <div class="tab active" data-tab="home" onclick="switchTab('home')">首页</div>
+      <div class="tab" data-tab="mct" onclick="switchTab('mct')">文旅部</div>
+      <div class="tab" data-tab="mot" onclick="switchTab('mot')">交通部</div>
+    </div>
+  </div>
+</header>
+<main>
+  <!-- Home Panel -->
+  <section class="tab-panel active" id="panel-home">
+    <section class="hero-scene">
+      <div class="scene-sun"></div>
+      <svg class="scene-plane" viewBox="0 0 24 24"><use href="#icon-plane"></use></svg>
+      <svg class="scene-mountains" viewBox="0 0 1200 200" preserveAspectRatio="none">
+        <path fill="currentColor" d="M0,200 L0,130 Q180,30 360,140 Q540,60 720,150 Q900,80 1200,145 L1200,200 Z"/>
+      </svg>
+      <svg class="scene-waves" viewBox="0 0 1200 80" preserveAspectRatio="none">
+        <path fill="currentColor" d="M0,40 C200,70 400,10 600,40 C800,70 1000,10 1200,40 L1200,80 L0,80 Z"/>
+      </svg>
+      <div class="hero-content">
+        <div class="brand-wordmark">Datavoy</div>
+        <h1>旅数参考</h1>
+        <p class="subtitle">为旅游从业者整合分散的官方数据</p>
+        <p class="lead">文旅部、交通部、民航、铁路……公开数据高度分散。我们把它集中整理、统一口径、标注来源，让每一次查询都更准确、更高效。</p>
+
+      </div>
+    </section>
+    <section class="card mission-card">
+      <div class="section-title"><svg><use href="#icon-compass-needle"></use></svg>为什么做这件事？</div>
+      <p>旅游行业数据高度分散——文旅部、交通部、移民局、民航局、铁路局……从业者为了解市场，往往要在多个官网之间反复检索。我们把这些公开数据集中整理、统一口径、标注来源，让你不用再去一个个网站里翻找。</p>
+    </section>
+    <section class="card values-card">
+      <div class="section-title"><svg><use href="#icon-shield-check"></use></svg>我们坚持什么</div>
+      <div class="values-grid">
+        <div class="value-item">
+          <div class="value-icon"><svg><use href="#icon-shield-check"></use></svg></div>
+          <div class="value-title">Quality · 准确</div>
+          <div class="value-desc">每一条数据都源自官方公开披露，逐条标注原始出处，让准确度有据可循、可核对、可引用。</div>
+        </div>
+        <div class="value-item">
+          <div class="value-icon"><svg><use href="#icon-compass-needle"></use></svg></div>
+          <div class="value-title">Convenience · 便捷</div>
+          <div class="value-desc">统一口径、可视化呈现、多维度筛选，把分散检索和数据整理的耗时降到最低，让日常工作更顺畅一点。</div>
+        </div>
+        <div class="value-item">
+          <div class="value-icon"><svg><use href="#icon-users"></use></svg></div>
+          <div class="value-title">Community · 共创</div>
+          <div class="value-desc">链接旅游从业者，共建一张持续进化的行业数据图谱。你的反馈、线索与建议，会让这个工具对所有人更有价值。</div>
+        </div>
+      </div>
+    </section>
+    <section class="card modules-card">
+      <div class="section-title"><svg><use href="#icon-building"></use></svg>已上线模块</div>
+      <div class="modules-grid">
+        <div class="module-item" onclick="switchTab('mct')">
+          <div class="module-header">
+            <div class="module-icon"><svg><use href="#icon-building"></use></svg></div>
+            <div class="module-title">文旅部 · 国内假期出行数据</div>
+          </div>
+          <div class="module-desc">国内出游人次、出游总花费及同比，覆盖春节、清明、五一、端午、国庆中秋、元旦等节假日。</div>
+        </div>
+        <div class="module-item" onclick="switchTab('mot')">
+          <div class="module-header">
+            <div class="module-icon"><svg><use href="#icon-train"></use></svg></div>
+            <div class="module-title">交通部 · 节假日综合交通数据</div>
+          </div>
+          <div class="module-desc">全社会跨区域人员流动量及铁路、公路、水路、民航客运量，聚焦节假日综合交通出行。</div>
+        </div>
+      </div>
+    </section>
+    <section class="card status-card">
+      <div class="section-title"><svg><use href="#icon-compass-needle"></use></svg>数据更新状态</div>
+      <div class="status-list">
+        <div class="status-item"><span class="status-dot green"></span><span id="home-mct-status">文旅部数据更新至 …</span></div>
+        <div class="status-item"><span class="status-dot green"></span><span id="home-mot-status">交通部数据更新至 …</span></div>
+      </div>
+    </section>
+  </section>
+
+  <!-- MCT Panel -->
+  <section class="tab-panel" id="panel-mct">
+    <section class="hero" id="data-mct">
+      <h1>文旅部 · 国内假期出行数据</h1>
+      <p>汇总文化和旅游部官方披露的国内出游人次、出游总花费及同比数据，每个数字均可追溯原文出处。</p>
+    </section>
+    <section class="card">
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>年份（多选）</label>
+          <div class="filter-options" id="mct-yearFilters"></div>
+        </div>
+        <div class="filter-group">
+          <label>节假日（多选）</label>
+          <div class="filter-options" id="mct-holidayFilters"></div>
+        </div>
+        <div class="filter-group" style="justify-content:flex-end;flex:0;">
+          <label>&nbsp;</label>
+          <div><button class="btn" onclick="mctSelectAll(true)">全选</button> <button class="btn" onclick="mctSelectAll(false)">清空</button></div>
+        </div>
+      </div>
+    </section>
+    <div class="count" id="mct-count"></div>
+    <table>
+      <thead>
+        <tr><th>年份</th><th>节假日</th><th>发布日期</th><th>国内出游人次</th><th>同比</th><th>国内出游总花费</th><th>同比</th></tr>
+      </thead>
+      <tbody id="mct-tbody"></tbody>
+    </table>
+    <section class="card" id="charts-mct" style="margin-top:28px;">
+      <div class="chart-header">
+        <div><div class="chart-title">绝对值趋势</div><div class="chart-subtitle">出游人次（亿人次）与出游总花费（亿元）</div></div>
+        <div class="metric-toggle" id="mct-absoluteMetricToggles"></div>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="mct-absoluteChart"></canvas></div>
+      <hr class="chart-divider">
+      <div class="chart-header">
+        <div><div class="chart-title">同比趋势</div><div class="chart-subtitle">官方同比，缺失时以日均同比补齐（%）</div></div>
+        <div class="metric-toggle" id="mct-growthMetricToggles"></div>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="mct-growthChart"></canvas></div>
+    </section>
+    <section class="card" style="margin-top:20px;">
+      <div class="chart-title" style="margin-bottom:10px;">数据说明</div>
+      <p style="margin:0;font-size:13px;color:var(--muted);line-height:1.7;">
+        数据来源于<a href="https://www.mct.gov.cn/" target="_blank" style="color:var(--primary);">中华人民共和国文化和旅游部</a>官网焦点新闻栏目。
+        同比列优先采用官方披露的同比增长；若官方未披露，则按日均同比作为替代。鼠标悬停在“—”上可查看缺失原因；点击数字可跳转原文。
+      </p>
+      <p id="mct-last-update" class="source-note" style="margin-top:10px;"></p>
+    </section>
+  </section>
+
+  <!-- MOT Panel -->
+  <section class="tab-panel" id="panel-mot">
+    <section class="hero" id="data-mot">
+      <h1>交通部 · 节假日综合交通数据</h1>
+      <p>汇总交通运输部官方披露的节假日全社会跨区域人员流动量及铁路、公路、水路、民航客运量，仅展示每个节假日结束后的汇总数据。</p>
+    </section>
+    <section class="card">
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>年份（多选）</label>
+          <div class="filter-options" id="mot-yearFilters"></div>
+        </div>
+        <div class="filter-group">
+          <label>节假日（多选）</label>
+          <div class="filter-options" id="mot-holidayFilters"></div>
+        </div>
+        <div class="filter-group" style="justify-content:flex-end;flex:0;">
+          <label>&nbsp;</label>
+          <div><button class="btn" onclick="motSelectAll(true)">全选</button> <button class="btn" onclick="motSelectAll(false)">清空</button></div>
+        </div>
+      </div>
+    </section>
+    <div class="count" id="mot-count"></div>
+    <table>
+      <thead>
+        <tr>
+          <th>年份</th><th>节假日</th><th>发布日期</th>
+          <th>全社会跨区域<br>人员流动量</th><th>同比</th>
+          <th>铁路</th><th>同比</th>
+          <th>公路</th><th>同比</th>
+          <th>水路</th><th>同比</th>
+          <th>民航</th><th>同比</th>
+        </tr>
+      </thead>
+      <tbody id="mot-tbody"></tbody>
+    </table>
+    <section class="card" style="margin-top:28px;">
+      <div class="chart-header">
+        <div><div class="chart-title">客运量绝对值趋势</div><div class="chart-subtitle">各运输方式客运量（万人次）</div></div>
+        <div class="metric-toggle" id="mot-absoluteMetricToggles"></div>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="mot-absoluteChart"></canvas></div>
+      <hr class="chart-divider">
+      <div class="chart-header">
+        <div><div class="chart-title">同比增速趋势</div><div class="chart-subtitle">单位：%</div></div>
+        <div class="metric-toggle" id="mot-growthMetricToggles"></div>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="mot-growthChart"></canvas></div>
+    </section>
+    <section class="card" style="margin-top:20px;">
+      <div class="chart-title" style="margin-bottom:10px;">数据说明</div>
+      <p style="margin:0;font-size:13px;color:var(--muted);line-height:1.7;">
+        数据来源于<a href="https://www.mot.gov.cn/" target="_blank" style="color:var(--primary);">中华人民共和国交通运输部</a>官网及微信公众号。
+        表格中“—”表示该指标在官方通报中未披露或暂缺；点击有数字的单元格可跳转至交通运输部原文。铁路/水路/民航单位为万人次，全社会/公路单位为亿人次。
+      </p>
+      <p id="mot-last-update" class="source-note" style="margin-top:10px;"></p>
+    </section>
+  </section>
+</main>
+<footer>
+  Datavoy · 旅数参考
+</footer>
+<script>
+const mctData = {mct_data_json};
+const motData = {mot_data_json};
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+tab));
+}
+
+function fmtNum(v,d=2){ return v===null||v===undefined?'—':Number(v).toLocaleString('zh-CN',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+function fmtDateSlash(date){ return date?date.replace(/-/g,'/'):''; }
+function fmtDateRange(start,end){
+  if(!start&&!end) return '—';
+  if(!end || start===end) return fmtDateSlash(start);
+  return `${fmtDateSlash(start)}-${fmtDateSlash(end)}`;
+}
+function fmtHolidayMeta(name,start,end,days,note){
+  if(!start && days===undefined) return `<span class="tag">${name||'—'}</span>`;
+  const s=fmtDateSlash(start), e=fmtDateSlash(end);
+  let meta='';
+  if(s&&e&&s!==e) meta=`${s}-${e}，共${days}天`;
+  else if(s) meta=`${s}，共${days}天`;
+  else if(days!==null&&days!==undefined) meta=`共${days}天`;
+  const tag = note ? `<span class="tag tooltip" data-tip="${escHtml(note)}">${name||'—'}</span>` : `<span class="tag">${name||'—'}</span>`;
+  return `${tag}${meta?`<div style="font-size:12px;color:var(--muted);margin-top:4px;">${meta}</div>`:''}`;
+}
+function escHtml(t){ const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+function fmtYoy(v,daily,reason){
+  if(v!==null&&v!==undefined){ const s=v>0?'+':''; const c=v>0?'positive':(v<0?'negative':'neutral'); return `<span class="yoy ${c}">${s}${v}%</span>`; }
+  if(daily!==null&&daily!==undefined){ const s=daily>0?'+':''; const c=daily>0?'positive':(daily<0?'negative':'neutral'); return `<span class="yoy ${c}">${s}${daily}%<span class="yoy-note">(日均)</span></span>`; }
+  if(reason) return `<span class="yoy neutral tooltip" data-tip="${escHtml(reason)}">—</span>`;
+  return '<span class="yoy neutral">—</span>';
+}
+function fmtYoySimple(v){
+  if(v===null||v===undefined) return '<span class="yoy neutral">—</span>';
+  const s=v>0?'+':''; const c=v>0?'positive':(v<0?'negative':'neutral');
+  return `<span class="yoy ${c}">${s}${v}%</span>`;
+}
+
+// ---------- MCT ----------
+const MCT_ABS_METRICS = [
+  { key: 'visitor_count', label: '出游人次', unit: '亿人次', color: '#2563eb', yAxis: 'y' },
+  { key: 'spending', label: '出游总花费', unit: '亿元', color: '#16a34a', yAxis: 'y1' },
+];
+const MCT_GROWTH_METRICS = [
+  { key: 'effective_visitor_yoy', label: '人次同比', unit: '%', color: '#2563eb', yAxis: 'y' },
+  { key: 'effective_spending_yoy', label: '花费同比', unit: '%', color: '#16a34a', yAxis: 'y' },
+];
+const mctData2 = (mctData || []).map(d=>({
+  ...d,
+  effective_visitor_yoy: d.visitor_yoy!==null&&d.visitor_yoy!==undefined?d.visitor_yoy:d.visitor_daily_yoy,
+  effective_spending_yoy: d.spending_yoy!==null&&d.spending_yoy!==undefined?d.spending_yoy:d.spending_daily_yoy,
+}));
+function mctRenderFilters(){
+  const years = [...new Set(mctData2.map(d=>d.year))].filter(Boolean).sort((a,b)=>b-a);
+  const holidays = [...new Set(mctData2.map(d=>d.holiday_name))].filter(Boolean).sort();
+  document.getElementById('mct-yearFilters').innerHTML = years.map(y=>`<label class="filter-chip active" data-type="year"><input type="checkbox" value="${y}" checked onchange="mctToggle(this)"> ${y}</label>`).join('');
+  document.getElementById('mct-holidayFilters').innerHTML = holidays.map(h=>`<label class="filter-chip active" data-type="holiday"><input type="checkbox" value="${h}" checked onchange="mctToggle(this)"> ${h}</label>`).join('');
+  document.getElementById('mct-absoluteMetricToggles').innerHTML = MCT_ABS_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<2?'checked':''} onchange="mctRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${m.label}</label>`).join('');
+  document.getElementById('mct-growthMetricToggles').innerHTML = MCT_GROWTH_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<2?'checked':''} onchange="mctRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${m.label}</label>`).join('');
+}
+function mctToggle(cb){ cb.parentElement.classList.toggle('active', cb.checked); mctRender(); }
+function mctSelectAll(checked){ document.querySelectorAll('#panel-mct .filter-chip input').forEach(cb=>{cb.checked=checked; cb.parentElement.classList.toggle('active',checked);}); mctRender(); }
+function mctSelected(type){ return [...document.querySelectorAll(`#panel-mct .filter-chip[data-type="${type}"] input:checked`)].map(cb=>type==='year'?Number(cb.value):cb.value); }
+function mctSelectedAbs(){ return [...document.querySelectorAll('#mct-absoluteMetricToggles input:checked')].map(cb=>cb.value); }
+function mctSelectedGrowth(){ return [...document.querySelectorAll('#mct-growthMetricToggles input:checked')].map(cb=>cb.value); }
+let mctAbsChart=null, mctGrowthChart=null;
+function mctGetFiltered(){
+  const ys=mctSelected('year'), hs=mctSelected('holiday');
+  return mctData2.filter(d=>(ys.length===0||ys.includes(d.year))&&(hs.length===0||hs.includes(d.holiday_name)));
+}
+function mctRender(){
+  const filtered=mctGetFiltered();
+  document.getElementById('mct-count').textContent=`共 ${filtered.length} 条记录`;
+  const tb=document.getElementById('mct-tbody');
+  if(!filtered.length){ tb.innerHTML='<tr><td colspan="7" class="empty">没有符合条件的记录</td></tr>'; mctRenderCharts(filtered); return; }
+  tb.innerHTML = filtered.map(d=>`<tr>
+    <td>${d.year||'—'}</td>
+    <td>${fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days)}</td>
+    <td>${fmtDateSlash(d.publish_date)||'—'}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}<div class="metric"><span class="metric-value">${fmtNum(d.visitor_count)}</span><span class="metric-unit">亿人次</span></div>${d.source_url?'</a>':''}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoy(d.visitor_yoy,d.visitor_daily_yoy,d.missing_reason_visitor_yoy)}${d.source_url?'</a>':''}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}<div class="metric"><span class="metric-value">${fmtNum(d.spending)}</span><span class="metric-unit">亿元</span></div>${d.source_url?'</a>':''}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoy(d.spending_yoy,d.spending_daily_yoy,d.missing_reason_spending_yoy)}${d.source_url?'</a>':''}</td>
+  </tr>`).join('');
+  mctRenderCharts(filtered);
+}
+function mctRenderCharts(filtered){
+  if(!filtered) filtered=mctGetFiltered();
+  const sorted=[...filtered].sort((a,b)=>(a.publish_date||'').localeCompare(b.publish_date||''));
+  const labels=sorted.map(d=>`${d.year} ${d.holiday_name}`);
+  mctRenderAbsChart(sorted,labels);
+  mctRenderGrowthChart(sorted,labels);
+}
+function mctMakeDatasets(sorted,metrics,selectedKeys){
+  return metrics.filter(m=>selectedKeys.includes(m.key)).map(m=>({
+    label:`${m.label} (${m.unit})`, data:sorted.map(d=>d[m.key]), borderColor:m.color, backgroundColor:m.color, yAxisID:m.yAxis,
+    tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true
+  }));
+}
+function mctRenderAbsChart(sorted,labels){
+  const selected=mctSelectedAbs();
+  const datasets=mctMakeDatasets(sorted,MCT_ABS_METRICS,selected);
+  const ctx=document.getElementById('mct-absoluteChart').getContext('2d');
+  const opts={
+    responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+    plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{label:ctx=>{ let l=ctx.dataset.label||''; if(l)l+=': '; if(ctx.parsed.y!==null&&ctx.parsed.y!==undefined)l+=ctx.parsed.y; else l+='—'; return l; }}}},
+    onClick:(e,elements)=>{ if(!elements||!elements.length)return; const d=sorted[elements[0].index]; if(d&&d.source_url)window.open(d.source_url,'_blank'); },
+    scales:{y:{type:'linear',display:selected.includes('visitor_count'),position:'left',title:{display:true,text:'出游人次（亿人次）'},grid:{color:'#f3f4f6'}}, y1:{type:'linear',display:selected.includes('spending'),position:'right',title:{display:true,text:'出游总花费（亿元）'},grid:{drawOnChartArea:false}}, x:{grid:{display:false}}}
+  };
+  if(mctAbsChart){ mctAbsChart.data.labels=labels; mctAbsChart.data.datasets=datasets; mctAbsChart.update(); return; }
+  mctAbsChart=new Chart(ctx,{type:'line', data:{labels,datasets}, options:opts});
+}
+function mctRenderGrowthChart(sorted,labels){
+  const selected=mctSelectedGrowth();
+  const datasets=mctMakeDatasets(sorted,MCT_GROWTH_METRICS,selected);
+  const ctx=document.getElementById('mct-growthChart').getContext('2d');
+  const opts={
+    responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+    plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{label:ctx=>{ let l=ctx.dataset.label||''; if(l)l+=': '; if(ctx.parsed.y!==null&&ctx.parsed.y!==undefined)l+=ctx.parsed.y+'%'; else l+='—'; return l; }}}},
+    onClick:(e,elements)=>{ if(!elements||!elements.length)return; const d=sorted[elements[0].index]; if(d&&d.source_url)window.open(d.source_url,'_blank'); },
+    scales:{y:{type:'linear',display:true,position:'left',title:{display:true,text:'同比（%）'},grid:{color:'#f3f4f6'},ticks:{callback:v=>v+'%'}}, x:{grid:{display:false}}}
+  };
+  if(mctGrowthChart){ mctGrowthChart.data.labels=labels; mctGrowthChart.data.datasets=datasets; mctGrowthChart.update(); return; }
+  mctGrowthChart=new Chart(ctx,{type:'line', data:{labels,datasets}, options:opts});
+}
+
+// ---------- MOT ----------
+const MOT_ABS_METRICS = [
+  { key: 'total_flow', label: '全社会跨区域人员流动量', color: '#7c3aed', unit: '亿人次', yAxis: 'y1' },
+  { key: 'railway', label: '铁路', color: '#2563eb', unit: '万人次', yAxis: 'y' },
+  { key: 'highway', label: '公路', color: '#16a34a', unit: '亿人次', yAxis: 'y1' },
+  { key: 'waterway', label: '水路', color: '#f59e0b', unit: '万人次', yAxis: 'y' },
+  { key: 'aviation', label: '民航', color: '#dc2626', unit: '万人次', yAxis: 'y' },
+];
+const MOT_GROWTH_METRICS = [
+  { key: 'total_flow_yoy', label: '全社会流动量同比', color: '#7c3aed', yAxis: 'y' },
+  { key: 'railway_yoy', label: '铁路同比', color: '#2563eb', yAxis: 'y' },
+  { key: 'highway_yoy', label: '公路同比', color: '#16a34a', yAxis: 'y' },
+  { key: 'waterway_yoy', label: '水路同比', color: '#f59e0b', yAxis: 'y' },
+  { key: 'aviation_yoy', label: '民航同比', color: '#dc2626', yAxis: 'y' },
+];
+function motRenderFilters(){
+  const years = [...new Set(motData.map(d=>d.year))].filter(Boolean).sort((a,b)=>b-a);
+  const holidays = [...new Set(motData.map(d=>d.holiday_name))].filter(Boolean).sort();
+  document.getElementById('mot-yearFilters').innerHTML = years.map(y=>`<label class="filter-chip active" data-type="year"><input type="checkbox" value="${y}" checked onchange="motToggle(this)"> ${y}</label>`).join('');
+  document.getElementById('mot-holidayFilters').innerHTML = holidays.map(h=>`<label class="filter-chip active" data-type="holiday"><input type="checkbox" value="${h}" checked onchange="motToggle(this)"> ${h}</label>`).join('');
+  document.getElementById('mot-absoluteMetricToggles').innerHTML = MOT_ABS_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<5?'checked':''} onchange="motRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${m.label}</label>`).join('');
+  document.getElementById('mot-growthMetricToggles').innerHTML = MOT_GROWTH_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<5?'checked':''} onchange="motRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${m.label}</label>`).join('');
+}
+function motToggle(cb){ cb.parentElement.classList.toggle('active', cb.checked); motRender(); }
+function motSelectAll(checked){ document.querySelectorAll('#panel-mot .filter-chip input').forEach(cb=>{cb.checked=checked; cb.parentElement.classList.toggle('active',checked);}); motRender(); }
+function motSelected(type){ return [...document.querySelectorAll(`#panel-mot .filter-chip[data-type="${type}"] input:checked`)].map(cb=>type==='year'?Number(cb.value):cb.value); }
+function motSelectedAbs(){ return [...document.querySelectorAll('#mot-absoluteMetricToggles input:checked')].map(cb=>cb.value); }
+function motSelectedGrowth(){ return [...document.querySelectorAll('#mot-growthMetricToggles input:checked')].map(cb=>cb.value); }
+let motAbsChart=null, motGrowthChart=null;
+function motGetFiltered(){
+  const ys=motSelected('year'), hs=motSelected('holiday');
+  return motData.filter(d=>(ys.length===0||ys.includes(d.year))&&(hs.length===0||hs.includes(d.holiday_name)));
+}
+function motFmtCell(value, unit, url){
+  if(value===null||value===undefined) return '<span class="yoy neutral">—</span>';
+  const display = unit==='亿人次' ? fmtNum(value,2) : fmtNum(value,1);
+  const inner = `<div class="metric"><span class="metric-value">${display}</span><span class="metric-unit">${unit}</span></div>`;
+  return url ? `<a href="${url}" target="_blank">${inner}</a>` : inner;
+}
+function motRenderDailyBreakdown(d,idx){
+  return `<tr class="detail-row" id="mot-detail-${idx}" style="display:none;">
+    <td colspan="13">
+      <div class="detail-card">
+        <div class="detail-title">每日明细（交通运输部按日披露，点击数字可查看当日原文）</div>
+        <table class="detail-table">
+          <thead><tr><th>日期</th><th>全社会跨区域人员流动量</th><th>铁路</th><th>公路</th><th>水路</th><th>民航</th></tr></thead>
+          <tbody>
+            ${d.daily_breakdown.map(day=>`<tr>
+              <td>${fmtDateSlash(day.date)}</td>
+              <td><div class="daily-cell">${motFmtCell(day.total_flow,day.total_flow_unit,day.source_url)}${fmtYoySimple(day.total_flow_yoy)}</div></td>
+              <td><div class="daily-cell">${motFmtCell(day.railway,day.railway_unit,day.source_url)}${fmtYoySimple(day.railway_yoy)}</div></td>
+              <td><div class="daily-cell">${motFmtCell(day.highway,day.highway_unit,day.source_url)}${fmtYoySimple(day.highway_yoy)}</div></td>
+              <td><div class="daily-cell">${motFmtCell(day.waterway,day.waterway_unit,day.source_url)}${fmtYoySimple(day.waterway_yoy)}</div></td>
+              <td><div class="daily-cell">${motFmtCell(day.aviation,day.aviation_unit,day.source_url)}${fmtYoySimple(day.aviation_yoy)}</div></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </td>
+  </tr>`;
+}
+function motToggleDetail(idx,btn){
+  const row=document.getElementById('mot-detail-'+idx);
+  if(!row) return;
+  const show = row.style.display==='none';
+  row.style.display = show ? 'table-row' : 'none';
+  btn.textContent = show ? '收起每日' : '展开每日';
+}
+function motRender(){
+  const filtered=motGetFiltered();
+  document.getElementById('mot-count').textContent=`共 ${filtered.length} 条记录`;
+  const tb=document.getElementById('mot-tbody');
+  if(!filtered.length){ tb.innerHTML='<tr><td colspan="13" class="empty">没有符合条件的记录</td></tr>'; motRenderCharts(filtered); return; }
+  tb.innerHTML = filtered.map((d,idx)=>`<tr>
+    <td>${d.year||'—'}</td>
+    <td>${fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days,d.daily_breakdown?d.source_note:null)}${d.daily_breakdown?` <button class="expand-btn" onclick="motToggleDetail(${idx},this)">展开每日</button>`:''}</td>
+    <td>${fmtDateSlash(d.publish_date)||'—'}</td>
+    <td>${motFmtCell(d.total_flow,d.total_flow_unit,d.source_url)}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoySimple(d.total_flow_yoy)}${d.source_url?'</a>':''}</td>
+    <td>${motFmtCell(d.railway,d.railway_unit,d.source_url)}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoySimple(d.railway_yoy)}${d.source_url?'</a>':''}</td>
+    <td>${motFmtCell(d.highway,d.highway_unit,d.source_url)}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoySimple(d.highway_yoy)}${d.source_url?'</a>':''}</td>
+    <td>${motFmtCell(d.waterway,d.waterway_unit,d.source_url)}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoySimple(d.waterway_yoy)}${d.source_url?'</a>':''}</td>
+    <td>${motFmtCell(d.aviation,d.aviation_unit,d.source_url)}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoySimple(d.aviation_yoy)}${d.source_url?'</a>':''}</td>
+  </tr>${d.daily_breakdown?motRenderDailyBreakdown(d,idx):''}`).join('');
+  motRenderCharts(filtered);
+}
+function motRenderCharts(filtered){
+  if(!filtered) filtered=motGetFiltered();
+  const sorted=[...filtered].sort((a,b)=>{ if(a.year!==b.year) return a.year-b.year; return (a.holiday_start_date||'').localeCompare(b.holiday_start_date||''); });
+  const labels=sorted.map(d=>`${d.year} ${d.holiday_name}`);
+  motRenderAbsChart(sorted,labels);
+  motRenderGrowthChart(sorted,labels);
+}
+function motRenderAbsChart(sorted,labels){
+  const selected=motSelectedAbs();
+  const datasets=MOT_ABS_METRICS.filter(m=>selected.includes(m.key)).map(m=>({
+    label:`${m.label} (${m.unit})`, data:sorted.map(d=>d[m.key]), borderColor:m.color, backgroundColor:m.color, yAxisID:m.yAxis,
+    tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true
+  }));
+  const ctx=document.getElementById('mot-absoluteChart').getContext('2d');
+  const opts={
+    responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+    plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{label:ctx=>{ let l=ctx.dataset.label||''; if(l)l+=': '; if(ctx.parsed.y!==null&&ctx.parsed.y!==undefined)l+=ctx.parsed.y; else l+='—'; return l; }}}},
+    onClick:(e,elements)=>{ if(!elements||!elements.length)return; const d=sorted[elements[0].index]; if(d&&d.source_url)window.open(d.source_url,'_blank'); },
+    scales:{
+      y:{type:'linear',display:selected.some(k=>MOT_ABS_METRICS.find(m=>m.key===k)?.yAxis==='y'),position:'left',title:{display:true,text:'万人次'},grid:{color:'#f3f4f6'}},
+      y1:{type:'linear',display:selected.some(k=>MOT_ABS_METRICS.find(m=>m.key===k)?.yAxis==='y1'),position:'right',title:{display:true,text:'亿人次'},grid:{drawOnChartArea:false}},
+      x:{grid:{display:false}}
+    }
+  };
+  if(motAbsChart){ motAbsChart.data.labels=labels; motAbsChart.data.datasets=datasets; motAbsChart.update(); return; }
+  motAbsChart=new Chart(ctx,{type:'line', data:{labels,datasets}, options:opts});
+}
+function motRenderGrowthChart(sorted,labels){
+  const selected=motSelectedGrowth();
+  const datasets=MOT_GROWTH_METRICS.filter(m=>selected.includes(m.key)).map(m=>({
+    label:m.label, data:sorted.map(d=>d[m.key]), borderColor:m.color, backgroundColor:m.color,
+    tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true
+  }));
+  const ctx=document.getElementById('mot-growthChart').getContext('2d');
+  const opts={
+    responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+    plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{label:ctx=>{ let l=ctx.dataset.label||''; if(l)l+=': '; if(ctx.parsed.y!==null&&ctx.parsed.y!==undefined)l+=ctx.parsed.y+'%'; else l+='—'; return l; }}}},
+    onClick:(e,elements)=>{ if(!elements||!elements.length)return; const d=sorted[elements[0].index]; if(d&&d.source_url)window.open(d.source_url,'_blank'); },
+    scales:{y:{type:'linear',display:true,position:'left',title:{display:true,text:'同比（%）'},grid:{color:'#f3f4f6'},ticks:{callback:v=>v+'%'}}, x:{grid:{display:false}}}
+  };
+  if(motGrowthChart){ motGrowthChart.data.labels=labels; motGrowthChart.data.datasets=datasets; motGrowthChart.update(); return; }
+  motGrowthChart=new Chart(ctx,{type:'line', data:{labels,datasets}, options:opts});
+}
+
+function latestUpdate(records, dateKey='publish_date'){
+  if(!records||!records.length) return '暂无数据';
+  const sorted=[...records].sort((a,b)=>{
+    const da=a[dateKey]||'', db=b[dateKey]||'';
+    return db.localeCompare(da);
+  });
+  const d=sorted[0];
+  const date=fmtDateSlash(d[dateKey])||'—';
+  return `${date}（${d.holiday_name||'—'}）`;
+}
+
+mctRenderFilters(); mctRender();
+motRenderFilters(); motRender();
+
+document.getElementById('home-mct-status').textContent = '文旅部数据更新至 ' + latestUpdate(mctData2);
+document.getElementById('home-mot-status').textContent = '交通部数据更新至 ' + latestUpdate(motData);
+document.getElementById('mct-last-update').textContent = '本页数据更新至：' + latestUpdate(mctData2);
+document.getElementById('mot-last-update').textContent = '本页数据更新至：' + latestUpdate(motData);
+</script>
+</body>
+</html>
