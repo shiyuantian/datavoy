@@ -1,5 +1,6 @@
 name: Deploy static content to Pages
 
+# Trigger deployment on pushes to main or manually.
 on:
   push:
     branches: ["main"]
