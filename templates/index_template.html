@@ -151,6 +151,7 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
       <div class="tab active" data-tab="home" onclick="switchTab('home')">首页</div>
       <div class="tab" data-tab="mct" onclick="switchTab('mct')">文旅部</div>
       <div class="tab" data-tab="mot" onclick="switchTab('mot')">交通部</div>
+      <div class="tab" data-tab="nia" onclick="switchTab('nia')">移民局</div>
     </div>
   </div>
 </header>
@@ -213,6 +214,13 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
           </div>
           <div class="module-desc">全社会跨区域人员流动量及铁路、公路、水路、民航客运量，聚焦节假日综合交通出行。</div>
         </div>
+        <div class="module-item" onclick="switchTab('nia')">
+          <div class="module-header">
+            <div class="module-icon"><svg><use href="#icon-users"></use></svg></div>
+            <div class="module-title">移民局 · 出入境数据</div>
+          </div>
+          <div class="module-desc">国家移民管理局披露的中外人员、内地居民、港澳台居民、外国人及免签外国人人次与同比。</div>
+        </div>
       </div>
     </section>
     <section class="card status-card">
@@ -220,6 +228,7 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
       <div class="status-list">
         <div class="status-item"><span class="status-dot green"></span><span id="home-mct-status">文旅部数据更新至 …</span></div>
         <div class="status-item"><span class="status-dot green"></span><span id="home-mot-status">交通部数据更新至 …</span></div>
+        <div class="status-item"><span class="status-dot green"></span><span id="home-nia-status">移民局数据更新至 …</span></div>
       </div>
     </section>
     <section class="card subscribe-card">
@@ -371,6 +380,54 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
       <p id="mot-last-update" class="source-note" style="margin-top:10px;"></p>
     </section>
   </section>
+
+  <!-- NIA Panel -->
+  <section class="tab-panel" id="panel-nia">
+    <section class="hero" id="data-nia">
+      <h1>移民局 · 出入境数据</h1>
+      <p>汇总国家移民管理局官方披露的全国出入境人员数据，覆盖年度/半年度/季度汇总与主要节假日，每条数据均可追溯原文出处。</p>
+    </section>
+    <section class="card">
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>年份（多选）</label>
+          <div class="filter-options" id="nia-yearFilters"></div>
+        </div>
+        <div class="filter-group">
+          <label>时期（多选）</label>
+          <div class="filter-options" id="nia-periodFilters"></div>
+        </div>
+        <div class="filter-group" style="justify-content:flex-end;flex:0;">
+          <label>&nbsp;</label>
+          <div><button class="btn" onclick="niaSelectAll(true)">全选</button> <button class="btn" onclick="niaSelectAll(false)">清空</button></div>
+        </div>
+      </div>
+    </section>
+    <div class="count" id="nia-count"></div>
+    <table>
+      <thead>
+        <tr>
+          <th>年份</th><th>时期</th><th>发布日期</th>
+          <th>中外人员</th><th>内地居民</th><th>港澳台居民</th><th>外国人</th><th>免签外国人</th>
+        </tr>
+      </thead>
+      <tbody id="nia-tbody"></tbody>
+    </table>
+    <section class="card" style="margin-top:28px;">
+      <div class="chart-header">
+        <div><div class="chart-title">出入境总人次趋势</div><div class="chart-subtitle">统一折算为万人次，便于跨年对比</div></div>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="nia-totalChart"></canvas></div>
+    </section>
+    <section class="card" style="margin-top:20px;">
+      <div class="chart-title" style="margin-bottom:10px;">数据说明</div>
+      <p style="margin:0;font-size:13px;color:var(--muted);line-height:1.7;">
+        数据来源于<a href="https://www.nia.gov.cn/n741440/n741567/index.html" target="_blank" style="color:var(--primary);">国家移民管理局</a>统计数据栏目。
+        中外人员、内地居民、港澳台居民常以“亿人次”披露，外国人、免签外国人常以“万人次”披露，表格中保留原始单位；点击数字可跳转原文。
+      </p>
+      <p id="nia-last-update" class="source-note" style="margin-top:10px;"></p>
+    </section>
+  </section>
 </main>
 <footer>
   Datavoy · 旅数参考
@@ -378,6 +435,7 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
 <script>
 const mctData = {mct_data_json};
 const motData = {mot_data_json};
+const niaData = {nia_data_json};
 
 function switchTab(tab){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
@@ -636,6 +694,75 @@ function motRenderGrowthChart(sorted,labels){
   motGrowthChart=new Chart(ctx,{type:'line', data:{labels,datasets}, options:opts});
 }
 
+// ---------- NIA ----------
+const NIA_PERIOD_ORDER = {
+  '全年':1, '上半年':2, '下半年':3, '一季度':4, '二季度':5, '三季度':6, '四季度':7,
+  '元旦':8, '春节':9, '清明':10, '五一':11, '端午':12, '国庆中秋':13, '国庆':14, '中秋':15
+};
+function niaPeriodSortKey(period){ return NIA_PERIOD_ORDER[period] || 99; }
+function niaRenderFilters(){
+  const years = [...new Set(niaData.map(d=>d.year))].filter(Boolean).sort((a,b)=>b-a);
+  const periods = [...new Set(niaData.map(d=>d.period_name))].filter(Boolean).sort((a,b)=>niaPeriodSortKey(a)-niaPeriodSortKey(b));
+  document.getElementById('nia-yearFilters').innerHTML = years.map(y=>`<label class="filter-chip active" data-type="year"><input type="checkbox" value="${y}" checked onchange="niaToggle(this)"> ${y}</label>`).join('');
+  document.getElementById('nia-periodFilters').innerHTML = periods.map(p=>`<label class="filter-chip active" data-type="period"><input type="checkbox" value="${p}" checked onchange="niaToggle(this)"> ${p}</label>`).join('');
+}
+function niaToggle(cb){ cb.parentElement.classList.toggle('active', cb.checked); niaRender(); }
+function niaSelectAll(checked){ document.querySelectorAll('#panel-nia .filter-chip input').forEach(cb=>{cb.checked=checked; cb.parentElement.classList.toggle('active',checked);}); niaRender(); }
+function niaSelected(type){ return [...document.querySelectorAll(`#panel-nia .filter-chip[data-type="${type}"] input:checked`)].map(cb=>type==='year'?Number(cb.value):cb.value); }
+let niaTotalChart=null;
+function niaGetFiltered(){
+  const ys=niaSelected('year'), ps=niaSelected('period');
+  return niaData.filter(d=>(ys.length===0||ys.includes(d.year))&&(ps.length===0||ps.includes(d.period_name)));
+}
+function niaFmtValue(value, unit){
+  if(value===null||value===undefined) return '—';
+  const fixed = Number.isInteger(Number(value)) ? 0 : (unit==='亿人次'?2:1);
+  return Number(value).toLocaleString('zh-CN',{minimumFractionDigits:fixed,maximumFractionDigits:fixed}) + (unit||'');
+}
+function niaFmtCell(value, unit, yoy, url){
+  if((value===null||value===undefined) && (yoy===null||yoy===undefined)) return '<span class="yoy neutral">—</span>';
+  const display = niaFmtValue(value, unit);
+  const inner = `<div class="metric"><span class="metric-value">${display}</span></div>`;
+  const yoyHtml = fmtYoySimple(yoy);
+  if(url) return `<a href="${url}" target="_blank">${inner}${yoyHtml}</a>`;
+  return inner + yoyHtml;
+}
+function niaRender(){
+  const filtered=niaGetFiltered();
+  document.getElementById('nia-count').textContent=`共 ${filtered.length} 条记录`;
+  const tb=document.getElementById('nia-tbody');
+  if(!filtered.length){ tb.innerHTML='<tr><td colspan="8" class="empty">没有符合条件的记录</td></tr>'; niaRenderChart(filtered); return; }
+  tb.innerHTML = filtered.map(d=>`<tr>
+    <td>${d.year||'—'}</td>
+    <td><span class="tag">${d.period_name||'—'}</span></td>
+    <td>${fmtDateSlash(d.publish_date)||'—'}</td>
+    <td>${niaFmtCell(d.total_count, d.total_unit, d.total_yoy, d.source_url)}</td>
+    <td>${niaFmtCell(d.mainland_count, d.mainland_unit, d.mainland_yoy, d.source_url)}</td>
+    <td>${niaFmtCell(d.hk_tw_mo_count, d.hk_tw_mo_unit, d.hk_tw_mo_yoy, d.source_url)}</td>
+    <td>${niaFmtCell(d.foreign_count, d.foreign_unit, d.foreign_yoy, d.source_url)}</td>
+    <td>${niaFmtCell(d.visa_free_count, d.visa_free_unit, d.visa_free_yoy, d.source_url)}</td>
+  </tr>`).join('');
+  niaRenderChart(filtered);
+}
+function niaToWan(value, unit){
+  if(value===null||value===undefined) return null;
+  if(unit==='亿') return value * 10000;
+  return value;
+}
+function niaRenderChart(filtered){
+  const sorted=[...filtered].sort((a,b)=>{
+    if(a.year!==b.year) return a.year-b.year;
+    return (a.period_order||99)-(b.period_order||99);
+  });
+  const labels=sorted.map(d=>`${d.year} ${d.period_name}`);
+  const data=sorted.map(d=>niaToWan(d.total_count, d.total_unit));
+  const ctx=document.getElementById('nia-totalChart').getContext('2d');
+  const datasets=[{label:'中外人员（万人次）', data, borderColor:'#0e7490', backgroundColor:'#0e7490', tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true}];
+  const opts={ responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false}, plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>{ let l=ctx.dataset.label||''; if(l)l+=': '; if(ctx.parsed.y!==null&&ctx.parsed.y!==undefined)l+=ctx.parsed.y.toLocaleString('zh-CN'); else l+='—'; return l; }}}}, scales:{y:{type:'linear',display:true,title:{display:true,text:'万人次'},grid:{color:'#f3f4f6'}}, x:{grid:{display:false}}} };
+  if(niaTotalChart){ niaTotalChart.data.labels=labels; niaTotalChart.data.datasets=datasets; niaTotalChart.update(); return; }
+  niaTotalChart=new Chart(ctx,{type:'line', data:{labels,datasets}, options:opts});
+}
+
 function latestUpdate(records, dateKey='publish_date'){
   if(!records||!records.length) return '暂无数据';
   const sorted=[...records].sort((a,b)=>{
@@ -644,16 +771,20 @@ function latestUpdate(records, dateKey='publish_date'){
   });
   const d=sorted[0];
   const date=fmtDateSlash(d[dateKey])||'—';
-  return `${date}（${d.holiday_name||'—'}）`;
+  const label=d.holiday_name||d.period_name||'—';
+  return `${date}（${label}）`;
 }
 
 mctRenderFilters(); mctRender();
 motRenderFilters(); motRender();
+niaRenderFilters(); niaRender();
 
 document.getElementById('home-mct-status').textContent = '文旅部数据更新至 ' + latestUpdate(mctData2);
 document.getElementById('home-mot-status').textContent = '交通部数据更新至 ' + latestUpdate(motData);
+document.getElementById('home-nia-status').textContent = '移民局数据更新至 ' + latestUpdate(niaData);
 document.getElementById('mct-last-update').textContent = '本页数据更新至：' + latestUpdate(mctData2);
 document.getElementById('mot-last-update').textContent = '本页数据更新至：' + latestUpdate(motData);
+document.getElementById('nia-last-update').textContent = '本页数据更新至：' + latestUpdate(niaData);
 
 // ---------- Subscribe ----------
 document.getElementById('subscribe-form').addEventListener('submit', async function(e){
