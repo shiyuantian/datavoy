@@ -39,7 +39,7 @@ main { max-width:1200px; margin:0 auto; padding:28px 24px; position:relative; z-
 .btn:hover { background:#f3f4f6; }
 .count { margin-bottom:12px; font-size:13px; color:var(--muted); }
 table { width:100%; border-collapse:collapse; background:var(--card); border-radius:16px; overflow:hidden; box-shadow:var(--shadow); border:1px solid rgba(226,232,240,.7); }
-th,td { padding:12px 14px; text-align:left; font-size:13px; border-bottom:1px solid #f1f5f9; }
+th,td { padding:12px 14px; text-align:left; font-size:13px; border-bottom:1px solid #f1f5f9; white-space:nowrap; }
 th { background:#f8fafc; font-weight:600; color:#374151; }
 tbody tr:hover { background:#f8fafc; }
 .metric { display:flex; flex-direction:column; gap:2px; }
@@ -81,46 +81,47 @@ a:hover { color:var(--primary); text-decoration:underline; }
 
 /* Mobile */
 @media (max-width: 768px) {
-  header { padding:10px 14px; }
+  header { padding:10px 12px; }
   .nav { flex-wrap:nowrap; gap:8px; }
-  .brand { font-size:16px; }
-  .brand-icon { width:30px; height:30px; }
-  .brand-icon svg { width:18px; height:18px; }
+  .brand { font-size:15px; }
+  .brand-icon { width:28px; height:28px; }
+  .brand-icon svg { width:16px; height:16px; }
   .tabs { flex:1; min-width:0; overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch; gap:6px; padding-bottom:4px; scrollbar-width:none; }
   .tabs::-webkit-scrollbar { display:none; }
-  .tab { white-space:nowrap; padding:8px 12px; font-size:14px; }
-  main { padding:16px; }
-  .hero-scene { padding:48px 18px 60px; border-radius:18px; }
-  .hero-scene h1 { font-size:32px; }
-  .hero-scene .subtitle { font-size:16px; }
-  .hero-scene .lead { font-size:14px; }
-  .hero h1 { font-size:22px; }
-  .hero p { font-size:14px; }
-  .card { padding:14px; border-radius:14px; }
-  .filter-bar { flex-direction:column; gap:16px; }
+  .tab { white-space:nowrap; padding:7px 10px; font-size:13px; }
+  main { padding:8px; }
+  .hero-scene { padding:44px 16px 56px; border-radius:16px; }
+  .hero-scene h1 { font-size:30px; }
+  .hero-scene .subtitle { font-size:15px; }
+  .hero-scene .lead { font-size:13px; }
+  .hero h1 { font-size:20px; }
+  .hero p { font-size:13px; }
+  .card { padding:10px; border-radius:12px; }
+  .table-wrap { margin:0 -8px 16px; border-radius:0; }
+  .filter-bar { flex-direction:column; gap:12px; }
   .filter-group label { font-size:14px; }
   .filter-chip { padding:8px 14px; font-size:14px; }
   .btn { padding:8px 14px; font-size:13px; }
-  .chart-canvas-wrap { height:340px; }
+  .chart-canvas-wrap { height:360px; }
   .chart-title { font-size:15px; }
   .chart-subtitle { font-size:12px; }
-  .chart-header { flex-direction:column; align-items:flex-start; gap:10px; }
-  .metric-toggle { gap:10px; }
+  .chart-header { flex-direction:column; align-items:flex-start; gap:8px; }
+  .metric-toggle { gap:8px; }
   .metric-toggle label { font-size:13px; }
-  th,td { padding:12px 10px; font-size:13px; }
-  .module-item { padding:16px; }
+  th,td { padding:12px 14px; font-size:14px; }
+  .module-item { padding:14px; }
   .values-grid { grid-template-columns:1fr; }
   .modules-grid { grid-template-columns:1fr; }
   .subscribe-row { flex-direction:column; align-items:stretch; }
   .subscribe-form .field { min-width:100%; }
-  footer { padding:0 16px 32px; }
+  footer { padding:0 8px 24px; }
 }
 @media (max-width: 480px) {
-  .hero-scene h1 { font-size:28px; }
-  .brand-wordmark { font-size:18px; }
-  .section-title { font-size:16px; }
-  .chart-canvas-wrap { height:300px; }
-  .tab { padding:7px 10px; font-size:13px; }
+  .hero-scene h1 { font-size:26px; }
+  .brand-wordmark { font-size:17px; }
+  .section-title { font-size:15px; }
+  .chart-canvas-wrap { height:320px; }
+  .tab { padding:6px 9px; font-size:12px; }
 }
 
 /* Scenic hero */
@@ -398,7 +399,7 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
         <thead>
           <tr>
             <th>年份</th><th>节假日</th><th>发布日期</th>
-            <th>全社会跨区域<br>人员流动量</th><th>同比</th>
+            <th>全社会跨区域人员流动量</th><th>同比</th>
             <th>铁路</th><th>同比</th>
             <th>公路</th><th>同比</th>
             <th>水路</th><th>同比</th>
