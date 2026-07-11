@@ -117,8 +117,9 @@ a:hover { color:var(--primary); text-decoration:underline; }
   .module-item { padding:14px; }
   .values-grid { grid-template-columns:1fr; }
   .modules-grid { grid-template-columns:1fr; }
-  .subscribe-row { flex-direction:column; align-items:stretch; }
-  .subscribe-form .field { min-width:100%; }
+  .subscribe-row { display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; align-items:end; }
+  .subscribe-form .field { min-width:0; }
+  .subscribe-form button { grid-column:span 2; width:100%; }
   footer { padding:0 8px 24px; }
 }
 @media (max-width: 480px) {
@@ -127,6 +128,8 @@ a:hover { color:var(--primary); text-decoration:underline; }
   .section-title { font-size:15px; }
   .chart-canvas-wrap { height:320px; }
   .tab { padding:6px 9px; font-size:12px; }
+  .subscribe-row { grid-template-columns:1fr; }
+  .subscribe-form button { grid-column:span 1; }
 }
 
 /* Scenic hero */
