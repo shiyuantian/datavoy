@@ -110,6 +110,28 @@ export default {
       return htmlResponse('已退订', `<h1>已退订</h1><p>你不会再收到 Datavoy 的数据更新邮件。</p><p><a href="/datavoy/">返回网站</a></p>`);
     }
 
+    // API: subscribers (admin)
+    if (pathname === '/api/subscribers' && request.method === 'GET') {
+      const auth = request.headers.get('Authorization') || '';
+      if (auth !== `Bearer ${env.NOTIFY_SECRET}`) {
+        return jsonResponse({ error: 'Unauthorized' }, 401);
+      }
+      try {
+        const list = await env.SUBSCRIBERS.list({ prefix: 'email:' });
+        const subscribers = [];
+        for (const key of list.keys) {
+          const raw = await env.SUBSCRIBERS.get(key.name);
+          if (raw) subscribers.push(JSON.parse(raw));
+        }
+        const confirmed = subscribers.filter(s => s.status === 'confirmed').length;
+        const pending = subscribers.filter(s => s.status === 'pending').length;
+        const unsubscribed = subscribers.filter(s => s.status === 'unsubscribed').length;
+        return jsonResponse({ total: subscribers.length, confirmed, pending, unsubscribed, subscribers });
+      } catch (e) {
+        return jsonResponse({ error: e.message }, 500);
+      }
+    }
+
     // API: notify (admin)
     if (pathname === '/api/notify' && request.method === 'POST') {
       const auth = request.headers.get('Authorization') || '';
