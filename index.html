@@ -76,6 +76,43 @@ a:hover { color:var(--primary); text-decoration:underline; }
 .detail-table th { background:#f8fafc; font-weight:600; color:#6b7280; }
 .detail-table tr:last-child td { border-bottom:none; }
 .daily-cell { display:flex; flex-direction:column; gap:2px; align-items:flex-start; }
+.table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:16px; box-shadow:var(--shadow); margin-bottom:20px; }
+.table-wrap table { margin-bottom:0; box-shadow:none; border-radius:0; }
+
+/* Mobile */
+@media (max-width: 768px) {
+  header { padding:10px 16px; }
+  .nav { flex-direction:column; align-items:flex-start; gap:10px; }
+  .tabs { width:100%; overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch; gap:6px; padding-bottom:4px; }
+  .tab { white-space:nowrap; padding:6px 12px; font-size:13px; }
+  main { padding:20px 16px; }
+  .hero-scene { padding:52px 20px 68px; border-radius:20px; }
+  .hero-scene h1 { font-size:32px; }
+  .hero-scene .subtitle { font-size:16px; }
+  .hero-scene .lead { font-size:14px; }
+  .hero h1 { font-size:22px; }
+  .hero p { font-size:14px; }
+  .card { padding:16px; border-radius:14px; }
+  .filter-bar { flex-direction:column; gap:16px; }
+  .filter-group { min-width:100%; }
+  .chart-canvas-wrap { height:260px; }
+  .chart-header { flex-direction:column; align-items:flex-start; }
+  .metric-toggle { gap:10px; }
+  .metric-toggle label { font-size:12px; }
+  th,td { padding:10px 8px; font-size:12px; }
+  .module-item { padding:18px; }
+  .values-grid { grid-template-columns:1fr; }
+  .modules-grid { grid-template-columns:1fr; }
+  .subscribe-row { flex-direction:column; align-items:stretch; }
+  .subscribe-form .field { min-width:100%; }
+  footer { padding:0 16px 32px; }
+}
+@media (max-width: 480px) {
+  .hero-scene h1 { font-size:28px; }
+  .brand-wordmark { font-size:18px; }
+  .section-title { font-size:16px; }
+  .chart-canvas-wrap { height:220px; }
+}
 
 /* Scenic hero */
 .hero-scene { position:relative; border-radius:24px; padding:76px 24px 92px; text-align:center; overflow:hidden; background:linear-gradient(135deg,#ecfeff 0%,#cffafe 55%,#99f6e4 100%); border:1px solid rgba(255,255,255,.7); box-shadow:var(--shadow); margin-bottom:28px; }
@@ -293,12 +330,14 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
       </div>
     </section>
     <div class="count" id="mct-count"></div>
-    <table>
-      <thead>
-        <tr><th>年份</th><th>节假日</th><th>发布日期</th><th>国内出游人次</th><th>同比</th><th>国内出游总花费</th><th>同比</th></tr>
-      </thead>
-      <tbody id="mct-tbody"></tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>年份</th><th>节假日</th><th>发布日期</th><th>国内出游人次</th><th>同比</th><th>国内出游总花费</th><th>同比</th></tr>
+        </thead>
+        <tbody id="mct-tbody"></tbody>
+      </table>
+    </div>
     <section class="card" id="charts-mct" style="margin-top:28px;">
       <div class="chart-header">
         <div><div class="chart-title">绝对值趋势</div><div class="chart-subtitle">出游人次（亿人次）与出游总花费（亿元）</div></div>
@@ -345,19 +384,21 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
       </div>
     </section>
     <div class="count" id="mot-count"></div>
-    <table>
-      <thead>
-        <tr>
-          <th>年份</th><th>节假日</th><th>发布日期</th>
-          <th>全社会跨区域<br>人员流动量</th><th>同比</th>
-          <th>铁路</th><th>同比</th>
-          <th>公路</th><th>同比</th>
-          <th>水路</th><th>同比</th>
-          <th>民航</th><th>同比</th>
-        </tr>
-      </thead>
-      <tbody id="mot-tbody"></tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>年份</th><th>节假日</th><th>发布日期</th>
+            <th>全社会跨区域<br>人员流动量</th><th>同比</th>
+            <th>铁路</th><th>同比</th>
+            <th>公路</th><th>同比</th>
+            <th>水路</th><th>同比</th>
+            <th>民航</th><th>同比</th>
+          </tr>
+        </thead>
+        <tbody id="mot-tbody"></tbody>
+      </table>
+    </div>
     <section class="card" style="margin-top:28px;">
       <div class="chart-header">
         <div><div class="chart-title">客运量绝对值趋势</div><div class="chart-subtitle">各运输方式客运量（万人次）</div></div>
@@ -404,15 +445,17 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
       </div>
     </section>
     <div class="count" id="nia-count"></div>
-    <table>
-      <thead>
-        <tr>
-          <th>年份</th><th>时期</th><th>发布日期</th>
-          <th>中外人员</th><th>内地居民</th><th>港澳台居民</th><th>外国人</th><th>免签外国人</th>
-        </tr>
-      </thead>
-      <tbody id="nia-tbody"></tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>年份</th><th>时期</th><th>发布日期</th>
+            <th>中外人员</th><th>内地居民</th><th>港澳台居民</th><th>外国人</th><th>免签外国人</th>
+          </tr>
+        </thead>
+        <tbody id="nia-tbody"></tbody>
+      </table>
+    </div>
     <section class="card" style="margin-top:28px;">
       <div class="chart-header">
         <div><div class="chart-title">出入境人次趋势</div><div class="chart-subtitle">统一折算为万人次，支持分维度对比</div></div>
