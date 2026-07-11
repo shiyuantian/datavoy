@@ -473,7 +473,11 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
         <thead>
           <tr>
             <th data-i18n="nia_table_year">年份</th><th data-i18n="nia_table_period">时期</th><th data-i18n="nia_table_publish">发布日期</th>
-            <th data-i18n="nia_table_total">中外人员</th><th data-i18n="nia_table_mainland">内地居民</th><th data-i18n="nia_table_hktwmo">港澳台居民</th><th data-i18n="nia_table_foreign">外国人</th><th data-i18n="nia_table_visafree">免签外国人</th>
+            <th data-i18n="nia_table_total">中外人员</th><th data-i18n="nia_table_total_yoy">同比</th>
+            <th data-i18n="nia_table_mainland">内地居民</th><th data-i18n="nia_table_mainland_yoy">同比</th>
+            <th data-i18n="nia_table_hktwmo">港澳台居民</th><th data-i18n="nia_table_hktwmo_yoy">同比</th>
+            <th data-i18n="nia_table_foreign">外国人</th><th data-i18n="nia_table_foreign_yoy">同比</th>
+            <th data-i18n="nia_table_visafree">免签外国人</th><th data-i18n="nia_table_visafree_yoy">同比</th>
           </tr>
         </thead>
         <tbody id="nia-tbody"></tbody>
@@ -502,7 +506,7 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
     </section>
   </section>
 </main>
-<footer>
+<footer data-i18n="footer">
   Datavoy · 旅数参考
 </footer>
 <script>
@@ -569,7 +573,11 @@ const I18N = {
     nia_filter_year: '年份（多选）', nia_filter_period: '时期（多选）',
     nia_select_all: '全选', nia_clear: '清空',
     nia_table_year: '年份', nia_table_period: '时期', nia_table_publish: '发布日期',
-    nia_table_total: '中外人员', nia_table_mainland: '内地居民', nia_table_hktwmo: '港澳台居民', nia_table_foreign: '外国人', nia_table_visafree: '免签外国人',
+    nia_table_total: '中外人员', nia_table_total_yoy: '同比',
+    nia_table_mainland: '内地居民', nia_table_mainland_yoy: '同比',
+    nia_table_hktwmo: '港澳台居民', nia_table_hktwmo_yoy: '同比',
+    nia_table_foreign: '外国人', nia_table_foreign_yoy: '同比',
+    nia_table_visafree: '免签外国人', nia_table_visafree_yoy: '同比',
     nia_chart_abs_title: '出入境人次趋势', nia_chart_abs_subtitle: '统一折算为万人次，支持分维度对比',
     nia_chart_growth_title: '同比增速趋势', nia_chart_growth_subtitle: '单位：%',
     nia_note_title: '数据说明',
@@ -577,7 +585,8 @@ const I18N = {
     status_prefix: '更新至', latest_update_prefix: '本页数据更新至：', record_count: '共 {0} 条记录',
     no_records: '没有符合条件的记录', total_flow_unit: '亿人次', trips_unit: '亿人次', spending_unit: '亿元',
     metric_total: '中外人员', metric_mainland: '内地居民', metric_hktwmo: '港澳台居民', metric_foreign: '外国人', metric_visafree: '免签外国人',
-    yoy_daily: '（日均）', days_meta: '共{0}天'
+    yoy_daily: '（日均）', days_meta: '共{0}天',
+    footer: 'Datavoy · 旅数参考'
   },
   en: {
     nav_home: 'Home', nav_mct: 'MCT', nav_mot: 'MOT', nav_nia: 'NIA',
@@ -585,12 +594,12 @@ const I18N = {
     home_why_title: 'Why we built this',
     home_why_text: 'Travel industry data is scattered across many official sources — MCT, MOT, NIA, CAAC, railway bureaus, and more. We collect, standardize, and cite these public datasets so you don\'t have to hunt through multiple websites.',
     home_values_title: 'What we stand for',
-    value_quality_title: 'Quality · 准确',
+    value_quality_title: 'Quality · Accuracy',
     value_quality_desc: 'Every data point is sourced from official public disclosures, with original references attached so accuracy can be verified and cited.',
-    value_convenience_title: 'Convenience · 便捷',
+    value_convenience_title: 'Convenience · Efficiency',
     value_convenience_desc: 'Unified metrics, visualizations, and multi-dimensional filters minimize the time you spend searching and cleaning data.',
-    value_community_title: 'Community · 共创',
-    value_community_desc: 'We connect travel professionals to build an evolving industry data map. Your feedback, tips, and suggestions make the tool better for everyone.',
+    value_community_title: 'Community · Collaboration',
+    value_community_desc: 'We connect travel professionals to build an evolving industry data map. Your feedback, tips, and suggestions make the tool better for everyone.', 
     home_modules_title: 'Live Modules',
     module_mct_title: 'MCT · Domestic Holiday Travel',
     module_mct_desc: 'Domestic trips, tourism revenue, and YoY growth for major holidays including Spring Festival, Qingming, Labour Day, Dragon Boat Festival, National Day & Mid-Autumn, and New Year.',
@@ -637,7 +646,11 @@ const I18N = {
     nia_filter_year: 'Year (multi-select)', nia_filter_period: 'Period (multi-select)',
     nia_select_all: 'Select all', nia_clear: 'Clear',
     nia_table_year: 'Year', nia_table_period: 'Period', nia_table_publish: 'Published',
-    nia_table_total: 'Total', nia_table_mainland: 'Mainland', nia_table_hktwmo: 'HK/TW/MO', nia_table_foreign: 'Foreigners', nia_table_visafree: 'Visa-free',
+    nia_table_total: 'Total', nia_table_total_yoy: 'YoY',
+    nia_table_mainland: 'Mainland', nia_table_mainland_yoy: 'YoY',
+    nia_table_hktwmo: 'HK/TW/MO', nia_table_hktwmo_yoy: 'YoY',
+    nia_table_foreign: 'Foreigners', nia_table_foreign_yoy: 'YoY',
+    nia_table_visafree: 'Visa-free', nia_table_visafree_yoy: 'YoY',
     nia_chart_abs_title: 'Entry & Exit Trips Trend', nia_chart_abs_subtitle: 'Normalized to 10,000 person-trips for cross-period comparison',
     nia_chart_growth_title: 'YoY Growth Trend', nia_chart_growth_subtitle: 'Unit: %',
     nia_note_title: 'Data Notes',
@@ -645,7 +658,8 @@ const I18N = {
     status_prefix: 'Updated through', latest_update_prefix: 'This page is updated through: ', record_count: '{0} records',
     no_records: 'No matching records', total_flow_unit: '100M trips', trips_unit: '100M trips', spending_unit: '100M CNY',
     metric_total: 'Total', metric_mainland: 'Mainland', metric_hktwmo: 'HK/TW/MO', metric_foreign: 'Foreigners', metric_visafree: 'Visa-free',
-    yoy_daily: ' (daily avg)', days_meta: '{0} days'
+    yoy_daily: ' (daily avg)', days_meta: '{0} days',
+    footer: 'Datavoy · Travel Data Reference'
   }
 };
 
@@ -1019,29 +1033,36 @@ function niaFmtValue(value, unit){
   const unitText = unit==='亿' ? t('yi_unit') : (unit==='万' ? t('wan_unit') : (unit||''));
   return Number(value).toLocaleString('zh-CN',{minimumFractionDigits:0,maximumFractionDigits:maxFixed}) + unitText;
 }
-function niaFmtCell(value, unit, yoy, url){
-  if((value===null||value===undefined) && (yoy===null||yoy===undefined)) return '<span class="yoy neutral">—</span>';
-  const display = value!==null&&value!==undefined ? niaFmtValue(value, unit) : '';
-  const yoyHtml = fmtYoySimple(yoy);
-  const inner = display ? `<span class="metric-value">${display}</span>` : '';
-  const content = display && yoyHtml ? `${inner} ${yoyHtml}` : (inner || yoyHtml);
-  if(url) return `<a href="${url}" target="_blank">${content}</a>`;
-  return content;
+function niaFmtCount(value, unit, url){
+  if(value===null||value===undefined) return '<span class="yoy neutral">—</span>';
+  const display = `<span class="metric-value">${niaFmtValue(value, unit)}</span>`;
+  if(url) return `<a href="${url}" target="_blank">${display}</a>`;
+  return display;
+}
+function niaFmtYoyCell(yoy, url){
+  const html = fmtYoySimple(yoy);
+  if(url) return `<a href="${url}" target="_blank">${html}</a>`;
+  return html;
 }
 function niaRender(){
   const filtered=niaGetFiltered();
   document.getElementById('nia-count').textContent=t('record_count', filtered.length);
   const tb=document.getElementById('nia-tbody');
-  if(!filtered.length){ tb.innerHTML=`<tr><td colspan="8" class="empty">${t('no_records')}</td></tr>`; niaRenderCharts(filtered); return; }
+  if(!filtered.length){ tb.innerHTML=`<tr><td colspan="13" class="empty">${t('no_records')}</td></tr>`; niaRenderCharts(filtered); return; }
   tb.innerHTML = filtered.map(d=>`<tr>
     <td>${d.year||'—'}</td>
     <td><span class="tag">${translatePeriod(d.period_name)||'—'}</span></td>
     <td>${fmtDateSlash(d.publish_date)||'—'}</td>
-    <td>${niaFmtCell(d.total_count, d.total_unit, d.total_yoy, d.source_url)}</td>
-    <td>${niaFmtCell(d.mainland_count, d.mainland_unit, d.mainland_yoy, d.source_url)}</td>
-    <td>${niaFmtCell(d.hk_tw_mo_count, d.hk_tw_mo_unit, d.hk_tw_mo_yoy, d.source_url)}</td>
-    <td>${niaFmtCell(d.foreign_count, d.foreign_unit, d.foreign_yoy, d.source_url)}</td>
-    <td>${niaFmtCell(d.visa_free_count, d.visa_free_unit, d.visa_free_yoy, d.source_url)}</td>
+    <td>${niaFmtCount(d.total_count, d.total_unit, d.source_url)}</td>
+    <td>${niaFmtYoyCell(d.total_yoy, d.source_url)}</td>
+    <td>${niaFmtCount(d.mainland_count, d.mainland_unit, d.source_url)}</td>
+    <td>${niaFmtYoyCell(d.mainland_yoy, d.source_url)}</td>
+    <td>${niaFmtCount(d.hk_tw_mo_count, d.hk_tw_mo_unit, d.source_url)}</td>
+    <td>${niaFmtYoyCell(d.hk_tw_mo_yoy, d.source_url)}</td>
+    <td>${niaFmtCount(d.foreign_count, d.foreign_unit, d.source_url)}</td>
+    <td>${niaFmtYoyCell(d.foreign_yoy, d.source_url)}</td>
+    <td>${niaFmtCount(d.visa_free_count, d.visa_free_unit, d.source_url)}</td>
+    <td>${niaFmtYoyCell(d.visa_free_yoy, d.source_url)}</td>
   </tr>`).join('');
   niaRenderCharts(filtered);
 }
