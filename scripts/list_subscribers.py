@@ -37,7 +37,10 @@ def main():
     print()
     for s in data.get("subscribers", []):
         phone = s.get("phone") or "—"
-        print(f"{s.get('status'):12} {s.get('email'):30} phone={phone}")
+        name = " ".join(filter(None, [s.get("first_name"), s.get("last_name")])) or "—"
+        company = s.get("company") or "—"
+        job_title = s.get("job_title") or "—"
+        print(f"{s.get('status'):12} {s.get('email'):30} name={name:20} company={company:20} title={job_title:16} phone={phone}")
 
 
 if __name__ == "__main__":

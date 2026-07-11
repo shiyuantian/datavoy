@@ -225,11 +225,27 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
     </section>
     <section class="card subscribe-card">
       <div class="section-title"><svg><use href="#icon-bell"></use></svg>订阅数据更新</div>
-      <p style="margin:0 0 14px;font-size:14px;color:var(--muted);">新数据上线时，第一时间通过邮件通知你。可选留下手机号，未来支持短信提醒。</p>
+      <p style="margin:0 0 14px;font-size:14px;color:var(--muted);">新数据上线时，第一时间通过邮件通知你。留一下基本信息，方便我们未来做更精准的行业数据推送。</p>
       <form id="subscribe-form" class="subscribe-form">
         <div class="field">
           <label for="sub-email">邮箱地址 *</label>
           <input id="sub-email" type="email" name="email" placeholder="your@email.com" required>
+        </div>
+        <div class="field">
+          <label for="sub-first-name">名字</label>
+          <input id="sub-first-name" type="text" name="first_name" placeholder="First name">
+        </div>
+        <div class="field">
+          <label for="sub-last-name">姓氏</label>
+          <input id="sub-last-name" type="text" name="last_name" placeholder="Last name">
+        </div>
+        <div class="field">
+          <label for="sub-company">公司</label>
+          <input id="sub-company" type="text" name="company" placeholder="Company">
+        </div>
+        <div class="field">
+          <label for="sub-job-title">职位</label>
+          <input id="sub-job-title" type="text" name="job_title" placeholder="Job title">
         </div>
         <div class="field">
           <label for="sub-phone">手机号（可选）</label>
@@ -238,7 +254,7 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
         <button type="submit" id="sub-btn">订阅</button>
       </form>
       <div id="subscribe-msg" class="subscribe-msg"></div>
-      <p class="privacy-note">我们仅将信息用于数据更新通知，可随时通过邮件中的链接退订。</p>
+      <p class="privacy-note">我们仅将信息用于数据更新通知与行业数据服务，可随时通过邮件中的链接退订。</p>
     </section>
   </section>
 
@@ -642,6 +658,10 @@ document.getElementById('subscribe-form').addEventListener('submit', async funct
   const btn = document.getElementById('sub-btn');
   const msg = document.getElementById('subscribe-msg');
   const email = document.getElementById('sub-email').value.trim();
+  const first_name = document.getElementById('sub-first-name').value.trim();
+  const last_name = document.getElementById('sub-last-name').value.trim();
+  const company = document.getElementById('sub-company').value.trim();
+  const job_title = document.getElementById('sub-job-title').value.trim();
   const phone = document.getElementById('sub-phone').value.trim();
   btn.disabled = true;
   btn.textContent = '提交中…';
@@ -651,7 +671,7 @@ document.getElementById('subscribe-form').addEventListener('submit', async funct
     const resp = await fetch('/api/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, phone })
+      body: JSON.stringify({ email, first_name, last_name, company, job_title, phone })
     });
     const data = await resp.json().catch(() => ({}));
     if (resp.ok && data.success) {

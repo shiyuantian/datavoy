@@ -48,6 +48,10 @@ export default {
       try {
         const data = await request.json();
         const email = (data.email || '').trim().toLowerCase();
+        const first_name = ((data.first_name || '').trim()) || null;
+        const last_name = ((data.last_name || '').trim()) || null;
+        const company = ((data.company || '').trim()) || null;
+        const job_title = ((data.job_title || '').trim()) || null;
         const phone = (data.phone || '').trim() || null;
         if (!email || !validateEmail(email)) {
           return jsonResponse({ error: '请输入有效的邮箱地址' }, 400);
@@ -61,12 +65,18 @@ export default {
         }
         const token = crypto.randomUUID();
         const now = Date.now();
-        await env.SUBSCRIBERS.put(`email:${email}`, JSON.stringify({ email, phone, status: 'pending', created: now }));
+        const nameText = first_name || last_name ? `${first_name || ''} ${last_name || ''}`.trim() : null;
+        await env.SUBSCRIBERS.put(`email:${email}`, JSON.stringify({
+          email, first_name, last_name, company, job_title, phone,
+          status: 'pending', created: now
+        }));
         await env.SUBSCRIBERS.put(`confirm:${token}`, JSON.stringify({ email, created: now }), { expirationTtl: 7 * 86400 });
         const confirmUrl = `https://shiyuantian.co/api/confirm?token=${token}`;
+        const greeting = nameText ? `<p>Hi ${nameText}，</p>` : '<p>你好，</p>';
         await sendEmail(env, email, '请确认订阅 Datavoy 数据更新', `
           <div style="max-width:480px;margin:40px auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.6;color:#0f172a;">
             <h2 style="color:#0e7490;">Datavoy · 旅数参考</h2>
+            ${greeting}
             <p>感谢你订阅数据更新通知。</p>
             <p>请点击下方按钮确认订阅：</p>
             <p><a href="${confirmUrl}" style="display:inline-block;padding:12px 24px;background:#0e7490;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;">确认订阅</a></p>
