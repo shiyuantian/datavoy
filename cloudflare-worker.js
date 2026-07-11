@@ -1,6 +1,11 @@
 const FROM_EMAIL = 'Datavoy <updates@shiyuantian.co>';
+const RESEND_RPS = 2; // Resend free tier: 2 requests per second
 
-async function sendEmail(env, to, subject, html, unsubscribeUrl = null) {
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function sendEmail(env, to, subject, html, unsubscribeUrl = null, attempt = 1) {
   const payload = { from: FROM_EMAIL, to, subject, html };
   if (unsubscribeUrl) {
     payload.headers = {
@@ -18,6 +23,12 @@ async function sendEmail(env, to, subject, html, unsubscribeUrl = null) {
   });
   if (!resp.ok) {
     const text = await resp.text();
+    if (resp.status === 429 && attempt < 3) {
+      const retryAfter = resp.headers.get('Retry-After');
+      const delayMs = retryAfter ? parseInt(retryAfter, 10) * 1000 : 1000;
+      await sleep(delayMs);
+      return sendEmail(env, to, subject, html, unsubscribeUrl, attempt + 1);
+    }
     throw new Error(`Resend ${resp.status}: ${text}`);
   }
   return resp.json();
@@ -149,16 +160,21 @@ export default {
       }
       try {
         const data = await request.json();
-        const { title, message, link } = data;
+        const { title, message, link, emails } = data;
         if (!title || !message || !link) {
           return jsonResponse({ error: '缺少 title/message/link' }, 400);
         }
+        const allowedEmails = Array.isArray(emails) && emails.length > 0
+          ? new Set(emails.map(e => e.trim().toLowerCase()))
+          : null;
         const list = await env.SUBSCRIBERS.list({ prefix: 'email:' });
         let sent = 0, failed = 0;
         const errors = [];
+        const delayMs = Math.ceil(1000 / RESEND_RPS) + 100; // ~600ms between sends
         for (const key of list.keys) {
           const rec = JSON.parse(await env.SUBSCRIBERS.get(key.name));
           if (rec.status !== 'confirmed') continue;
+          if (allowedEmails && !allowedEmails.has(rec.email.toLowerCase())) continue;
           const unsubUrl = `https://shiyuantian.co/api/unsubscribe?email=${encodeURIComponent(rec.email)}`;
           try {
             await sendEmail(env, rec.email, title, `
@@ -174,6 +190,8 @@ export default {
             failed++;
             errors.push({ email: rec.email, error: e.message });
           }
+          // Resend free tier rate limit: respect ~2 req/sec
+          await sleep(delayMs);
         }
         return jsonResponse({ sent, failed, errors });
       } catch (e) {
