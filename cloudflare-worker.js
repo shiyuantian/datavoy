@@ -84,7 +84,7 @@ export default {
             <p style="font-size:12px;color:#94a3b8;">提示：若收件箱未看到这封邮件，请检查「垃圾邮件」或「推广邮件」文件夹。</p>
           </div>
         `);
-        return jsonResponse({ success: true, message: '确认邮件已发送，请查收邮箱。若收件箱没有，请检查垃圾邮件/推广邮件夹。' });
+        return jsonResponse({ success: true, message: '确认邮件已发送，请查收邮箱（含垃圾邮件/推广邮件夹）。' });
       } catch (e) {
         return jsonResponse({ error: e.message }, 500);
       }
