@@ -415,9 +415,16 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
     </table>
     <section class="card" style="margin-top:28px;">
       <div class="chart-header">
-        <div><div class="chart-title">出入境总人次趋势</div><div class="chart-subtitle">统一折算为万人次，便于跨年对比</div></div>
+        <div><div class="chart-title">出入境人次趋势</div><div class="chart-subtitle">统一折算为万人次，支持分维度对比</div></div>
+        <div class="metric-toggle" id="nia-absMetricToggles"></div>
       </div>
-      <div class="chart-canvas-wrap"><canvas id="nia-totalChart"></canvas></div>
+      <div class="chart-canvas-wrap"><canvas id="nia-absChart"></canvas></div>
+      <hr class="chart-divider">
+      <div class="chart-header">
+        <div><div class="chart-title">同比增速趋势</div><div class="chart-subtitle">单位：%</div></div>
+        <div class="metric-toggle" id="nia-growthMetricToggles"></div>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="nia-growthChart"></canvas></div>
     </section>
     <section class="card" style="margin-top:20px;">
       <div class="chart-title" style="margin-bottom:10px;">数据说明</div>
@@ -699,24 +706,35 @@ const NIA_PERIOD_ORDER = {
   '全年':1, '上半年':2, '下半年':3, '一季度':4, '二季度':5, '三季度':6, '四季度':7,
   '元旦':8, '春节':9, '清明':10, '五一':11, '端午':12, '国庆中秋':13, '国庆':14, '中秋':15
 };
+const NIA_METRICS = [
+  { key:'total', label:'中外人员', color:'#0e7490' },
+  { key:'mainland', label:'内地居民', color:'#2563eb' },
+  { key:'hk_tw_mo', label:'港澳台居民', color:'#16a34a' },
+  { key:'foreign', label:'外国人', color:'#f59e0b' },
+  { key:'visa_free', label:'免签外国人', color:'#dc2626' },
+];
 function niaPeriodSortKey(period){ return NIA_PERIOD_ORDER[period] || 99; }
 function niaRenderFilters(){
   const years = [...new Set(niaData.map(d=>d.year))].filter(Boolean).sort((a,b)=>b-a);
   const periods = [...new Set(niaData.map(d=>d.period_name))].filter(Boolean).sort((a,b)=>niaPeriodSortKey(a)-niaPeriodSortKey(b));
   document.getElementById('nia-yearFilters').innerHTML = years.map(y=>`<label class="filter-chip active" data-type="year"><input type="checkbox" value="${y}" checked onchange="niaToggle(this)"> ${y}</label>`).join('');
   document.getElementById('nia-periodFilters').innerHTML = periods.map(p=>`<label class="filter-chip active" data-type="period"><input type="checkbox" value="${p}" checked onchange="niaToggle(this)"> ${p}</label>`).join('');
+  document.getElementById('nia-absMetricToggles').innerHTML = NIA_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<5?'checked':''} onchange="niaRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${m.label}</label>`).join('');
+  document.getElementById('nia-growthMetricToggles').innerHTML = NIA_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<5?'checked':''} onchange="niaRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${m.label}</label>`).join('');
 }
 function niaToggle(cb){ cb.parentElement.classList.toggle('active', cb.checked); niaRender(); }
 function niaSelectAll(checked){ document.querySelectorAll('#panel-nia .filter-chip input').forEach(cb=>{cb.checked=checked; cb.parentElement.classList.toggle('active',checked);}); niaRender(); }
 function niaSelected(type){ return [...document.querySelectorAll(`#panel-nia .filter-chip[data-type="${type}"] input:checked`)].map(cb=>type==='year'?Number(cb.value):cb.value); }
-let niaTotalChart=null;
+function niaSelectedAbs(){ return [...document.querySelectorAll('#nia-absMetricToggles input:checked')].map(cb=>cb.value); }
+function niaSelectedGrowth(){ return [...document.querySelectorAll('#nia-growthMetricToggles input:checked')].map(cb=>cb.value); }
+let niaAbsChart=null, niaGrowthChart=null;
 function niaGetFiltered(){
   const ys=niaSelected('year'), ps=niaSelected('period');
   return niaData.filter(d=>(ys.length===0||ys.includes(d.year))&&(ps.length===0||ps.includes(d.period_name)));
 }
 function niaFmtValue(value, unit){
   if(value===null||value===undefined) return '—';
-  const fixed = Number.isInteger(Number(value)) ? 0 : (unit==='亿人次'?2:1);
+  const fixed = Number.isInteger(Number(value)) ? 0 : (unit==='亿'?2:1);
   return Number(value).toLocaleString('zh-CN',{minimumFractionDigits:fixed,maximumFractionDigits:fixed}) + (unit||'');
 }
 function niaFmtCell(value, unit, yoy, url){
@@ -731,7 +749,7 @@ function niaRender(){
   const filtered=niaGetFiltered();
   document.getElementById('nia-count').textContent=`共 ${filtered.length} 条记录`;
   const tb=document.getElementById('nia-tbody');
-  if(!filtered.length){ tb.innerHTML='<tr><td colspan="8" class="empty">没有符合条件的记录</td></tr>'; niaRenderChart(filtered); return; }
+  if(!filtered.length){ tb.innerHTML='<tr><td colspan="8" class="empty">没有符合条件的记录</td></tr>'; niaRenderCharts(filtered); return; }
   tb.innerHTML = filtered.map(d=>`<tr>
     <td>${d.year||'—'}</td>
     <td><span class="tag">${d.period_name||'—'}</span></td>
@@ -742,25 +760,53 @@ function niaRender(){
     <td>${niaFmtCell(d.foreign_count, d.foreign_unit, d.foreign_yoy, d.source_url)}</td>
     <td>${niaFmtCell(d.visa_free_count, d.visa_free_unit, d.visa_free_yoy, d.source_url)}</td>
   </tr>`).join('');
-  niaRenderChart(filtered);
+  niaRenderCharts(filtered);
 }
 function niaToWan(value, unit){
   if(value===null||value===undefined) return null;
   if(unit==='亿') return value * 10000;
   return value;
 }
-function niaRenderChart(filtered){
-  const sorted=[...filtered].sort((a,b)=>{
-    if(a.year!==b.year) return a.year-b.year;
-    return (a.period_order||99)-(b.period_order||99);
-  });
+function niaRenderCharts(filtered){
+  if(!filtered) filtered=niaGetFiltered();
+  const sorted=[...filtered].sort((a,b)=>(a.publish_date||'').localeCompare(b.publish_date||''));
   const labels=sorted.map(d=>`${d.year} ${d.period_name}`);
-  const data=sorted.map(d=>niaToWan(d.total_count, d.total_unit));
-  const ctx=document.getElementById('nia-totalChart').getContext('2d');
-  const datasets=[{label:'中外人员（万人次）', data, borderColor:'#0e7490', backgroundColor:'#0e7490', tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true}];
-  const opts={ responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false}, plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>{ let l=ctx.dataset.label||''; if(l)l+=': '; if(ctx.parsed.y!==null&&ctx.parsed.y!==undefined)l+=ctx.parsed.y.toLocaleString('zh-CN'); else l+='—'; return l; }}}}, scales:{y:{type:'linear',display:true,title:{display:true,text:'万人次'},grid:{color:'#f3f4f6'}}, x:{grid:{display:false}}} };
-  if(niaTotalChart){ niaTotalChart.data.labels=labels; niaTotalChart.data.datasets=datasets; niaTotalChart.update(); return; }
-  niaTotalChart=new Chart(ctx,{type:'line', data:{labels,datasets}, options:opts});
+  niaRenderAbsChart(sorted,labels);
+  niaRenderGrowthChart(sorted,labels);
+}
+function niaRenderAbsChart(sorted,labels){
+  const selected=niaSelectedAbs();
+  const datasets=NIA_METRICS.filter(m=>selected.includes(m.key)).map(m=>({
+    label:`${m.label}（万人次）`,
+    data:sorted.map(d=>niaToWan(d[m.key+'_count'], d[m.key+'_unit'])),
+    borderColor:m.color, backgroundColor:m.color,
+    tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true
+  }));
+  const ctx=document.getElementById('nia-absChart').getContext('2d');
+  const opts={
+    responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+    plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{label:ctx=>{ let l=ctx.dataset.label||''; if(l)l+=': '; if(ctx.parsed.y!==null&&ctx.parsed.y!==undefined)l+=ctx.parsed.y.toLocaleString('zh-CN'); else l+='—'; return l; }}}, onClick:(e,elements)=>{ if(!elements||!elements.length)return; const d=sorted[elements[0].index]; if(d&&d.source_url)window.open(d.source_url,'_blank'); }},
+    scales:{y:{type:'linear',display:true,title:{display:true,text:'万人次'},grid:{color:'#f3f4f6'}}, x:{grid:{display:false}}}
+  };
+  if(niaAbsChart){ niaAbsChart.data.labels=labels; niaAbsChart.data.datasets=datasets; niaAbsChart.update(); return; }
+  niaAbsChart=new Chart(ctx,{type:'line', data:{labels,datasets}, options:opts});
+}
+function niaRenderGrowthChart(sorted,labels){
+  const selected=niaSelectedGrowth();
+  const datasets=NIA_METRICS.filter(m=>selected.includes(m.key)).map(m=>({
+    label:m.label,
+    data:sorted.map(d=>d[m.key+'_yoy']),
+    borderColor:m.color, backgroundColor:m.color,
+    tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true
+  }));
+  const ctx=document.getElementById('nia-growthChart').getContext('2d');
+  const opts={
+    responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
+    plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{label:ctx=>{ let l=ctx.dataset.label||''; if(l)l+=': '; if(ctx.parsed.y!==null&&ctx.parsed.y!==undefined)l+=ctx.parsed.y+'%'; else l+='—'; return l; }}}, onClick:(e,elements)=>{ if(!elements||!elements.length)return; const d=sorted[elements[0].index]; if(d&&d.source_url)window.open(d.source_url,'_blank'); }},
+    scales:{y:{type:'linear',display:true,title:{display:true,text:'同比（%）'},grid:{color:'#f3f4f6'},ticks:{callback:v=>v+'%'}}, x:{grid:{display:false}}}
+  };
+  if(niaGrowthChart){ niaGrowthChart.data.labels=labels; niaGrowthChart.data.datasets=datasets; niaGrowthChart.update(); return; }
+  niaGrowthChart=new Chart(ctx,{type:'line', data:{labels,datasets}, options:opts});
 }
 
 function latestUpdate(records, dateKey='publish_date'){

@@ -57,7 +57,7 @@ def read_nia():
     conn = sqlite3.connect(NIA_DB)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
-        "SELECT * FROM nia_data ORDER BY year DESC, period_order, publish_date"
+        "SELECT * FROM nia_data ORDER BY year DESC, publish_date DESC, period_order"
     ).fetchall()
     records = [dict(r) for r in rows]
     conn.close()
