@@ -724,7 +724,7 @@ function switchTab(tab){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+tab));
 }
 
-function fmtNum(v,d=2){ return v===null||v===undefined?'—':Number(v).toLocaleString('zh-CN',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+function fmtNum(v,d=2){ return v===null||v===undefined?'—':Number(v).toLocaleString('zh-CN',{minimumFractionDigits:0,maximumFractionDigits:d}); }
 function fmtDateSlash(date){ return date?date.replace(/-/g,'/'):''; }
 function fmtDateRange(start,end){
   if(!start&&!end) return '—';
@@ -1014,18 +1014,19 @@ function niaGetFiltered(){
   return niaData.filter(d=>(ys.length===0||ys.includes(d.year))&&(ps.length===0||ps.includes(d.period_name)));
 }
 function niaFmtValue(value, unit){
-  if(value===null||value===undefined) return '—';
-  const fixed = Number.isInteger(Number(value)) ? 0 : (unit==='亿'?2:1);
+  if(value===null||value===undefined) return '';
+  const maxFixed = unit==='亿'?2:1;
   const unitText = unit==='亿' ? t('yi_unit') : (unit==='万' ? t('wan_unit') : (unit||''));
-  return Number(value).toLocaleString('zh-CN',{minimumFractionDigits:fixed,maximumFractionDigits:fixed}) + unitText;
+  return Number(value).toLocaleString('zh-CN',{minimumFractionDigits:0,maximumFractionDigits:maxFixed}) + unitText;
 }
 function niaFmtCell(value, unit, yoy, url){
   if((value===null||value===undefined) && (yoy===null||yoy===undefined)) return '<span class="yoy neutral">—</span>';
-  const display = niaFmtValue(value, unit);
-  const inner = `<div class="metric"><span class="metric-value">${display}</span></div>`;
+  const display = value!==null&&value!==undefined ? niaFmtValue(value, unit) : '';
   const yoyHtml = fmtYoySimple(yoy);
-  if(url) return `<a href="${url}" target="_blank">${inner}${yoyHtml}</a>`;
-  return inner + yoyHtml;
+  const inner = display ? `<span class="metric-value">${display}</span>` : '';
+  const content = display && yoyHtml ? `${inner} ${yoyHtml}` : (inner || yoyHtml);
+  if(url) return `<a href="${url}" target="_blank">${content}</a>`;
+  return content;
 }
 function niaRender(){
   const filtered=niaGetFiltered();
