@@ -655,7 +655,7 @@ document.getElementById('subscribe-form').addEventListener('submit', async funct
     });
     const data = await resp.json().catch(() => ({}));
     if (resp.ok && data.success) {
-      msg.textContent = data.message || '确认邮件已发送，请查收邮箱';
+      msg.textContent = (data.message || '确认邮件已发送，请查收邮箱') + '（如未收到，请检查垃圾邮件/推广邮件夹）';
       msg.classList.add('success');
       e.target.reset();
     } else {
