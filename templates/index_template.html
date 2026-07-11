@@ -116,8 +116,9 @@ a:hover { color:var(--primary); text-decoration:underline; }
 .status-dot { width:8px; height:8px; border-radius:50%; }
 .status-dot.green { background:var(--success); }
 footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; color:var(--muted); text-align:center; position:relative; z-index:1; }
-.subscribe-form { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; }
-.subscribe-form .field { display:flex; flex-direction:column; gap:6px; flex:1; min-width:220px; }
+.subscribe-form { display:flex; flex-direction:column; gap:12px; }
+.subscribe-row { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; }
+.subscribe-form .field { display:flex; flex-direction:column; gap:6px; flex:1; min-width:200px; }
 .subscribe-form label { font-size:13px; font-weight:600; color:#374151; }
 .subscribe-form input { padding:10px 14px; border:1px solid var(--border); border-radius:10px; font-size:14px; outline:none; transition:border-color .15s ease,box-shadow .15s ease; }
 .subscribe-form input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(14,116,144,.12); }
@@ -227,31 +228,35 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
       <div class="section-title"><svg><use href="#icon-bell"></use></svg>订阅数据更新</div>
       <p style="margin:0 0 14px;font-size:14px;color:var(--muted);">新数据上线时，第一时间通过邮件通知你。留一下基本信息，方便我们未来做更精准的行业数据推送。</p>
       <form id="subscribe-form" class="subscribe-form">
-        <div class="field">
-          <label for="sub-email">邮箱地址 *</label>
-          <input id="sub-email" type="email" name="email" placeholder="your@email.com" required>
+        <div class="subscribe-row">
+          <div class="field">
+            <label for="sub-last-name">姓氏 *</label>
+            <input id="sub-last-name" type="text" name="last_name" placeholder="Last name" required>
+          </div>
+          <div class="field">
+            <label for="sub-first-name">名字 *</label>
+            <input id="sub-first-name" type="text" name="first_name" placeholder="First name" required>
+          </div>
+          <div class="field">
+            <label for="sub-company">公司 *</label>
+            <input id="sub-company" type="text" name="company" placeholder="Company" required>
+          </div>
+          <div class="field">
+            <label for="sub-job-title">职位 *</label>
+            <input id="sub-job-title" type="text" name="job_title" placeholder="Job title" required>
+          </div>
         </div>
-        <div class="field">
-          <label for="sub-first-name">名字</label>
-          <input id="sub-first-name" type="text" name="first_name" placeholder="First name">
+        <div class="subscribe-row">
+          <div class="field">
+            <label for="sub-email">邮箱地址 *</label>
+            <input id="sub-email" type="email" name="email" placeholder="your@email.com" required>
+          </div>
+          <div class="field">
+            <label for="sub-phone">手机号</label>
+            <input id="sub-phone" type="tel" name="phone" placeholder="+86 138 0000 0000">
+          </div>
+          <button type="submit" id="sub-btn">订阅</button>
         </div>
-        <div class="field">
-          <label for="sub-last-name">姓氏</label>
-          <input id="sub-last-name" type="text" name="last_name" placeholder="Last name">
-        </div>
-        <div class="field">
-          <label for="sub-company">公司</label>
-          <input id="sub-company" type="text" name="company" placeholder="Company">
-        </div>
-        <div class="field">
-          <label for="sub-job-title">职位</label>
-          <input id="sub-job-title" type="text" name="job_title" placeholder="Job title">
-        </div>
-        <div class="field">
-          <label for="sub-phone">手机号（可选）</label>
-          <input id="sub-phone" type="tel" name="phone" placeholder="+86 138 0000 0000">
-        </div>
-        <button type="submit" id="sub-btn">订阅</button>
       </form>
       <div id="subscribe-msg" class="subscribe-msg"></div>
       <p class="privacy-note">我们仅将信息用于数据更新通知与行业数据服务，可随时通过邮件中的链接退订。</p>
