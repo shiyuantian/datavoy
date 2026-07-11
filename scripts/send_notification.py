@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Send a Datavoy notification to all confirmed subscribers."""
+import argparse
 import json
 import os
 import sys
@@ -14,16 +15,24 @@ def main():
         print("Error: set NOTIFY_SECRET environment variable.", file=sys.stderr)
         sys.exit(1)
 
-    if len(sys.argv) < 3:
-        print("Usage: python3 send_notification.py '<标题>' '<正文>' [链接]", file=sys.stderr)
-        print('Example: python3 send_notification.py "Datavoy 更新" "端午数据已上线。" "https://shiyuantian.co/datavoy/"', file=sys.stderr)
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Send a Datavoy notification.")
+    parser.add_argument("title", help="Chinese title")
+    parser.add_argument("message", help="Chinese message body")
+    parser.add_argument("link", nargs="?", default="https://shiyuantian.co/datavoy/", help="Link URL")
+    parser.add_argument("--title-en", dest="title_en", help="English title")
+    parser.add_argument("--message-en", dest="message_en", help="English message body")
+    args = parser.parse_args()
 
-    title = sys.argv[1]
-    message = sys.argv[2]
-    link = sys.argv[3] if len(sys.argv) > 3 else "https://shiyuantian.co/datavoy/"
+    payload = {
+        "title": args.title,
+        "message": args.message,
+        "link": args.link,
+    }
+    if args.title_en:
+        payload["title_en"] = args.title_en
+    if args.message_en:
+        payload["message_en"] = args.message_en
 
-    payload = {"title": title, "message": message, "link": link}
     req = urllib.request.Request(
         URL,
         data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),

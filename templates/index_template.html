@@ -20,6 +20,9 @@ header { background:rgba(255,255,255,.82); backdrop-filter:saturate(180%) blur(1
 .tab { padding:8px 16px; border-radius:20px; border:1px solid transparent; background:transparent; cursor:pointer; font-size:14px; color:#475569; transition:all .15s ease; }
 .tab:hover { background:rgba(14,116,144,.06); color:var(--primary); }
 .tab.active { background:var(--primary-light); border-color:rgba(14,116,144,.18); color:var(--primary); font-weight:600; }
+.lang-toggle { display:flex; gap:4px; align-items:center; background:#f1f5f9; border-radius:20px; padding:3px; font-size:12px; font-weight:600; color:#64748b; }
+.lang-btn { padding:5px 10px; border-radius:17px; border:none; background:transparent; cursor:pointer; color:#64748b; font-size:12px; font-weight:600; }
+.lang-btn.active { background:#fff; color:var(--primary); box-shadow:0 1px 3px rgba(0,0,0,.08); }
 main { max-width:1200px; margin:0 auto; padding:28px 24px; position:relative; z-index:1; }
 .tab-panel { display:none; }
 .tab-panel.active { display:block; animation:fadeIn .35s ease; }
@@ -197,10 +200,14 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
   <div class="nav">
     <div class="brand"><div class="brand-icon"><svg><use href="#icon-compass"></use></svg></div><div>Datavoy</div></div>
     <div class="tabs">
-      <div class="tab active" data-tab="home" onclick="switchTab('home')">首页</div>
-      <div class="tab" data-tab="mct" onclick="switchTab('mct')">文旅部</div>
-      <div class="tab" data-tab="mot" onclick="switchTab('mot')">交通部</div>
-      <div class="tab" data-tab="nia" onclick="switchTab('nia')">移民局</div>
+      <div class="tab active" data-tab="home" onclick="switchTab('home')" data-i18n="nav_home">首页</div>
+      <div class="tab" data-tab="mct" onclick="switchTab('mct')" data-i18n="nav_mct">文旅部</div>
+      <div class="tab" data-tab="mot" onclick="switchTab('mot')" data-i18n="nav_mot">交通部</div>
+      <div class="tab" data-tab="nia" onclick="switchTab('nia')" data-i18n="nav_nia">移民局</div>
+    </div>
+    <div class="lang-toggle" id="lang-toggle">
+      <button class="lang-btn active" data-lang="zh" onclick="setLanguage('zh')">中</button>
+      <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
     </div>
   </div>
 </header>
@@ -218,62 +225,62 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
       </svg>
       <div class="hero-content">
         <div class="brand-wordmark">Datavoy</div>
-        <h1>旅数参考</h1>
-        <p class="subtitle">为旅游从业者整合分散的官方数据</p>
+        <h1 data-i18n="home_title">旅数参考</h1>
+        <p class="subtitle" data-i18n="home_subtitle">为旅游从业者整合分散的官方数据</p>
       </div>
     </section>
     <section class="card mission-card">
-      <div class="section-title"><svg><use href="#icon-compass-needle"></use></svg>为什么做这件事？</div>
-      <p>旅游行业数据高度分散——文旅部、交通部、移民局、民航局、铁路局……从业者为了解市场，往往要在多个官网之间反复检索。我们把这些公开数据集中整理、统一口径、标注来源，让你不用再去一个个网站里翻找，让每一次查询都更准确、更高效。</p>
+      <div class="section-title"><svg><use href="#icon-compass-needle"></use></svg><span data-i18n="home_why_title">为什么做这件事？</span></div>
+      <p data-i18n="home_why_text">旅游行业数据高度分散——文旅部、交通部、移民局、民航局、铁路局……从业者为了解市场，往往要在多个官网之间反复检索。我们把这些公开数据集中整理、统一口径、标注来源，让你不用再去一个个网站里翻找，让每一次查询都更准确、更高效。</p>
     </section>
     <section class="card values-card">
-      <div class="section-title"><svg><use href="#icon-shield-check"></use></svg>我们坚持什么</div>
+      <div class="section-title"><svg><use href="#icon-shield-check"></use></svg><span data-i18n="home_values_title">我们坚持什么</span></div>
       <div class="values-grid">
         <div class="value-item">
           <div class="value-icon"><svg><use href="#icon-shield-check"></use></svg></div>
-          <div class="value-title">Quality · 准确</div>
-          <div class="value-desc">每一条数据都源自官方公开披露，逐条标注原始出处，让准确度有据可循、可核对、可引用。</div>
+          <div class="value-title" data-i18n="value_quality_title">Quality · 准确</div>
+          <div class="value-desc" data-i18n="value_quality_desc">每一条数据都源自官方公开披露，逐条标注原始出处，让准确度有据可循、可核对、可引用。</div>
         </div>
         <div class="value-item">
           <div class="value-icon"><svg><use href="#icon-compass-needle"></use></svg></div>
-          <div class="value-title">Convenience · 便捷</div>
-          <div class="value-desc">统一口径、可视化呈现、多维度筛选，把分散检索和数据整理的耗时降到最低，让日常工作更顺畅一点。</div>
+          <div class="value-title" data-i18n="value_convenience_title">Convenience · 便捷</div>
+          <div class="value-desc" data-i18n="value_convenience_desc">统一口径、可视化呈现、多维度筛选，把分散检索和数据整理的耗时降到最低，让日常工作更顺畅一点。</div>
         </div>
         <div class="value-item">
           <div class="value-icon"><svg><use href="#icon-users"></use></svg></div>
-          <div class="value-title">Community · 共创</div>
-          <div class="value-desc">链接旅游从业者，共建一张持续进化的行业数据图谱。你的反馈、线索与建议，会让这个工具对所有人更有价值。</div>
+          <div class="value-title" data-i18n="value_community_title">Community · 共创</div>
+          <div class="value-desc" data-i18n="value_community_desc">链接旅游从业者，共建一张持续进化的行业数据图谱。你的反馈、线索与建议，会让这个工具对所有人更有价值。</div>
         </div>
       </div>
     </section>
     <section class="card modules-card">
-      <div class="section-title"><svg><use href="#icon-building"></use></svg>已上线模块</div>
+      <div class="section-title"><svg><use href="#icon-building"></use></svg><span data-i18n="home_modules_title">已上线模块</span></div>
       <div class="modules-grid">
         <div class="module-item" onclick="switchTab('mct')">
           <div class="module-header">
             <div class="module-icon"><svg><use href="#icon-building"></use></svg></div>
-            <div class="module-title">文旅部 · 国内假期出行数据</div>
+            <div class="module-title" data-i18n="module_mct_title">文旅部 · 国内假期出行数据</div>
           </div>
-          <div class="module-desc">国内出游人次、出游总花费及同比，覆盖春节、清明、五一、端午、国庆中秋、元旦等节假日。</div>
+          <div class="module-desc" data-i18n="module_mct_desc">国内出游人次、出游总花费及同比，覆盖春节、清明、五一、端午、国庆中秋、元旦等节假日。</div>
         </div>
         <div class="module-item" onclick="switchTab('mot')">
           <div class="module-header">
             <div class="module-icon"><svg><use href="#icon-train"></use></svg></div>
-            <div class="module-title">交通部 · 节假日综合交通数据</div>
+            <div class="module-title" data-i18n="module_mot_title">交通部 · 节假日综合交通数据</div>
           </div>
-          <div class="module-desc">全社会跨区域人员流动量及铁路、公路、水路、民航客运量，聚焦节假日综合交通出行。</div>
+          <div class="module-desc" data-i18n="module_mot_desc">全社会跨区域人员流动量及铁路、公路、水路、民航客运量，聚焦节假日综合交通出行。</div>
         </div>
         <div class="module-item" onclick="switchTab('nia')">
           <div class="module-header">
             <div class="module-icon"><svg><use href="#icon-users"></use></svg></div>
-            <div class="module-title">移民局 · 出入境数据</div>
+            <div class="module-title" data-i18n="module_nia_title">移民局 · 出入境数据</div>
           </div>
-          <div class="module-desc">国家移民管理局披露的中外人员、内地居民、港澳台居民、外国人及免签外国人人次与同比。</div>
+          <div class="module-desc" data-i18n="module_nia_desc">国家移民管理局披露的中外人员、内地居民、港澳台居民、外国人及免签外国人人次与同比。</div>
         </div>
       </div>
     </section>
     <section class="card status-card">
-      <div class="section-title"><svg><use href="#icon-compass-needle"></use></svg>数据更新状态</div>
+      <div class="section-title"><svg><use href="#icon-compass-needle"></use></svg><span data-i18n="home_status_title">数据更新状态</span></div>
       <div class="status-list">
         <div class="status-item"><span class="status-dot green"></span><span id="home-mct-status">文旅部数据更新至 …</span></div>
         <div class="status-item"><span class="status-dot green"></span><span id="home-mot-status">交通部数据更新至 …</span></div>
@@ -281,63 +288,64 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
       </div>
     </section>
     <section class="card subscribe-card">
-      <div class="section-title"><svg><use href="#icon-bell"></use></svg>订阅数据更新</div>
-      <p style="margin:0 0 14px;font-size:14px;color:var(--muted);">新数据上线时，第一时间通过邮件通知你。留一下基本信息，方便我们未来做更精准的行业数据推送。</p>
+      <div class="section-title"><svg><use href="#icon-bell"></use></svg><span data-i18n="home_subscribe_title">订阅数据更新</span></div>
+      <p style="margin:0 0 14px;font-size:14px;color:var(--muted);" data-i18n="home_subscribe_desc">新数据上线时，第一时间通过邮件通知你。留一下基本信息，方便我们未来做更精准的行业数据推送。</p>
       <form id="subscribe-form" class="subscribe-form">
+        <input type="hidden" name="language" id="sub-language" value="zh">
         <div class="subscribe-row">
           <div class="field">
-            <label for="sub-last-name">姓氏 *</label>
+            <label for="sub-last-name" data-i18n="form_last_name">姓氏 *</label>
             <input id="sub-last-name" type="text" name="last_name" placeholder="Last name" required>
           </div>
           <div class="field">
-            <label for="sub-first-name">名字 *</label>
+            <label for="sub-first-name" data-i18n="form_first_name">名字 *</label>
             <input id="sub-first-name" type="text" name="first_name" placeholder="First name" required>
           </div>
           <div class="field">
-            <label for="sub-company">公司 *</label>
+            <label for="sub-company" data-i18n="form_company">公司 *</label>
             <input id="sub-company" type="text" name="company" placeholder="Company" required>
           </div>
           <div class="field">
-            <label for="sub-job-title">职位 *</label>
+            <label for="sub-job-title" data-i18n="form_job_title">职位 *</label>
             <input id="sub-job-title" type="text" name="job_title" placeholder="Job title" required>
           </div>
         </div>
         <div class="subscribe-row">
           <div class="field">
-            <label for="sub-email">邮箱地址 *</label>
+            <label for="sub-email" data-i18n="form_email">邮箱地址 *</label>
             <input id="sub-email" type="email" name="email" placeholder="your@email.com" required>
           </div>
           <div class="field">
-            <label for="sub-phone">手机号</label>
+            <label for="sub-phone" data-i18n="form_phone">手机号</label>
             <input id="sub-phone" type="tel" name="phone" placeholder="+86 138 0000 0000">
           </div>
-          <button type="submit" id="sub-btn">订阅</button>
+          <button type="submit" id="sub-btn" data-i18n="form_subscribe">订阅</button>
         </div>
       </form>
       <div id="subscribe-msg" class="subscribe-msg"></div>
-      <p class="privacy-note">我们仅将信息用于数据更新通知与行业数据服务，可随时通过邮件中的链接退订。</p>
+      <p class="privacy-note" data-i18n="privacy_note">我们仅将信息用于数据更新通知与行业数据服务，可随时通过邮件中的链接退订。</p>
     </section>
   </section>
 
   <!-- MCT Panel -->
   <section class="tab-panel" id="panel-mct">
     <section class="hero" id="data-mct">
-      <h1>文旅部 · 国内假期出行数据</h1>
-      <p>汇总文化和旅游部官方披露的国内出游人次、出游总花费及同比数据，每个数字均可追溯原文出处。</p>
+      <h1 data-i18n="mct_title">文旅部 · 国内假期出行数据</h1>
+      <p data-i18n="mct_desc">汇总文化和旅游部官方披露的国内出游人次、出游总花费及同比数据，每个数字均可追溯原文出处。</p>
     </section>
     <section class="card">
       <div class="filter-bar">
         <div class="filter-group">
-          <label>年份（多选）</label>
+          <label data-i18n="mct_filter_year">年份（多选）</label>
           <div class="filter-options" id="mct-yearFilters"></div>
         </div>
         <div class="filter-group">
-          <label>节假日（多选）</label>
+          <label data-i18n="mct_filter_holiday">节假日（多选）</label>
           <div class="filter-options" id="mct-holidayFilters"></div>
         </div>
         <div class="filter-group" style="justify-content:flex-end;flex:0;">
           <label>&nbsp;</label>
-          <div><button class="btn" onclick="mctSelectAll(true)">全选</button> <button class="btn" onclick="mctSelectAll(false)">清空</button></div>
+          <div><button class="btn" onclick="mctSelectAll(true)" data-i18n="mct_select_all">全选</button> <button class="btn" onclick="mctSelectAll(false)" data-i18n="mct_clear">清空</button></div>
         </div>
       </div>
     </section>
@@ -345,27 +353,27 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>年份</th><th>节假日</th><th>发布日期</th><th>国内出游人次</th><th>同比</th><th>国内出游总花费</th><th>同比</th></tr>
+          <tr><th data-i18n="mct_table_year">年份</th><th data-i18n="mct_table_holiday">节假日</th><th data-i18n="mct_table_publish">发布日期</th><th data-i18n="mct_table_visitors">国内出游人次</th><th data-i18n="mct_table_visitors_yoy">同比</th><th data-i18n="mct_table_spending">国内出游总花费</th><th data-i18n="mct_table_spending_yoy">同比</th></tr>
         </thead>
         <tbody id="mct-tbody"></tbody>
       </table>
     </div>
     <section class="card chart-section" id="charts-mct" style="margin-top:28px;">
       <div class="chart-header">
-        <div><div class="chart-title">绝对值趋势</div><div class="chart-subtitle">出游人次（亿人次）与出游总花费（亿元）</div></div>
+        <div><div class="chart-title" data-i18n="mct_chart_abs_title">绝对值趋势</div><div class="chart-subtitle" data-i18n="mct_chart_abs_subtitle">出游人次（亿人次）与出游总花费（亿元）</div></div>
         <div class="metric-toggle" id="mct-absoluteMetricToggles"></div>
       </div>
       <div class="chart-canvas-wrap"><canvas id="mct-absoluteChart"></canvas></div>
       <hr class="chart-divider">
       <div class="chart-header">
-        <div><div class="chart-title">同比趋势</div><div class="chart-subtitle">官方同比，缺失时以日均同比补齐（%）</div></div>
+        <div><div class="chart-title" data-i18n="mct_chart_growth_title">同比趋势</div><div class="chart-subtitle" data-i18n="mct_chart_growth_subtitle">官方同比，缺失时以日均同比补齐（%）</div></div>
         <div class="metric-toggle" id="mct-growthMetricToggles"></div>
       </div>
       <div class="chart-canvas-wrap"><canvas id="mct-growthChart"></canvas></div>
     </section>
     <section class="card" style="margin-top:20px;">
-      <div class="chart-title" style="margin-bottom:10px;">数据说明</div>
-      <p style="margin:0;font-size:13px;color:var(--muted);line-height:1.7;">
+      <div class="chart-title" style="margin-bottom:10px;" data-i18n="mct_note_title">数据说明</div>
+      <p style="margin:0;font-size:13px;color:var(--muted);line-height:1.7;" data-i18n-html="mct_note_html">
         数据来源于<a href="https://www.mct.gov.cn/" target="_blank" style="color:var(--primary);">中华人民共和国文化和旅游部</a>官网焦点新闻栏目。
         同比列优先采用官方披露的同比增长；若官方未披露，则按日均同比作为替代。鼠标悬停在“—”上可查看缺失原因；点击数字可跳转原文。
       </p>
@@ -376,22 +384,22 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
   <!-- MOT Panel -->
   <section class="tab-panel" id="panel-mot">
     <section class="hero" id="data-mot">
-      <h1>交通部 · 节假日综合交通数据</h1>
-      <p>汇总交通运输部官方披露的节假日全社会跨区域人员流动量及铁路、公路、水路、民航客运量，仅展示每个节假日结束后的汇总数据。</p>
+      <h1 data-i18n="mot_title">交通部 · 节假日综合交通数据</h1>
+      <p data-i18n="mot_desc">汇总交通运输部官方披露的节假日全社会跨区域人员流动量及铁路、公路、水路、民航客运量，仅展示每个节假日结束后的汇总数据。</p>
     </section>
     <section class="card">
       <div class="filter-bar">
         <div class="filter-group">
-          <label>年份（多选）</label>
+          <label data-i18n="mot_filter_year">年份（多选）</label>
           <div class="filter-options" id="mot-yearFilters"></div>
         </div>
         <div class="filter-group">
-          <label>节假日（多选）</label>
+          <label data-i18n="mot_filter_holiday">节假日（多选）</label>
           <div class="filter-options" id="mot-holidayFilters"></div>
         </div>
         <div class="filter-group" style="justify-content:flex-end;flex:0;">
           <label>&nbsp;</label>
-          <div><button class="btn" onclick="motSelectAll(true)">全选</button> <button class="btn" onclick="motSelectAll(false)">清空</button></div>
+          <div><button class="btn" onclick="motSelectAll(true)" data-i18n="mot_select_all">全选</button> <button class="btn" onclick="motSelectAll(false)" data-i18n="mot_clear">清空</button></div>
         </div>
       </div>
     </section>
@@ -400,12 +408,12 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
       <table>
         <thead>
           <tr>
-            <th>年份</th><th>节假日</th><th>发布日期</th>
-            <th>全社会跨区域人员流动量</th><th>同比</th>
-            <th>铁路</th><th>同比</th>
-            <th>公路</th><th>同比</th>
-            <th>水路</th><th>同比</th>
-            <th>民航</th><th>同比</th>
+            <th data-i18n="mot_table_year">年份</th><th data-i18n="mot_table_holiday">节假日</th><th data-i18n="mot_table_publish">发布日期</th>
+            <th data-i18n="mot_table_total">全社会跨区域人员流动量</th><th data-i18n="mot_table_total_yoy">同比</th>
+            <th data-i18n="mot_table_railway">铁路</th><th data-i18n="mot_table_railway_yoy">同比</th>
+            <th data-i18n="mot_table_highway">公路</th><th data-i18n="mot_table_highway_yoy">同比</th>
+            <th data-i18n="mot_table_waterway">水路</th><th data-i18n="mot_table_waterway_yoy">同比</th>
+            <th data-i18n="mot_table_aviation">民航</th><th data-i18n="mot_table_aviation_yoy">同比</th>
           </tr>
         </thead>
         <tbody id="mot-tbody"></tbody>
@@ -413,20 +421,20 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
     </div>
     <section class="card chart-section" style="margin-top:28px;">
       <div class="chart-header">
-        <div><div class="chart-title">客运量绝对值趋势</div><div class="chart-subtitle">各运输方式客运量（万人次）</div></div>
+        <div><div class="chart-title" data-i18n="mot_chart_abs_title">客运量绝对值趋势</div><div class="chart-subtitle" data-i18n="mot_chart_abs_subtitle">各运输方式客运量（万人次）</div></div>
         <div class="metric-toggle" id="mot-absoluteMetricToggles"></div>
       </div>
       <div class="chart-canvas-wrap"><canvas id="mot-absoluteChart"></canvas></div>
       <hr class="chart-divider">
       <div class="chart-header">
-        <div><div class="chart-title">同比增速趋势</div><div class="chart-subtitle">单位：%</div></div>
+        <div><div class="chart-title" data-i18n="mot_chart_growth_title">同比增速趋势</div><div class="chart-subtitle" data-i18n="mot_chart_growth_subtitle">单位：%</div></div>
         <div class="metric-toggle" id="mot-growthMetricToggles"></div>
       </div>
       <div class="chart-canvas-wrap"><canvas id="mot-growthChart"></canvas></div>
     </section>
     <section class="card" style="margin-top:20px;">
-      <div class="chart-title" style="margin-bottom:10px;">数据说明</div>
-      <p style="margin:0;font-size:13px;color:var(--muted);line-height:1.7;">
+      <div class="chart-title" style="margin-bottom:10px;" data-i18n="mot_note_title">数据说明</div>
+      <p style="margin:0;font-size:13px;color:var(--muted);line-height:1.7;" data-i18n-html="mot_note_html">
         数据来源于<a href="https://www.mot.gov.cn/" target="_blank" style="color:var(--primary);">中华人民共和国交通运输部</a>官网及微信公众号。
         表格中“—”表示该指标在官方通报中未披露或暂缺；点击有数字的单元格可跳转至交通运输部原文。铁路/水路/民航单位为万人次，全社会/公路单位为亿人次。
       </p>
@@ -437,22 +445,22 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
   <!-- NIA Panel -->
   <section class="tab-panel" id="panel-nia">
     <section class="hero" id="data-nia">
-      <h1>移民局 · 出入境数据</h1>
-      <p>汇总国家移民管理局官方披露的全国出入境人员数据，覆盖年度/半年度/季度汇总与主要节假日，每条数据均可追溯原文出处。</p>
+      <h1 data-i18n="nia_title">移民局 · 出入境数据</h1>
+      <p data-i18n="nia_desc">汇总国家移民管理局官方披露的全国出入境人员数据，覆盖年度/半年度/季度汇总与主要节假日，每条数据均可追溯原文出处。</p>
     </section>
     <section class="card">
       <div class="filter-bar">
         <div class="filter-group">
-          <label>年份（多选）</label>
+          <label data-i18n="nia_filter_year">年份（多选）</label>
           <div class="filter-options" id="nia-yearFilters"></div>
         </div>
         <div class="filter-group">
-          <label>时期（多选）</label>
+          <label data-i18n="nia_filter_period">时期（多选）</label>
           <div class="filter-options" id="nia-periodFilters"></div>
         </div>
         <div class="filter-group" style="justify-content:flex-end;flex:0;">
           <label>&nbsp;</label>
-          <div><button class="btn" onclick="niaSelectAll(true)">全选</button> <button class="btn" onclick="niaSelectAll(false)">清空</button></div>
+          <div><button class="btn" onclick="niaSelectAll(true)" data-i18n="nia_select_all">全选</button> <button class="btn" onclick="niaSelectAll(false)" data-i18n="nia_clear">清空</button></div>
         </div>
       </div>
     </section>
@@ -461,8 +469,8 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
       <table>
         <thead>
           <tr>
-            <th>年份</th><th>时期</th><th>发布日期</th>
-            <th>中外人员</th><th>内地居民</th><th>港澳台居民</th><th>外国人</th><th>免签外国人</th>
+            <th data-i18n="nia_table_year">年份</th><th data-i18n="nia_table_period">时期</th><th data-i18n="nia_table_publish">发布日期</th>
+            <th data-i18n="nia_table_total">中外人员</th><th data-i18n="nia_table_mainland">内地居民</th><th data-i18n="nia_table_hktwmo">港澳台居民</th><th data-i18n="nia_table_foreign">外国人</th><th data-i18n="nia_table_visafree">免签外国人</th>
           </tr>
         </thead>
         <tbody id="nia-tbody"></tbody>
@@ -470,20 +478,20 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
     </div>
     <section class="card chart-section" style="margin-top:28px;">
       <div class="chart-header">
-        <div><div class="chart-title">出入境人次趋势</div><div class="chart-subtitle">统一折算为万人次，支持分维度对比</div></div>
+        <div><div class="chart-title" data-i18n="nia_chart_abs_title">出入境人次趋势</div><div class="chart-subtitle" data-i18n="nia_chart_abs_subtitle">统一折算为万人次，支持分维度对比</div></div>
         <div class="metric-toggle" id="nia-absMetricToggles"></div>
       </div>
       <div class="chart-canvas-wrap"><canvas id="nia-absChart"></canvas></div>
       <hr class="chart-divider">
       <div class="chart-header">
-        <div><div class="chart-title">同比增速趋势</div><div class="chart-subtitle">单位：%</div></div>
+        <div><div class="chart-title" data-i18n="nia_chart_growth_title">同比增速趋势</div><div class="chart-subtitle" data-i18n="nia_chart_growth_subtitle">单位：%</div></div>
         <div class="metric-toggle" id="nia-growthMetricToggles"></div>
       </div>
       <div class="chart-canvas-wrap"><canvas id="nia-growthChart"></canvas></div>
     </section>
     <section class="card" style="margin-top:20px;">
-      <div class="chart-title" style="margin-bottom:10px;">数据说明</div>
-      <p style="margin:0;font-size:13px;color:var(--muted);line-height:1.7;">
+      <div class="chart-title" style="margin-bottom:10px;" data-i18n="nia_note_title">数据说明</div>
+      <p style="margin:0;font-size:13px;color:var(--muted);line-height:1.7;" data-i18n-html="nia_note_html">
         数据来源于<a href="https://www.nia.gov.cn/n741440/n741567/index.html" target="_blank" style="color:var(--primary);">国家移民管理局</a>统计数据栏目。
         中外人员、内地居民、港澳台居民常以“亿人次”披露，外国人、免签外国人常以“万人次”披露，表格中保留原始单位；点击数字可跳转原文。
       </p>
@@ -499,6 +507,215 @@ const mctData = {mct_data_json};
 const motData = {mot_data_json};
 const niaData = {nia_data_json};
 
+const I18N = {
+  zh: {
+    nav_home: '首页', nav_mct: '文旅部', nav_mot: '交通部', nav_nia: '移民局',
+    home_title: '旅数参考', home_subtitle: '为旅游从业者整合分散的官方数据',
+    home_why_title: '为什么做这件事？',
+    home_why_text: '旅游行业数据高度分散——文旅部、交通部、移民局、民航局、铁路局……从业者为了解市场，往往要在多个官网之间反复检索。我们把这些公开数据集中整理、统一口径、标注来源，让你不用再去一个个网站里翻找，让每一次查询都更准确、更高效。',
+    home_values_title: '我们坚持什么',
+    value_quality_title: 'Quality · 准确',
+    value_quality_desc: '每一条数据都源自官方公开披露，逐条标注原始出处，让准确度有据可循、可核对、可引用。',
+    value_convenience_title: 'Convenience · 便捷',
+    value_convenience_desc: '统一口径、可视化呈现、多维度筛选，把分散检索和数据整理的耗时降到最低，让日常工作更顺畅一点。',
+    value_community_title: 'Community · 共创',
+    value_community_desc: '链接旅游从业者，共建一张持续进化的行业数据图谱。你的反馈、线索与建议，会让这个工具对所有人更有价值。',
+    home_modules_title: '已上线模块',
+    module_mct_title: '文旅部 · 国内假期出行数据',
+    module_mct_desc: '国内出游人次、出游总花费及同比，覆盖春节、清明、五一、端午、国庆中秋、元旦等节假日。',
+    module_mot_title: '交通部 · 节假日综合交通数据',
+    module_mot_desc: '全社会跨区域人员流动量及铁路、公路、水路、民航客运量，聚焦节假日综合交通出行。',
+    module_nia_title: '移民局 · 出入境数据',
+    module_nia_desc: '国家移民管理局披露的中外人员、内地居民、港澳台居民、外国人及免签外国人人次与同比。',
+    home_status_title: '数据更新状态',
+    home_subscribe_title: '订阅数据更新',
+    home_subscribe_desc: '新数据上线时，第一时间通过邮件通知你。留一下基本信息，方便我们未来做更精准的行业数据推送。',
+    form_last_name: '姓氏', form_first_name: '名字', form_company: '公司', form_job_title: '职位',
+    form_email: '邮箱地址', form_phone: '手机号', form_subscribe: '订阅', form_submitting: '提交中…',
+    form_success: '确认邮件已发送，请查收邮箱。', form_error: '提交失败，请稍后重试',
+    privacy_note: '我们仅将信息用于数据更新通知与行业数据服务，可随时通过邮件中的链接退订。',
+    mct_title: '文旅部 · 国内假期出行数据',
+    mct_desc: '汇总文化和旅游部官方披露的国内出游人次、出游总花费及同比数据，每个数字均可追溯原文出处。',
+    mct_filter_year: '年份（多选）', mct_filter_holiday: '节假日（多选）',
+    mct_select_all: '全选', mct_clear: '清空',
+    date_label: '日期', mct_table_year: '年份', mct_table_holiday: '节假日', mct_table_publish: '发布日期',
+    mct_table_visitors: '国内出游人次', mct_table_visitors_yoy: '同比', mct_table_spending: '国内出游总花费', mct_table_spending_yoy: '同比',
+    mct_chart_abs_title: '绝对值趋势', mct_chart_abs_subtitle: '出游人次（亿人次）与出游总花费（亿元）',
+    mct_chart_growth_title: '同比趋势', mct_chart_growth_subtitle: '官方同比，缺失时以日均同比补齐（%）',
+    mct_metric_trips: '出游人次', mct_metric_spending: '出游总花费', mct_metric_trips_yoy: '人次同比', mct_metric_spending_yoy: '花费同比', pct_unit: '%',
+    mct_note_title: '数据说明',
+    mct_note_html: '数据来源于<a href="https://www.mct.gov.cn/" target="_blank" style="color:var(--primary);">中华人民共和国文化和旅游部</a>官网焦点新闻栏目。同比列优先采用官方披露的同比增长；若官方未披露，则按日均同比作为替代。鼠标悬停在“—”上可查看缺失原因；点击数字可跳转原文。',
+    mot_title: '交通部 · 节假日综合交通数据',
+    mot_desc: '汇总交通运输部官方披露的节假日全社会跨区域人员流动量及铁路、公路、水路、民航客运量，仅展示每个节假日结束后的汇总数据。',
+    mot_filter_year: '年份（多选）', mot_filter_holiday: '节假日（多选）',
+    mot_select_all: '全选', mot_clear: '清空',
+    mot_table_year: '年份', mot_table_holiday: '节假日', mot_table_publish: '发布日期',
+    mot_table_total: '全社会跨区域人员流动量', mot_table_total_yoy: '同比',
+    mot_table_railway: '铁路', mot_table_railway_yoy: '同比',
+    mot_table_highway: '公路', mot_table_highway_yoy: '同比',
+    mot_table_waterway: '水路', mot_table_waterway_yoy: '同比',
+    mot_table_aviation: '民航', mot_table_aviation_yoy: '同比',
+    mot_chart_abs_title: '客运量绝对值趋势', mot_chart_abs_subtitle: '各运输方式客运量（万人次）',
+    mot_chart_growth_title: '同比增速趋势', mot_chart_growth_subtitle: '单位：%',
+    mot_metric_total: '全社会跨区域人员流动量', mot_metric_total_yoy: '全社会同比', mot_metric_railway: '铁路', mot_metric_railway_yoy: '铁路同比', mot_metric_highway: '公路', mot_metric_highway_yoy: '公路同比', mot_metric_waterway: '水路', mot_metric_waterway_yoy: '水路同比', mot_metric_aviation: '民航', mot_metric_aviation_yoy: '民航同比', wan_unit: '万人次', yi_unit: '亿人次', person_trip_unit: '人次',
+    mot_note_title: '数据说明',
+    mot_note_html: '数据来源于<a href="https://www.mot.gov.cn/" target="_blank" style="color:var(--primary);">中华人民共和国交通运输部</a>官网及微信公众号。表格中“—”表示该指标在官方通报中未披露或暂缺；点击有数字的单元格可跳转至交通运输部原文。铁路/水路/民航单位为万人次，全社会/公路单位为亿人次。',
+    mot_expand_daily: '展开每日', mot_collapse_daily: '收起每日', mot_daily_title: '每日明细（交通运输部按日披露，点击数字可查看当日原文）',
+    nia_title: '移民局 · 出入境数据',
+    nia_desc: '汇总国家移民管理局官方披露的全国出入境人员数据，覆盖年度/半年度/季度汇总与主要节假日，每条数据均可追溯原文出处。',
+    nia_filter_year: '年份（多选）', nia_filter_period: '时期（多选）',
+    nia_select_all: '全选', nia_clear: '清空',
+    nia_table_year: '年份', nia_table_period: '时期', nia_table_publish: '发布日期',
+    nia_table_total: '中外人员', nia_table_mainland: '内地居民', nia_table_hktwmo: '港澳台居民', nia_table_foreign: '外国人', nia_table_visafree: '免签外国人',
+    nia_chart_abs_title: '出入境人次趋势', nia_chart_abs_subtitle: '统一折算为万人次，支持分维度对比',
+    nia_chart_growth_title: '同比增速趋势', nia_chart_growth_subtitle: '单位：%',
+    nia_note_title: '数据说明',
+    nia_note_html: '数据来源于<a href="https://www.nia.gov.cn/n741440/n741567/index.html" target="_blank" style="color:var(--primary);">国家移民管理局</a>统计数据栏目。中外人员、内地居民、港澳台居民常以“亿人次”披露，外国人、免签外国人常以“万人次”披露，表格中保留原始单位；点击数字可跳转原文。',
+    status_prefix: '更新至', latest_update_prefix: '本页数据更新至：', record_count: '共 {0} 条记录',
+    no_records: '没有符合条件的记录', total_flow_unit: '亿人次', trips_unit: '亿人次', spending_unit: '亿元',
+    metric_total: '中外人员', metric_mainland: '内地居民', metric_hktwmo: '港澳台居民', metric_foreign: '外国人', metric_visafree: '免签外国人',
+    yoy_daily: '（日均）', days_meta: '共{0}天'
+  },
+  en: {
+    nav_home: 'Home', nav_mct: 'MCT', nav_mot: 'MOT', nav_nia: 'NIA',
+    home_title: 'Travel Data Reference', home_subtitle: 'Official travel data, consolidated for professionals',
+    home_why_title: 'Why we built this',
+    home_why_text: 'Travel industry data is scattered across many official sources — MCT, MOT, NIA, CAAC, railway bureaus, and more. We collect, standardize, and cite these public datasets so you don\'t have to hunt through multiple websites.',
+    home_values_title: 'What we stand for',
+    value_quality_title: 'Quality · 准确',
+    value_quality_desc: 'Every data point is sourced from official public disclosures, with original references attached so accuracy can be verified and cited.',
+    value_convenience_title: 'Convenience · 便捷',
+    value_convenience_desc: 'Unified metrics, visualizations, and multi-dimensional filters minimize the time you spend searching and cleaning data.',
+    value_community_title: 'Community · 共创',
+    value_community_desc: 'We connect travel professionals to build an evolving industry data map. Your feedback, tips, and suggestions make the tool better for everyone.',
+    home_modules_title: 'Live Modules',
+    module_mct_title: 'MCT · Domestic Holiday Travel',
+    module_mct_desc: 'Domestic trips, tourism revenue, and YoY growth for major holidays including Spring Festival, Qingming, Labour Day, Dragon Boat Festival, National Day & Mid-Autumn, and New Year.',
+    module_mot_title: 'MOT · Holiday Transport Data',
+    module_mot_desc: 'Total cross-region person trips and railway, highway, waterway, and aviation passenger volumes during holidays.',
+    module_nia_title: 'NIA · Entry & Exit Data',
+    module_nia_desc: 'Entry and exit person trips and YoY growth by category: total, mainland residents, HK/TW/MO residents, foreigners, and visa-free foreigners.',
+    home_status_title: 'Data Update Status',
+    home_subscribe_title: 'Subscribe to Updates',
+    home_subscribe_desc: 'Get an email alert when new data is released. Leave your details so we can send more targeted industry data in the future.',
+    form_last_name: 'Last name', form_first_name: 'First name', form_company: 'Company', form_job_title: 'Job title',
+    form_email: 'Email', form_phone: 'Phone', form_subscribe: 'Subscribe', form_submitting: 'Sending…',
+    form_success: 'Confirmation email sent. Please check your inbox.', form_error: 'Submission failed. Please try again later.',
+    privacy_note: 'We use your information only for data update notifications and industry data services. You can unsubscribe anytime via the link in emails.',
+    mct_title: 'MCT · Domestic Holiday Travel Data',
+    mct_desc: 'Domestic trips, tourism revenue, and YoY growth released by the Ministry of Culture and Tourism. Every figure links back to the official source.',
+    mct_filter_year: 'Year (multi-select)', mct_filter_holiday: 'Holiday (multi-select)',
+    mct_select_all: 'Select all', mct_clear: 'Clear',
+    date_label: 'Date', mct_table_year: 'Year', mct_table_holiday: 'Holiday', mct_table_publish: 'Published',
+    mct_table_visitors: 'Domestic Trips', mct_table_visitors_yoy: 'YoY', mct_table_spending: 'Tourism Revenue', mct_table_spending_yoy: 'YoY',
+    mct_chart_abs_title: 'Absolute Trend', mct_chart_abs_subtitle: 'Domestic trips (100M) and tourism revenue (100M CNY)',
+    mct_chart_growth_title: 'YoY Trend', mct_chart_growth_subtitle: 'Official YoY; daily-average YoY used when official is missing (%)',
+    mct_metric_trips: 'Domestic Trips', mct_metric_spending: 'Tourism Revenue', mct_metric_trips_yoy: 'Trips YoY', mct_metric_spending_yoy: 'Revenue YoY', pct_unit: '%',
+    mct_note_title: 'Data Notes',
+    mct_note_html: 'Data source: <a href="https://www.mct.gov.cn/" target="_blank" style="color:var(--primary);">Ministry of Culture and Tourism</a> official website. YoY figures use official year-on-year growth when available; daily-average YoY is used as a fallback. Hover over “—” for missing reasons; click numbers to view the source.',
+    mot_title: 'MOT · Holiday Transport Data',
+    mot_desc: 'Total cross-region person trips and passenger volumes by railway, highway, waterway, and aviation during holidays, as released by the Ministry of Transport.',
+    mot_filter_year: 'Year (multi-select)', mot_filter_holiday: 'Holiday (multi-select)',
+    mot_select_all: 'Select all', mot_clear: 'Clear',
+    mot_table_year: 'Year', mot_table_holiday: 'Holiday', mot_table_publish: 'Published',
+    mot_table_total: 'Total Cross-Region Trips', mot_table_total_yoy: 'YoY',
+    mot_table_railway: 'Railway', mot_table_railway_yoy: 'YoY',
+    mot_table_highway: 'Highway', mot_table_highway_yoy: 'YoY',
+    mot_table_waterway: 'Waterway', mot_table_waterway_yoy: 'YoY',
+    mot_table_aviation: 'Aviation', mot_table_aviation_yoy: 'YoY',
+    mot_chart_abs_title: 'Passenger Volume Trend', mot_chart_abs_subtitle: 'By transport mode (10,000 person-trips)',
+    mot_chart_growth_title: 'YoY Growth Trend', mot_chart_growth_subtitle: 'Unit: %',
+    mot_metric_total: 'Total Cross-Region Trips', mot_metric_total_yoy: 'Total YoY', mot_metric_railway: 'Railway', mot_metric_railway_yoy: 'Railway YoY', mot_metric_highway: 'Highway', mot_metric_highway_yoy: 'Highway YoY', mot_metric_waterway: 'Waterway', mot_metric_waterway_yoy: 'Waterway YoY', mot_metric_aviation: 'Aviation', mot_metric_aviation_yoy: 'Aviation YoY', wan_unit: '10,000 trips', yi_unit: '100M trips', person_trip_unit: 'trips',
+    mot_note_title: 'Data Notes',
+    mot_note_html: 'Data source: <a href="https://www.mot.gov.cn/" target="_blank" style="color:var(--primary);">Ministry of Transport</a> official website and WeChat. “—” means the metric was not disclosed. Railway/waterway/aviation units are 10,000 trips; total/highway units are 100M trips.',
+    mot_expand_daily: 'Show daily', mot_collapse_daily: 'Hide daily', mot_daily_title: 'Daily breakdown (MOT daily disclosures; click numbers to view source)',
+    nia_title: 'NIA · Entry & Exit Data',
+    nia_desc: 'National Immigration Administration entry and exit person trips, covering annual/half-year/quarterly summaries and major holidays. Every figure links to the source.',
+    nia_filter_year: 'Year (multi-select)', nia_filter_period: 'Period (multi-select)',
+    nia_select_all: 'Select all', nia_clear: 'Clear',
+    nia_table_year: 'Year', nia_table_period: 'Period', nia_table_publish: 'Published',
+    nia_table_total: 'Total', nia_table_mainland: 'Mainland', nia_table_hktwmo: 'HK/TW/MO', nia_table_foreign: 'Foreigners', nia_table_visafree: 'Visa-free',
+    nia_chart_abs_title: 'Entry & Exit Trips Trend', nia_chart_abs_subtitle: 'Normalized to 10,000 person-trips for cross-period comparison',
+    nia_chart_growth_title: 'YoY Growth Trend', nia_chart_growth_subtitle: 'Unit: %',
+    nia_note_title: 'Data Notes',
+    nia_note_html: 'Data source: <a href="https://www.nia.gov.cn/n741440/n741567/index.html" target="_blank" style="color:var(--primary);">National Immigration Administration</a> statistics. Total/mainland/HK-TW-MO figures are often in 100M trips; foreign/visa-free figures are in 10,000 trips. Original units are preserved in the table; click numbers to view the source.',
+    status_prefix: 'Updated through', latest_update_prefix: 'This page is updated through: ', record_count: '{0} records',
+    no_records: 'No matching records', total_flow_unit: '100M trips', trips_unit: '100M trips', spending_unit: '100M CNY',
+    metric_total: 'Total', metric_mainland: 'Mainland', metric_hktwmo: 'HK/TW/MO', metric_foreign: 'Foreigners', metric_visafree: 'Visa-free',
+    yoy_daily: ' (daily avg)', days_meta: '{0} days'
+  }
+};
+
+let currentLang = localStorage.getItem('datavoy-lang') || 'zh';
+function t(key, ...args) {
+  let s = I18N[currentLang]?.[key] ?? I18N['zh']?.[key] ?? key;
+  args.forEach((a, i) => { s = s.replace(new RegExp(`\\{${i}\\}`, 'g'), a); });
+  return s;
+}
+function preserveAndRender(panelId, renderFn) {
+  const selected = [...document.querySelectorAll(`#${panelId} input[type="checkbox"]`)]
+    .filter(cb => cb.checked)
+    .map(cb => cb.value);
+  renderFn();
+  document.querySelectorAll(`#${panelId} input[type="checkbox"]`).forEach(cb => {
+    const checked = selected.includes(cb.value);
+    cb.checked = checked;
+    if (cb.parentElement.classList.contains('filter-chip')) {
+      cb.parentElement.classList.toggle('active', checked);
+    }
+  });
+}
+function setLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('datavoy-lang', lang);
+  updateLangButtons();
+  renderI18n();
+  document.getElementById('sub-language').value = lang;
+  preserveAndRender('panel-mct', mctRenderFilters);
+  preserveAndRender('panel-mot', motRenderFilters);
+  preserveAndRender('panel-nia', niaRenderFilters);
+  mctRender(); motRender(); niaRender();
+  updateStatusText();
+}
+function updateLangButtons() {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === currentLang));
+}
+function renderI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+}
+
+const HOLIDAY_NAMES = {
+  '春节': { zh: '春节', en: 'Spring Festival' },
+  '清明': { zh: '清明', en: 'Qingming' },
+  '五一': { zh: '五一', en: 'Labour Day' },
+  '端午': { zh: '端午', en: 'Dragon Boat' },
+  '国庆中秋': { zh: '国庆中秋', en: 'National & Mid-Autumn' },
+  '国庆': { zh: '国庆', en: 'National Day' },
+  '中秋': { zh: '中秋', en: 'Mid-Autumn' },
+  '元旦': { zh: '元旦', en: "New Year's Day" }
+};
+const PERIOD_NAMES = {
+  '全年': { zh: '全年', en: 'Annual' },
+  '上半年': { zh: '上半年', en: 'H1' },
+  '下半年': { zh: '下半年', en: 'H2' },
+  '一季度': { zh: '一季度', en: 'Q1' },
+  '二季度': { zh: '二季度', en: 'Q2' },
+  '三季度': { zh: '三季度', en: 'Q3' },
+  '四季度': { zh: '四季度', en: 'Q4' },
+  '元旦': { zh: '元旦', en: "New Year's Day" },
+  '春节': { zh: '春节', en: 'Spring Festival' },
+  '清明': { zh: '清明', en: 'Qingming' },
+  '五一': { zh: '五一', en: 'Labour Day' },
+  '端午': { zh: '端午', en: 'Dragon Boat' },
+  '国庆中秋': { zh: '国庆中秋', en: 'National & Mid-Autumn' },
+  '国庆': { zh: '国庆', en: 'National Day' },
+  '中秋': { zh: '中秋', en: 'Mid-Autumn' },
+  '1-8月': { zh: '1-8月', en: 'Jan-Aug' }
+};
+function translateHoliday(name) { return HOLIDAY_NAMES[name]?.[currentLang] || name; }
+function translatePeriod(name) { return PERIOD_NAMES[name]?.[currentLang] || name; }
+
 function switchTab(tab){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+tab));
@@ -512,19 +729,21 @@ function fmtDateRange(start,end){
   return `${fmtDateSlash(start)}-${fmtDateSlash(end)}`;
 }
 function fmtHolidayMeta(name,start,end,days,note){
-  if(!start && days===undefined) return `<span class="tag">${name||'—'}</span>`;
+  const tName = translateHoliday(name) || '—';
+  if(!start && days===undefined) return `<span class="tag">${tName}</span>`;
   const s=fmtDateSlash(start), e=fmtDateSlash(end);
   let meta='';
-  if(s&&e&&s!==e) meta=`${s}-${e}，共${days}天`;
-  else if(s) meta=`${s}，共${days}天`;
-  else if(days!==null&&days!==undefined) meta=`共${days}天`;
-  const tag = note ? `<span class="tag tooltip" data-tip="${escHtml(note)}">${name||'—'}</span>` : `<span class="tag">${name||'—'}</span>`;
+  const daysText = t('days_meta', days);
+  if(s&&e&&s!==e) meta=`${s}-${e}，${daysText}`;
+  else if(s) meta=`${s}，${daysText}`;
+  else if(days!==null&&days!==undefined) meta=daysText;
+  const tag = note ? `<span class="tag tooltip" data-tip="${escHtml(note)}">${tName}</span>` : `<span class="tag">${tName}</span>`;
   return `${tag}${meta?`<div style="font-size:12px;color:var(--muted);margin-top:4px;">${meta}</div>`:''}`;
 }
 function escHtml(t){ const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
 function fmtYoy(v,daily,reason){
   if(v!==null&&v!==undefined){ const s=v>0?'+':''; const c=v>0?'positive':(v<0?'negative':'neutral'); return `<span class="yoy ${c}">${s}${v}%</span>`; }
-  if(daily!==null&&daily!==undefined){ const s=daily>0?'+':''; const c=daily>0?'positive':(daily<0?'negative':'neutral'); return `<span class="yoy ${c}">${s}${daily}%<span class="yoy-note">(日均)</span></span>`; }
+  if(daily!==null&&daily!==undefined){ const s=daily>0?'+':''; const c=daily>0?'positive':(daily<0?'negative':'neutral'); return `<span class="yoy ${c}">${s}${daily}%<span class="yoy-note">${t('yoy_daily')}</span></span>`; }
   if(reason) return `<span class="yoy neutral tooltip" data-tip="${escHtml(reason)}">—</span>`;
   return '<span class="yoy neutral">—</span>';
 }
@@ -536,12 +755,12 @@ function fmtYoySimple(v){
 
 // ---------- MCT ----------
 const MCT_ABS_METRICS = [
-  { key: 'visitor_count', label: '出游人次', unit: '亿人次', color: '#2563eb', yAxis: 'y' },
-  { key: 'spending', label: '出游总花费', unit: '亿元', color: '#16a34a', yAxis: 'y1' },
+  { key: 'visitor_count', labelKey: 'mct_metric_trips', unitKey: 'trips_unit', color: '#2563eb', yAxis: 'y' },
+  { key: 'spending', labelKey: 'mct_metric_spending', unitKey: 'spending_unit', color: '#16a34a', yAxis: 'y1' },
 ];
 const MCT_GROWTH_METRICS = [
-  { key: 'effective_visitor_yoy', label: '人次同比', unit: '%', color: '#2563eb', yAxis: 'y' },
-  { key: 'effective_spending_yoy', label: '花费同比', unit: '%', color: '#16a34a', yAxis: 'y' },
+  { key: 'effective_visitor_yoy', labelKey: 'mct_metric_trips_yoy', unitKey: 'pct_unit', color: '#2563eb', yAxis: 'y' },
+  { key: 'effective_spending_yoy', labelKey: 'mct_metric_spending_yoy', unitKey: 'pct_unit', color: '#16a34a', yAxis: 'y' },
 ];
 const mctData2 = (mctData || []).map(d=>({
   ...d,
@@ -552,9 +771,9 @@ function mctRenderFilters(){
   const years = [...new Set(mctData2.map(d=>d.year))].filter(Boolean).sort((a,b)=>b-a);
   const holidays = [...new Set(mctData2.map(d=>d.holiday_name))].filter(Boolean).sort();
   document.getElementById('mct-yearFilters').innerHTML = years.map(y=>`<label class="filter-chip active" data-type="year"><input type="checkbox" value="${y}" checked onchange="mctToggle(this)"> ${y}</label>`).join('');
-  document.getElementById('mct-holidayFilters').innerHTML = holidays.map(h=>`<label class="filter-chip active" data-type="holiday"><input type="checkbox" value="${h}" checked onchange="mctToggle(this)"> ${h}</label>`).join('');
-  document.getElementById('mct-absoluteMetricToggles').innerHTML = MCT_ABS_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<2?'checked':''} onchange="mctRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${m.label}</label>`).join('');
-  document.getElementById('mct-growthMetricToggles').innerHTML = MCT_GROWTH_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<2?'checked':''} onchange="mctRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${m.label}</label>`).join('');
+  document.getElementById('mct-holidayFilters').innerHTML = holidays.map(h=>`<label class="filter-chip active" data-type="holiday"><input type="checkbox" value="${h}" checked onchange="mctToggle(this)"> ${translateHoliday(h)}</label>`).join('');
+  document.getElementById('mct-absoluteMetricToggles').innerHTML = MCT_ABS_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<2?'checked':''} onchange="mctRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${t(m.labelKey)}</label>`).join('');
+  document.getElementById('mct-growthMetricToggles').innerHTML = MCT_GROWTH_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<2?'checked':''} onchange="mctRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${t(m.labelKey)}</label>`).join('');
 }
 function mctToggle(cb){ cb.parentElement.classList.toggle('active', cb.checked); mctRender(); }
 function mctSelectAll(checked){ document.querySelectorAll('#panel-mct .filter-chip input').forEach(cb=>{cb.checked=checked; cb.parentElement.classList.toggle('active',checked);}); mctRender(); }
@@ -569,16 +788,16 @@ function mctGetFiltered(){
 }
 function mctRender(){
   const filtered=mctGetFiltered();
-  document.getElementById('mct-count').textContent=`共 ${filtered.length} 条记录`;
+  document.getElementById('mct-count').textContent=t('record_count', filtered.length);
   const tb=document.getElementById('mct-tbody');
-  if(!filtered.length){ tb.innerHTML='<tr><td colspan="7" class="empty">没有符合条件的记录</td></tr>'; mctRenderCharts(filtered); return; }
+  if(!filtered.length){ tb.innerHTML=`<tr><td colspan="7" class="empty">${t('no_records')}</td></tr>`; mctRenderCharts(filtered); return; }
   tb.innerHTML = filtered.map(d=>`<tr>
     <td>${d.year||'—'}</td>
     <td>${fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days)}</td>
     <td>${fmtDateSlash(d.publish_date)||'—'}</td>
-    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}<div class="metric"><span class="metric-value">${fmtNum(d.visitor_count)}</span><span class="metric-unit">亿人次</span></div>${d.source_url?'</a>':''}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}<div class="metric"><span class="metric-value">${fmtNum(d.visitor_count)}</span><span class="metric-unit">${t('trips_unit')}</span></div>${d.source_url?'</a>':''}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoy(d.visitor_yoy,d.visitor_daily_yoy,d.missing_reason_visitor_yoy)}${d.source_url?'</a>':''}</td>
-    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}<div class="metric"><span class="metric-value">${fmtNum(d.spending)}</span><span class="metric-unit">亿元</span></div>${d.source_url?'</a>':''}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}<div class="metric"><span class="metric-value">${fmtNum(d.spending)}</span><span class="metric-unit">${t('spending_unit')}</span></div>${d.source_url?'</a>':''}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoy(d.spending_yoy,d.spending_daily_yoy,d.missing_reason_spending_yoy)}${d.source_url?'</a>':''}</td>
   </tr>`).join('');
   mctRenderCharts(filtered);
@@ -586,13 +805,13 @@ function mctRender(){
 function mctRenderCharts(filtered){
   if(!filtered) filtered=mctGetFiltered();
   const sorted=[...filtered].sort((a,b)=>(a.publish_date||'').localeCompare(b.publish_date||''));
-  const labels=sorted.map(d=>`${d.year} ${d.holiday_name}`);
+  const labels=sorted.map(d=>`${d.year} ${translateHoliday(d.holiday_name)}`);
   mctRenderAbsChart(sorted,labels);
   mctRenderGrowthChart(sorted,labels);
 }
 function mctMakeDatasets(sorted,metrics,selectedKeys){
   return metrics.filter(m=>selectedKeys.includes(m.key)).map(m=>({
-    label:`${m.label} (${m.unit})`, data:sorted.map(d=>d[m.key]), borderColor:m.color, backgroundColor:m.color, yAxisID:m.yAxis,
+    label:`${t(m.labelKey)} (${t(m.unitKey)})`, data:sorted.map(d=>d[m.key]), borderColor:m.color, backgroundColor:m.color, yAxisID:m.yAxis,
     tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true
   }));
 }
@@ -625,26 +844,26 @@ function mctRenderGrowthChart(sorted,labels){
 
 // ---------- MOT ----------
 const MOT_ABS_METRICS = [
-  { key: 'total_flow', label: '全社会跨区域人员流动量', color: '#7c3aed', unit: '亿人次', yAxis: 'y1' },
-  { key: 'railway', label: '铁路', color: '#2563eb', unit: '万人次', yAxis: 'y' },
-  { key: 'highway', label: '公路', color: '#16a34a', unit: '亿人次', yAxis: 'y1' },
-  { key: 'waterway', label: '水路', color: '#f59e0b', unit: '万人次', yAxis: 'y' },
-  { key: 'aviation', label: '民航', color: '#dc2626', unit: '万人次', yAxis: 'y' },
+  { key: 'total_flow', labelKey: 'mot_metric_total', color: '#7c3aed', unitKey: 'yi_unit', yAxis: 'y1' },
+  { key: 'railway', labelKey: 'mot_metric_railway', color: '#2563eb', unitKey: 'wan_unit', yAxis: 'y' },
+  { key: 'highway', labelKey: 'mot_metric_highway', color: '#16a34a', unitKey: 'yi_unit', yAxis: 'y1' },
+  { key: 'waterway', labelKey: 'mot_metric_waterway', color: '#f59e0b', unitKey: 'wan_unit', yAxis: 'y' },
+  { key: 'aviation', labelKey: 'mot_metric_aviation', color: '#dc2626', unitKey: 'wan_unit', yAxis: 'y' },
 ];
 const MOT_GROWTH_METRICS = [
-  { key: 'total_flow_yoy', label: '全社会流动量同比', color: '#7c3aed', yAxis: 'y' },
-  { key: 'railway_yoy', label: '铁路同比', color: '#2563eb', yAxis: 'y' },
-  { key: 'highway_yoy', label: '公路同比', color: '#16a34a', yAxis: 'y' },
-  { key: 'waterway_yoy', label: '水路同比', color: '#f59e0b', yAxis: 'y' },
-  { key: 'aviation_yoy', label: '民航同比', color: '#dc2626', yAxis: 'y' },
+  { key: 'total_flow_yoy', labelKey: 'mot_metric_total_yoy', color: '#7c3aed', yAxis: 'y' },
+  { key: 'railway_yoy', labelKey: 'mot_metric_railway_yoy', color: '#2563eb', yAxis: 'y' },
+  { key: 'highway_yoy', labelKey: 'mot_metric_highway_yoy', color: '#16a34a', yAxis: 'y' },
+  { key: 'waterway_yoy', labelKey: 'mot_metric_waterway_yoy', color: '#f59e0b', yAxis: 'y' },
+  { key: 'aviation_yoy', labelKey: 'mot_metric_aviation_yoy', color: '#dc2626', yAxis: 'y' },
 ];
 function motRenderFilters(){
   const years = [...new Set(motData.map(d=>d.year))].filter(Boolean).sort((a,b)=>b-a);
   const holidays = [...new Set(motData.map(d=>d.holiday_name))].filter(Boolean).sort();
   document.getElementById('mot-yearFilters').innerHTML = years.map(y=>`<label class="filter-chip active" data-type="year"><input type="checkbox" value="${y}" checked onchange="motToggle(this)"> ${y}</label>`).join('');
-  document.getElementById('mot-holidayFilters').innerHTML = holidays.map(h=>`<label class="filter-chip active" data-type="holiday"><input type="checkbox" value="${h}" checked onchange="motToggle(this)"> ${h}</label>`).join('');
-  document.getElementById('mot-absoluteMetricToggles').innerHTML = MOT_ABS_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<5?'checked':''} onchange="motRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${m.label}</label>`).join('');
-  document.getElementById('mot-growthMetricToggles').innerHTML = MOT_GROWTH_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<5?'checked':''} onchange="motRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${m.label}</label>`).join('');
+  document.getElementById('mot-holidayFilters').innerHTML = holidays.map(h=>`<label class="filter-chip active" data-type="holiday"><input type="checkbox" value="${h}" checked onchange="motToggle(this)"> ${translateHoliday(h)}</label>`).join('');
+  document.getElementById('mot-absoluteMetricToggles').innerHTML = MOT_ABS_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<5?'checked':''} onchange="motRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${t(m.labelKey)}</label>`).join('');
+  document.getElementById('mot-growthMetricToggles').innerHTML = MOT_GROWTH_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<5?'checked':''} onchange="motRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${t(m.labelKey)}</label>`).join('');
 }
 function motToggle(cb){ cb.parentElement.classList.toggle('active', cb.checked); motRender(); }
 function motSelectAll(checked){ document.querySelectorAll('#panel-mot .filter-chip input').forEach(cb=>{cb.checked=checked; cb.parentElement.classList.toggle('active',checked);}); motRender(); }
@@ -659,17 +878,18 @@ function motGetFiltered(){
 }
 function motFmtCell(value, unit, url){
   if(value===null||value===undefined) return '<span class="yoy neutral">—</span>';
-  const display = unit==='亿人次' ? fmtNum(value,2) : fmtNum(value,1);
-  const inner = `<div class="metric"><span class="metric-value">${display}</span><span class="metric-unit">${unit}</span></div>`;
+  const display = unit==='亿' ? fmtNum(value,2) : fmtNum(value,1);
+  const unitText = unit==='亿' ? t('yi_unit') : t('wan_unit');
+  const inner = `<div class="metric"><span class="metric-value">${display}</span><span class="metric-unit">${unitText}</span></div>`;
   return url ? `<a href="${url}" target="_blank">${inner}</a>` : inner;
 }
 function motRenderDailyBreakdown(d,idx){
   return `<tr class="detail-row" id="mot-detail-${idx}" style="display:none;">
     <td colspan="13">
       <div class="detail-card">
-        <div class="detail-title">每日明细（交通运输部按日披露，点击数字可查看当日原文）</div>
+        <div class="detail-title">${t('mot_daily_title')}</div>
         <table class="detail-table">
-          <thead><tr><th>日期</th><th>全社会跨区域人员流动量</th><th>铁路</th><th>公路</th><th>水路</th><th>民航</th></tr></thead>
+          <thead><tr><th>${t('date_label')}</th><th>${t('mot_table_total')}</th><th>${t('mot_table_railway')}</th><th>${t('mot_table_highway')}</th><th>${t('mot_table_waterway')}</th><th>${t('mot_table_aviation')}</th></tr></thead>
           <tbody>
             ${d.daily_breakdown.map(day=>`<tr>
               <td>${fmtDateSlash(day.date)}</td>
@@ -690,16 +910,16 @@ function motToggleDetail(idx,btn){
   if(!row) return;
   const show = row.style.display==='none';
   row.style.display = show ? 'table-row' : 'none';
-  btn.textContent = show ? '收起每日' : '展开每日';
+  btn.textContent = show ? t('mot_collapse_daily') : t('mot_expand_daily');
 }
 function motRender(){
   const filtered=motGetFiltered();
-  document.getElementById('mot-count').textContent=`共 ${filtered.length} 条记录`;
+  document.getElementById('mot-count').textContent=t('record_count', filtered.length);
   const tb=document.getElementById('mot-tbody');
-  if(!filtered.length){ tb.innerHTML='<tr><td colspan="13" class="empty">没有符合条件的记录</td></tr>'; motRenderCharts(filtered); return; }
+  if(!filtered.length){ tb.innerHTML=`<tr><td colspan="13" class="empty">${t('no_records')}</td></tr>`; motRenderCharts(filtered); return; }
   tb.innerHTML = filtered.map((d,idx)=>`<tr>
     <td>${d.year||'—'}</td>
-    <td>${fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days,d.daily_breakdown?d.source_note:null)}${d.daily_breakdown?` <button class="expand-btn" onclick="motToggleDetail(${idx},this)">展开每日</button>`:''}</td>
+    <td>${fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days,d.daily_breakdown?d.source_note:null)}${d.daily_breakdown?` <button class="expand-btn" onclick="motToggleDetail(${idx},this)">${t('mot_expand_daily')}</button>`:''}</td>
     <td>${fmtDateSlash(d.publish_date)||'—'}</td>
     <td>${motFmtCell(d.total_flow,d.total_flow_unit,d.source_url)}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoySimple(d.total_flow_yoy)}${d.source_url?'</a>':''}</td>
@@ -717,14 +937,14 @@ function motRender(){
 function motRenderCharts(filtered){
   if(!filtered) filtered=motGetFiltered();
   const sorted=[...filtered].sort((a,b)=>{ if(a.year!==b.year) return a.year-b.year; return (a.holiday_start_date||'').localeCompare(b.holiday_start_date||''); });
-  const labels=sorted.map(d=>`${d.year} ${d.holiday_name}`);
+  const labels=sorted.map(d=>`${d.year} ${translateHoliday(d.holiday_name)}`);
   motRenderAbsChart(sorted,labels);
   motRenderGrowthChart(sorted,labels);
 }
 function motRenderAbsChart(sorted,labels){
   const selected=motSelectedAbs();
   const datasets=MOT_ABS_METRICS.filter(m=>selected.includes(m.key)).map(m=>({
-    label:`${m.label} (${m.unit})`, data:sorted.map(d=>d[m.key]), borderColor:m.color, backgroundColor:m.color, yAxisID:m.yAxis,
+    label:`${t(m.labelKey)} (${t(m.unitKey)})`, data:sorted.map(d=>d[m.key]), borderColor:m.color, backgroundColor:m.color, yAxisID:m.yAxis,
     tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true
   }));
   const ctx=document.getElementById('mot-absoluteChart').getContext('2d');
@@ -733,8 +953,8 @@ function motRenderAbsChart(sorted,labels){
     plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{label:ctx=>{ let l=ctx.dataset.label||''; if(l)l+=': '; if(ctx.parsed.y!==null&&ctx.parsed.y!==undefined)l+=ctx.parsed.y; else l+='—'; return l; }}}},
     onClick:(e,elements)=>{ if(!elements||!elements.length)return; const d=sorted[elements[0].index]; if(d&&d.source_url)window.open(d.source_url,'_blank'); },
     scales:{
-      y:{type:'linear',display:selected.some(k=>MOT_ABS_METRICS.find(m=>m.key===k)?.yAxis==='y'),position:'left',title:{display:true,text:'万人次'},grid:{color:'#f3f4f6'}},
-      y1:{type:'linear',display:selected.some(k=>MOT_ABS_METRICS.find(m=>m.key===k)?.yAxis==='y1'),position:'right',title:{display:true,text:'亿人次'},grid:{drawOnChartArea:false}},
+      y:{type:'linear',display:selected.some(k=>MOT_ABS_METRICS.find(m=>m.key===k)?.yAxis==='y'),position:'left',title:{display:true,text:t('wan_unit')},grid:{color:'#f3f4f6'}},
+      y1:{type:'linear',display:selected.some(k=>MOT_ABS_METRICS.find(m=>m.key===k)?.yAxis==='y1'),position:'right',title:{display:true,text:t('yi_unit')},grid:{drawOnChartArea:false}},
       x:{grid:{display:false}}
     }
   };
@@ -744,7 +964,7 @@ function motRenderAbsChart(sorted,labels){
 function motRenderGrowthChart(sorted,labels){
   const selected=motSelectedGrowth();
   const datasets=MOT_GROWTH_METRICS.filter(m=>selected.includes(m.key)).map(m=>({
-    label:m.label, data:sorted.map(d=>d[m.key]), borderColor:m.color, backgroundColor:m.color,
+    label:t(m.labelKey), data:sorted.map(d=>d[m.key]), borderColor:m.color, backgroundColor:m.color,
     tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true
   }));
   const ctx=document.getElementById('mot-growthChart').getContext('2d');
@@ -764,20 +984,20 @@ const NIA_PERIOD_ORDER = {
   '元旦':8, '春节':9, '清明':10, '五一':11, '端午':12, '国庆中秋':13, '国庆':14, '中秋':15
 };
 const NIA_METRICS = [
-  { key:'total', label:'中外人员', color:'#0e7490' },
-  { key:'mainland', label:'内地居民', color:'#2563eb' },
-  { key:'hk_tw_mo', label:'港澳台居民', color:'#16a34a' },
-  { key:'foreign', label:'外国人', color:'#f59e0b' },
-  { key:'visa_free', label:'免签外国人', color:'#dc2626' },
+  { key:'total', labelKey:'metric_total', color:'#0e7490' },
+  { key:'mainland', labelKey:'metric_mainland', color:'#2563eb' },
+  { key:'hk_tw_mo', labelKey:'metric_hktwmo', color:'#16a34a' },
+  { key:'foreign', labelKey:'metric_foreign', color:'#f59e0b' },
+  { key:'visa_free', labelKey:'metric_visafree', color:'#dc2626' },
 ];
 function niaPeriodSortKey(period){ return NIA_PERIOD_ORDER[period] || 99; }
 function niaRenderFilters(){
   const years = [...new Set(niaData.map(d=>d.year))].filter(Boolean).sort((a,b)=>b-a);
   const periods = [...new Set(niaData.map(d=>d.period_name))].filter(Boolean).sort((a,b)=>niaPeriodSortKey(a)-niaPeriodSortKey(b));
   document.getElementById('nia-yearFilters').innerHTML = years.map(y=>`<label class="filter-chip active" data-type="year"><input type="checkbox" value="${y}" checked onchange="niaToggle(this)"> ${y}</label>`).join('');
-  document.getElementById('nia-periodFilters').innerHTML = periods.map(p=>`<label class="filter-chip active" data-type="period"><input type="checkbox" value="${p}" checked onchange="niaToggle(this)"> ${p}</label>`).join('');
-  document.getElementById('nia-absMetricToggles').innerHTML = NIA_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<5?'checked':''} onchange="niaRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${m.label}</label>`).join('');
-  document.getElementById('nia-growthMetricToggles').innerHTML = NIA_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<5?'checked':''} onchange="niaRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${m.label}</label>`).join('');
+  document.getElementById('nia-periodFilters').innerHTML = periods.map(p=>`<label class="filter-chip active" data-type="period"><input type="checkbox" value="${p}" checked onchange="niaToggle(this)"> ${translatePeriod(p)}</label>`).join('');
+  document.getElementById('nia-absMetricToggles').innerHTML = NIA_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<5?'checked':''} onchange="niaRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${t(m.labelKey)}</label>`).join('');
+  document.getElementById('nia-growthMetricToggles').innerHTML = NIA_METRICS.map((m,i)=>`<label><input type="checkbox" value="${m.key}" ${i<5?'checked':''} onchange="niaRenderCharts()"> <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${m.color};margin-right:4px;"></span>${t(m.labelKey)}</label>`).join('');
 }
 function niaToggle(cb){ cb.parentElement.classList.toggle('active', cb.checked); niaRender(); }
 function niaSelectAll(checked){ document.querySelectorAll('#panel-nia .filter-chip input').forEach(cb=>{cb.checked=checked; cb.parentElement.classList.toggle('active',checked);}); niaRender(); }
@@ -793,7 +1013,8 @@ function niaGetFiltered(){
 function niaFmtValue(value, unit){
   if(value===null||value===undefined) return '—';
   const fixed = Number.isInteger(Number(value)) ? 0 : (unit==='亿'?2:1);
-  return Number(value).toLocaleString('zh-CN',{minimumFractionDigits:fixed,maximumFractionDigits:fixed}) + (unit||'');
+  const unitText = unit==='亿' ? t('yi_unit') : (unit==='万' ? t('wan_unit') : (unit||''));
+  return Number(value).toLocaleString('zh-CN',{minimumFractionDigits:fixed,maximumFractionDigits:fixed}) + unitText;
 }
 function niaFmtCell(value, unit, yoy, url){
   if((value===null||value===undefined) && (yoy===null||yoy===undefined)) return '<span class="yoy neutral">—</span>';
@@ -805,12 +1026,12 @@ function niaFmtCell(value, unit, yoy, url){
 }
 function niaRender(){
   const filtered=niaGetFiltered();
-  document.getElementById('nia-count').textContent=`共 ${filtered.length} 条记录`;
+  document.getElementById('nia-count').textContent=t('record_count', filtered.length);
   const tb=document.getElementById('nia-tbody');
-  if(!filtered.length){ tb.innerHTML='<tr><td colspan="8" class="empty">没有符合条件的记录</td></tr>'; niaRenderCharts(filtered); return; }
+  if(!filtered.length){ tb.innerHTML=`<tr><td colspan="8" class="empty">${t('no_records')}</td></tr>`; niaRenderCharts(filtered); return; }
   tb.innerHTML = filtered.map(d=>`<tr>
     <td>${d.year||'—'}</td>
-    <td><span class="tag">${d.period_name||'—'}</span></td>
+    <td><span class="tag">${translatePeriod(d.period_name)||'—'}</span></td>
     <td>${fmtDateSlash(d.publish_date)||'—'}</td>
     <td>${niaFmtCell(d.total_count, d.total_unit, d.total_yoy, d.source_url)}</td>
     <td>${niaFmtCell(d.mainland_count, d.mainland_unit, d.mainland_yoy, d.source_url)}</td>
@@ -828,14 +1049,14 @@ function niaToWan(value, unit){
 function niaRenderCharts(filtered){
   if(!filtered) filtered=niaGetFiltered();
   const sorted=[...filtered].sort((a,b)=>(a.publish_date||'').localeCompare(b.publish_date||''));
-  const labels=sorted.map(d=>`${d.year} ${d.period_name}`);
+  const labels=sorted.map(d=>`${d.year} ${translatePeriod(d.period_name)}`);
   niaRenderAbsChart(sorted,labels);
   niaRenderGrowthChart(sorted,labels);
 }
 function niaRenderAbsChart(sorted,labels){
   const selected=niaSelectedAbs();
   const datasets=NIA_METRICS.filter(m=>selected.includes(m.key)).map(m=>({
-    label:`${m.label}（万人次）`,
+    label:`${t(m.labelKey)} (${t('wan_unit')})`,
     data:sorted.map(d=>niaToWan(d[m.key+'_count'], d[m.key+'_unit'])),
     borderColor:m.color, backgroundColor:m.color,
     tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true
@@ -844,7 +1065,7 @@ function niaRenderAbsChart(sorted,labels){
   const opts={
     responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
     plugins:{legend:{position:'bottom'}, tooltip:{callbacks:{label:ctx=>{ let l=ctx.dataset.label||''; if(l)l+=': '; if(ctx.parsed.y!==null&&ctx.parsed.y!==undefined)l+=ctx.parsed.y.toLocaleString('zh-CN'); else l+='—'; return l; }}}, onClick:(e,elements)=>{ if(!elements||!elements.length)return; const d=sorted[elements[0].index]; if(d&&d.source_url)window.open(d.source_url,'_blank'); }},
-    scales:{y:{type:'linear',display:true,title:{display:true,text:'万人次'},grid:{color:'#f3f4f6'}}, x:{grid:{display:false}}}
+    scales:{y:{type:'linear',display:true,title:{display:true,text:t('wan_unit')},grid:{color:'#f3f4f6'}}, x:{grid:{display:false}}}
   };
   if(niaAbsChart){ niaAbsChart.data.labels=labels; niaAbsChart.data.datasets=datasets; niaAbsChart.update(); return; }
   niaAbsChart=new Chart(ctx,{type:'line', data:{labels,datasets}, options:opts});
@@ -852,7 +1073,7 @@ function niaRenderAbsChart(sorted,labels){
 function niaRenderGrowthChart(sorted,labels){
   const selected=niaSelectedGrowth();
   const datasets=NIA_METRICS.filter(m=>selected.includes(m.key)).map(m=>({
-    label:m.label,
+    label:t(m.labelKey),
     data:sorted.map(d=>d[m.key+'_yoy']),
     borderColor:m.color, backgroundColor:m.color,
     tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true
@@ -868,27 +1089,34 @@ function niaRenderGrowthChart(sorted,labels){
 }
 
 function latestUpdate(records, dateKey='publish_date'){
-  if(!records||!records.length) return '暂无数据';
+  if(!records||!records.length) return t('no_records');
   const sorted=[...records].sort((a,b)=>{
     const da=a[dateKey]||'', db=b[dateKey]||'';
     return db.localeCompare(da);
   });
   const d=sorted[0];
   const date=fmtDateSlash(d[dateKey])||'—';
-  const label=d.holiday_name||d.period_name||'—';
+  const label=d.holiday_name ? translateHoliday(d.holiday_name) : (d.period_name ? translatePeriod(d.period_name) : '—');
   return `${date}（${label}）`;
 }
+
+updateLangButtons();
+renderI18n();
+document.getElementById('sub-language').value = currentLang;
 
 mctRenderFilters(); mctRender();
 motRenderFilters(); motRender();
 niaRenderFilters(); niaRender();
 
-document.getElementById('home-mct-status').textContent = '文旅部数据更新至 ' + latestUpdate(mctData2);
-document.getElementById('home-mot-status').textContent = '交通部数据更新至 ' + latestUpdate(motData);
-document.getElementById('home-nia-status').textContent = '移民局数据更新至 ' + latestUpdate(niaData);
-document.getElementById('mct-last-update').textContent = '本页数据更新至：' + latestUpdate(mctData2);
-document.getElementById('mot-last-update').textContent = '本页数据更新至：' + latestUpdate(motData);
-document.getElementById('nia-last-update').textContent = '本页数据更新至：' + latestUpdate(niaData);
+function updateStatusText() {
+  document.getElementById('home-mct-status').textContent = t('status_prefix') + ' ' + latestUpdate(mctData2);
+  document.getElementById('home-mot-status').textContent = t('status_prefix') + ' ' + latestUpdate(motData);
+  document.getElementById('home-nia-status').textContent = t('status_prefix') + ' ' + latestUpdate(niaData);
+  document.getElementById('mct-last-update').textContent = t('latest_update_prefix') + latestUpdate(mctData2);
+  document.getElementById('mot-last-update').textContent = t('latest_update_prefix') + latestUpdate(motData);
+  document.getElementById('nia-last-update').textContent = t('latest_update_prefix') + latestUpdate(niaData);
+}
+updateStatusText();
 
 // ---------- Subscribe ----------
 document.getElementById('subscribe-form').addEventListener('submit', async function(e){
@@ -901,31 +1129,33 @@ document.getElementById('subscribe-form').addEventListener('submit', async funct
   const company = document.getElementById('sub-company').value.trim();
   const job_title = document.getElementById('sub-job-title').value.trim();
   const phone = document.getElementById('sub-phone').value.trim();
+  const language = document.getElementById('sub-language').value || currentLang;
   btn.disabled = true;
-  btn.textContent = '提交中…';
+  btn.textContent = t('form_submitting');
   msg.textContent = '';
   msg.className = 'subscribe-msg';
   try {
     const resp = await fetch('/api/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, first_name, last_name, company, job_title, phone })
+      body: JSON.stringify({ email, first_name, last_name, company, job_title, phone, language })
     });
     const data = await resp.json().catch(() => ({}));
     if (resp.ok && data.success) {
-      msg.textContent = data.message || '确认邮件已发送，请查收邮箱';
+      msg.textContent = data.message || t('form_success');
       msg.classList.add('success');
       e.target.reset();
+      document.getElementById('sub-language').value = currentLang;
     } else {
-      msg.textContent = data.error || '提交失败，请稍后重试';
+      msg.textContent = data.error || t('form_error');
       msg.classList.add('error');
     }
   } catch (err) {
-    msg.textContent = '提交失败：' + err.message;
+    msg.textContent = t('form_error') + ': ' + err.message;
     msg.classList.add('error');
   } finally {
     btn.disabled = false;
-    btn.textContent = '订阅';
+    btn.textContent = t('form_subscribe');
   }
 });
 </script>
