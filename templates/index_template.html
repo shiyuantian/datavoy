@@ -9,7 +9,7 @@
 :root { --primary:#0e7490; --primary-light:#ecfeff; --accent:#0d9488; --success:#059669; --warning:#d97706; --danger:#dc2626; --text:#0f172a; --muted:#64748b; --bg:#f0f9ff; --card:rgba(255,255,255,0.92); --border:#e2e8f0; --shadow:0 4px 20px rgba(14,116,144,.08); }
 * { box-sizing:border-box; }
 html { scroll-behavior:smooth; }
-body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif; margin:0; background:linear-gradient(180deg,#f0f9ff 0%,#e0f2fe 40%,#ccfbf1 100%) fixed; color:var(--text); line-height:1.55; }
+body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif; margin:0; background:linear-gradient(180deg,#f0f9ff 0%,#e0f2fe 40%,#ccfbf1 100%) fixed; color:var(--text); line-height:1.55; overflow-x:hidden; }
 body::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:0; background:radial-gradient(circle at 8% 12%,rgba(14,165,233,.12) 0%,transparent 28%),radial-gradient(circle at 92% 88%,rgba(13,148,136,.10) 0%,transparent 30%); }
 header { background:rgba(255,255,255,.82); backdrop-filter:saturate(180%) blur(12px); border-bottom:1px solid rgba(226,232,240,.85); padding:14px 24px; position:sticky; top:0; z-index:50; }
 .nav { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:16px; }
@@ -81,26 +81,34 @@ a:hover { color:var(--primary); text-decoration:underline; }
 
 /* Mobile */
 @media (max-width: 768px) {
-  header { padding:10px 16px; }
-  .nav { flex-direction:column; align-items:flex-start; gap:10px; }
-  .tabs { width:100%; overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch; gap:6px; padding-bottom:4px; }
-  .tab { white-space:nowrap; padding:6px 12px; font-size:13px; }
-  main { padding:20px 16px; }
-  .hero-scene { padding:52px 20px 68px; border-radius:20px; }
+  header { padding:10px 14px; }
+  .nav { flex-wrap:nowrap; gap:8px; }
+  .brand { font-size:16px; }
+  .brand-icon { width:30px; height:30px; }
+  .brand-icon svg { width:18px; height:18px; }
+  .tabs { flex:1; min-width:0; overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch; gap:6px; padding-bottom:4px; scrollbar-width:none; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab { white-space:nowrap; padding:8px 12px; font-size:14px; }
+  main { padding:16px; }
+  .hero-scene { padding:48px 18px 60px; border-radius:18px; }
   .hero-scene h1 { font-size:32px; }
   .hero-scene .subtitle { font-size:16px; }
   .hero-scene .lead { font-size:14px; }
   .hero h1 { font-size:22px; }
   .hero p { font-size:14px; }
-  .card { padding:16px; border-radius:14px; }
+  .card { padding:14px; border-radius:14px; }
   .filter-bar { flex-direction:column; gap:16px; }
-  .filter-group { min-width:100%; }
-  .chart-canvas-wrap { height:260px; }
-  .chart-header { flex-direction:column; align-items:flex-start; }
+  .filter-group label { font-size:14px; }
+  .filter-chip { padding:8px 14px; font-size:14px; }
+  .btn { padding:8px 14px; font-size:13px; }
+  .chart-canvas-wrap { height:340px; }
+  .chart-title { font-size:15px; }
+  .chart-subtitle { font-size:12px; }
+  .chart-header { flex-direction:column; align-items:flex-start; gap:10px; }
   .metric-toggle { gap:10px; }
-  .metric-toggle label { font-size:12px; }
-  th,td { padding:10px 8px; font-size:12px; }
-  .module-item { padding:18px; }
+  .metric-toggle label { font-size:13px; }
+  th,td { padding:12px 10px; font-size:13px; }
+  .module-item { padding:16px; }
   .values-grid { grid-template-columns:1fr; }
   .modules-grid { grid-template-columns:1fr; }
   .subscribe-row { flex-direction:column; align-items:stretch; }
@@ -111,7 +119,8 @@ a:hover { color:var(--primary); text-decoration:underline; }
   .hero-scene h1 { font-size:28px; }
   .brand-wordmark { font-size:18px; }
   .section-title { font-size:16px; }
-  .chart-canvas-wrap { height:220px; }
+  .chart-canvas-wrap { height:300px; }
+  .tab { padding:7px 10px; font-size:13px; }
 }
 
 /* Scenic hero */
