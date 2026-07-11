@@ -116,6 +116,18 @@ a:hover { color:var(--primary); text-decoration:underline; }
 .status-dot { width:8px; height:8px; border-radius:50%; }
 .status-dot.green { background:var(--success); }
 footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; color:var(--muted); text-align:center; position:relative; z-index:1; }
+.subscribe-form { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; }
+.subscribe-form .field { display:flex; flex-direction:column; gap:6px; flex:1; min-width:220px; }
+.subscribe-form label { font-size:13px; font-weight:600; color:#374151; }
+.subscribe-form input { padding:10px 14px; border:1px solid var(--border); border-radius:10px; font-size:14px; outline:none; transition:border-color .15s ease,box-shadow .15s ease; }
+.subscribe-form input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(14,116,144,.12); }
+.subscribe-form button { padding:10px 18px; background:linear-gradient(135deg,var(--primary),var(--accent)); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; transition:transform .15s ease,box-shadow .15s ease; }
+.subscribe-form button:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(14,116,144,.25); }
+.subscribe-form button:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+.subscribe-msg { margin-top:10px; font-size:13px; min-height:20px; }
+.subscribe-msg.success { color:var(--success); }
+.subscribe-msg.error { color:var(--danger); }
+.privacy-note { font-size:12px; color:var(--muted); margin-top:10px; line-height:1.6; }
 </style>
 </head>
 <body>
@@ -128,6 +140,7 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
   <symbol id="icon-shield-check" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 12 15 16 10"/></symbol>
   <symbol id="icon-compass-needle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></symbol>
   <symbol id="icon-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><circle cx="16" cy="8" r="3"/></symbol>
+  <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
 </svg>
 
 <header>
@@ -209,6 +222,23 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
         <div class="status-item"><span class="status-dot green"></span><span id="home-mct-status">文旅部数据更新至 …</span></div>
         <div class="status-item"><span class="status-dot green"></span><span id="home-mot-status">交通部数据更新至 …</span></div>
       </div>
+    </section>
+    <section class="card subscribe-card">
+      <div class="section-title"><svg><use href="#icon-bell"></use></svg>订阅数据更新</div>
+      <p style="margin:0 0 14px;font-size:14px;color:var(--muted);">新数据上线时，第一时间通过邮件通知你。可选留下手机号，未来支持短信提醒。</p>
+      <form id="subscribe-form" class="subscribe-form">
+        <div class="field">
+          <label for="sub-email">邮箱地址 *</label>
+          <input id="sub-email" type="email" name="email" placeholder="your@email.com" required>
+        </div>
+        <div class="field">
+          <label for="sub-phone">手机号（可选）</label>
+          <input id="sub-phone" type="tel" name="phone" placeholder="+86 138 0000 0000">
+        </div>
+        <button type="submit" id="sub-btn">订阅</button>
+      </form>
+      <div id="subscribe-msg" class="subscribe-msg"></div>
+      <p class="privacy-note">我们仅将信息用于数据更新通知，可随时通过邮件中的链接退订。</p>
     </section>
   </section>
 
@@ -605,6 +635,41 @@ document.getElementById('home-mct-status').textContent = '文旅部数据更新�
 document.getElementById('home-mot-status').textContent = '交通部数据更新至 ' + latestUpdate(motData);
 document.getElementById('mct-last-update').textContent = '本页数据更新至：' + latestUpdate(mctData2);
 document.getElementById('mot-last-update').textContent = '本页数据更新至：' + latestUpdate(motData);
+
+// ---------- Subscribe ----------
+document.getElementById('subscribe-form').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const btn = document.getElementById('sub-btn');
+  const msg = document.getElementById('subscribe-msg');
+  const email = document.getElementById('sub-email').value.trim();
+  const phone = document.getElementById('sub-phone').value.trim();
+  btn.disabled = true;
+  btn.textContent = '提交中…';
+  msg.textContent = '';
+  msg.className = 'subscribe-msg';
+  try {
+    const resp = await fetch('/api/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, phone })
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (resp.ok && data.success) {
+      msg.textContent = data.message || '确认邮件已发送，请查收邮箱';
+      msg.classList.add('success');
+      e.target.reset();
+    } else {
+      msg.textContent = data.error || '提交失败，请稍后重试';
+      msg.classList.add('error');
+    }
+  } catch (err) {
+    msg.textContent = '提交失败：' + err.message;
+    msg.classList.add('error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '订阅';
+  }
+});
 </script>
 </body>
 </html>
