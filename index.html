@@ -561,7 +561,8 @@ function mctSelectedGrowth(){ return [...document.querySelectorAll('#mct-growthM
 let mctAbsChart=null, mctGrowthChart=null;
 function mctGetFiltered(){
   const ys=mctSelected('year'), hs=mctSelected('holiday');
-  return mctData2.filter(d=>(ys.length===0||ys.includes(d.year))&&(hs.length===0||hs.includes(d.holiday_name)));
+  if(ys.length===0 || hs.length===0) return [];
+  return mctData2.filter(d=>ys.includes(d.year)&&hs.includes(d.holiday_name));
 }
 function mctRender(){
   const filtered=mctGetFiltered();
@@ -650,7 +651,8 @@ function motSelectedGrowth(){ return [...document.querySelectorAll('#mot-growthM
 let motAbsChart=null, motGrowthChart=null;
 function motGetFiltered(){
   const ys=motSelected('year'), hs=motSelected('holiday');
-  return motData.filter(d=>(ys.length===0||ys.includes(d.year))&&(hs.length===0||hs.includes(d.holiday_name)));
+  if(ys.length===0 || hs.length===0) return [];
+  return motData.filter(d=>ys.includes(d.year)&&hs.includes(d.holiday_name));
 }
 function motFmtCell(value, unit, url){
   if(value===null||value===undefined) return '<span class="yoy neutral">—</span>';
@@ -782,7 +784,8 @@ function niaSelectedGrowth(){ return [...document.querySelectorAll('#nia-growthM
 let niaAbsChart=null, niaGrowthChart=null;
 function niaGetFiltered(){
   const ys=niaSelected('year'), ps=niaSelected('period');
-  return niaData.filter(d=>(ys.length===0||ys.includes(d.year))&&(ps.length===0||ps.includes(d.period_name)));
+  if(ys.length===0 || ps.length===0) return [];
+  return niaData.filter(d=>ys.includes(d.year)&&ps.includes(d.period_name));
 }
 function niaFmtValue(value, unit){
   if(value===null||value===undefined) return '—';
