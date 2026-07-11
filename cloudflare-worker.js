@@ -81,10 +81,9 @@ export default {
             <p>请点击下方按钮确认订阅：</p>
             <p><a href="${confirmUrl}" style="display:inline-block;padding:12px 24px;background:#0e7490;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;">确认订阅</a></p>
             <p style="font-size:13px;color:#64748b;">如果这不是你操作的，请忽略此邮件。</p>
-            <p style="font-size:12px;color:#94a3b8;">提示：若收件箱未看到这封邮件，请检查「垃圾邮件」或「推广邮件」文件夹。</p>
           </div>
         `);
-        return jsonResponse({ success: true, message: '确认邮件已发送，请查收邮箱（含垃圾邮件/推广邮件夹）。' });
+        return jsonResponse({ success: true, message: '确认邮件已发送，请查收邮箱。' });
       } catch (e) {
         return jsonResponse({ error: e.message }, 500);
       }
