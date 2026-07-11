@@ -26,6 +26,7 @@ def main():
         headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {secret}",
+            "User-Agent": "DatavoyNotifyTest/1.0",
         },
         method="POST",
     )
