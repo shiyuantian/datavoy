@@ -289,22 +289,21 @@ export default {
       }
     }
 
-    // Proxy to GitHub Pages
+    // Proxy to GitHub Pages (datavoy project site)
     const originalHost = url.host;
     const targetHost = 'shiyuantian.github.io';
-    let path = pathname;
     const search = url.search;
-    if (path === '/' || path === '') {
+    if (pathname === '/' || pathname === '') {
       return Response.redirect(`${url.protocol}//${originalHost}/datavoy/`, 302);
     }
-    if (path === '/datavoy' || path === '/datavoy/') {
-      path = '/datavoy/';
-    } else if (path.startsWith('/datavoy/')) {
-      path = path.slice('/datavoy'.length);
-    } else {
+    if (pathname === '/datavoy') {
       return Response.redirect(`${url.protocol}//${originalHost}/datavoy/`, 302);
     }
-    const targetUrl = `${url.protocol}//${targetHost}${path}${search}`;
+    if (!pathname.startsWith('/datavoy/')) {
+      return Response.redirect(`${url.protocol}//${originalHost}/datavoy/`, 302);
+    }
+    // Keep the /datavoy/ prefix so static assets resolve correctly on GitHub Pages
+    const targetUrl = `${url.protocol}//${targetHost}${pathname}${search}`;
     const modifiedRequest = new Request(targetUrl, {
       method: request.method,
       headers: { ...Object.fromEntries(request.headers), host: targetHost },
@@ -314,7 +313,7 @@ export default {
     const newHeaders = new Headers(response.headers);
     const location = newHeaders.get('location');
     if (location) {
-      newHeaders.set('location', location.replace(`https://${targetHost}`, `https://${originalHost}/datavoy`));
+      newHeaders.set('location', location.replace(`https://${targetHost}`, `https://${originalHost}`));
     }
     return new Response(response.body, { status: response.status, statusText: response.statusText, headers: newHeaders });
   },
