@@ -105,7 +105,7 @@ a:hover { color:var(--primary); text-decoration:underline; }
   .tab { white-space:nowrap; padding:7px 10px; font-size:13px; }
   main { padding:8px; }
   .hero-scene { padding:44px 16px 56px; border-radius:16px; }
-  .hero-scene h1 { font-size:30px; }
+  .hero-scene h1 { font-size:clamp(22px, 7vw, 30px); white-space:nowrap; }
   .hero-scene .subtitle { font-size:15px; }
   .hero-scene .lead { font-size:13px; }
   .hero h1 { font-size:20px; }
@@ -134,7 +134,7 @@ a:hover { color:var(--primary); text-decoration:underline; }
   footer { padding:0 8px 24px; }
 }
 @media (max-width: 480px) {
-  .hero-scene h1 { font-size:26px; }
+  .hero-scene h1 { font-size:22px; }
   .brand-wordmark { font-size:17px; }
   .section-title { font-size:15px; }
   .chart-canvas-wrap { height:320px; }
@@ -759,7 +759,7 @@ const I18N = {
     no_records: 'No matching records', total_flow_unit: '100M trips', trips_unit: '100M trips', spending_unit: '100M CNY',
     metric_total: 'Total', metric_mainland: 'Mainland', metric_hktwmo: 'HK/TW/MO', metric_foreign: 'Foreigners', metric_visafree: 'Visa-free',
     yoy_daily: ' (daily avg)', days_meta: '{0} days',
-    footer: 'Datavoy · Travel Data Reference',
+    footer: 'Datavoy · Travel Data Atlas',
     contact_button: 'Feedback',
     contact_title: 'Feedback',
     contact_name: 'Name (optional)',
