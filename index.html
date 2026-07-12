@@ -44,7 +44,9 @@ main { max-width:1200px; margin:0 auto; padding:28px 24px; position:relative; z-
 .count { margin-bottom:12px; font-size:13px; color:var(--muted); }
 table { width:100%; border-collapse:collapse; background:var(--card); border-radius:16px; overflow:hidden; box-shadow:var(--shadow); border:1px solid rgba(226,232,240,.7); }
 th,td { padding:12px 10px; text-align:center; font-size:13px; border-bottom:1px solid #f1f5f9; white-space:nowrap; }
-th { background:#f8fafc; font-weight:600; color:#374151; white-space:normal; vertical-align:bottom; }
+th { background:#f8fafc; font-weight:600; color:#374151; vertical-align:top; }
+th.nowrap, td.nowrap { white-space:nowrap; }
+.col-holiday { text-align:left !important; }
 .th-unit { display:block; font-size:11px; color:var(--muted); font-weight:400; margin-top:2px; }
 tbody tr:hover { background:#f8fafc; }
 .metric { display:flex; flex-direction:column; gap:2px; align-items:center; }
@@ -424,7 +426,7 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th data-i18n="mct_table_year">年份</th><th data-i18n="mct_table_holiday">节假日</th><th data-i18n="mct_table_publish">发布日期</th><th data-i18n-html="mct_table_visitors">国内出游人次<br><span class="th-unit">（亿人次）</span></th><th data-i18n="mct_table_visitors_yoy">同比</th><th data-i18n-html="mct_table_spending">国内出游总花费<br><span class="th-unit">（亿元）</span></th><th data-i18n="mct_table_spending_yoy">同比</th></tr>
+          <tr><th data-i18n="mct_table_year">年份</th><th data-i18n="mct_table_holiday" class="col-holiday">节假日</th><th data-i18n="mct_table_publish">发布日期</th><th data-i18n-html="mct_table_visitors">国内出游人次<br><span class="th-unit">（亿人次）</span></th><th data-i18n="mct_table_visitors_yoy">同比</th><th data-i18n-html="mct_table_spending">国内出游总花费<br><span class="th-unit">（亿元）</span></th><th data-i18n="mct_table_spending_yoy">同比</th></tr>
         </thead>
         <tbody id="mct-tbody"></tbody>
       </table>
@@ -479,8 +481,8 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
       <table>
         <thead>
           <tr>
-            <th data-i18n="mot_table_year">年份</th><th data-i18n="mot_table_holiday">节假日</th><th data-i18n="mot_table_publish">发布日期</th>
-            <th data-i18n-html="mot_table_total">全社会跨区域人员流动量<br><span class="th-unit">（亿人次）</span></th><th data-i18n="mot_table_total_yoy">同比</th>
+            <th data-i18n="mot_table_year">年份</th><th data-i18n="mot_table_holiday" class="col-holiday">节假日</th><th data-i18n="mot_table_publish">发布日期</th>
+            <th data-i18n-html="mot_table_total" class="nowrap">全社会跨区域人员流动量<br><span class="th-unit">（亿人次）</span></th><th data-i18n="mot_table_total_yoy">同比</th>
             <th data-i18n-html="mot_table_railway">铁路<br><span class="th-unit">（万人次）</span></th><th data-i18n="mot_table_railway_yoy">同比</th>
             <th data-i18n-html="mot_table_highway">公路<br><span class="th-unit">（亿人次）</span></th><th data-i18n="mot_table_highway_yoy">同比</th>
             <th data-i18n-html="mot_table_waterway">水路<br><span class="th-unit">（万人次）</span></th><th data-i18n="mot_table_waterway_yoy">同比</th>
@@ -540,7 +542,7 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
       <table>
         <thead>
           <tr>
-            <th data-i18n="nia_table_year">年份</th><th data-i18n="nia_table_period">时期</th><th data-i18n="nia_table_publish">发布日期</th>
+            <th data-i18n="nia_table_year">年份</th><th data-i18n="nia_table_period" class="col-holiday">时期</th><th data-i18n="nia_table_publish">发布日期</th>
             <th data-i18n-html="nia_table_total">中外人员<br><span class="th-unit">（亿人次）</span></th><th data-i18n="nia_table_total_yoy">同比</th>
             <th data-i18n-html="nia_table_mainland">内地居民<br><span class="th-unit">（亿人次）</span></th><th data-i18n="nia_table_mainland_yoy">同比</th>
             <th data-i18n-html="nia_table_hktwmo">港澳台居民<br><span class="th-unit">（亿人次）</span></th><th data-i18n="nia_table_hktwmo_yoy">同比</th>
@@ -998,11 +1000,11 @@ function mctRender(){
   if(!rows.length){ tb.innerHTML=`<tr><td colspan="7" class="empty">${t('no_records')}</td></tr>`; mctRenderCharts([]); return; }
   tb.innerHTML = rows.map(d=> d.type==='missing' ? `<tr class="missing-row">
     <td>${d.year}</td>
-    <td>${fmtHolidayMeta(d.holiday_name)}</td>
+    <td class="col-holiday">${fmtHolidayMeta(d.holiday_name)}</td>
     <td colspan="5"><span class="missing-note">${t('missing_note')}</span></td>
   </tr>` : `<tr>
     <td>${d.year||'—'}</td>
-    <td>${d.source_url?`<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">`:''}${fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days)}${d.source_url?'</a>':''}</td>
+    <td class="col-holiday">${d.source_url?`<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">`:''}${fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days)}${d.source_url?'</a>':''}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">`:''}${fmtDateSlash(d.publish_date)||'—'}${d.source_url?'</a>':''}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}<span class="metric-value">${fmtNum(d.visitor_count)}</span>${d.source_url?'</a>':''}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoy(d.visitor_yoy,d.visitor_daily_yoy,d.missing_reason_visitor_yoy)}${d.source_url?'</a>':''}</td>
@@ -1153,14 +1155,34 @@ function motRender(){
   tb.innerHTML = rows.map(d => {
     if (d.type==='missing') return `<tr class="missing-row">
       <td>${d.year}</td>
-      <td>${fmtHolidayMeta(d.holiday_name)}</td>
+      <td class="col-holiday">${fmtHolidayMeta(d.holiday_name)}</td>
       <td colspan="11"><span class="missing-note">${t('missing_note')}</span></td>
     </tr>`;
     const idx=recIdx++;
     const holidayMeta = fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days,d.daily_breakdown?d.source_note:null);
     return `<tr>
     <td>${d.year||'—'}</td>
-    <td>${d.source_url?`<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">`:''}${holidayMeta}${d.source_url?'</a>':''}${d.daily_breakdown?` <button class="expand-btn" onclick="motToggleDetail(${idx},this)">${t('mot_expand_daily')}</button>`:''}</td>
+    <td class="col-holiday">${d.source_url?`<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">`:''}${holidayMeta}${d.source_url?'</a>':''}${d.daily_breakdown?` <button class="expand-btn" onclick="motToggleDetail(${idx},this)">${t('mot_expand_daily')}</button>`:''}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">`:''}${fmtDateSlash(d.publish_date)||'—'}${d.source_url?'</a>':''}</td>
+    <td>${motFmtCell(d.total_flow,d.total_flow_unit,d.source_url)}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoySimple(d.total_flow_yoy)}${d.source_url?'</a>':''}</td>
+    <td>${motFmtCell(d.railway,d.railway_unit,d.source_url)}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoySimple(d.railway_yoy)}${d.source_url?'</a>':''}</td>
+    <td>${motFmtCell(d.highway,d.highway_unit,d.source_url)}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoySimple(d.highway_yoy)}${d.source_url?'</a>':''}</td>
+    <td>${motFmtCell(d.waterway,d.waterway_unit,d.source_url)}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoySimple(d.waterway_yoy)}${d.source_url?'</a>':''}</td>
+    <td>${motFmtCell(d.aviation,d.aviation_unit,d.source_url)}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoySimple(d.aviation_yoy)}${d.source_url?'</a>':''}</td>
+  </tr>${d.daily_breakdown?motRenderDailyBreakdown(d,idx):''}`;
+  }).join('');
+  motRenderCharts(rows.filter(d => d.type !== 'missing'));
+}
+function motRenderCharts(filtered){
+    const holidayMeta = fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days,d.daily_breakdown?d.source_note:null);
+    return `<tr>
+    <td>${d.year||'—'}</td>
+    <td class="col-holiday">${d.source_url?`<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">`:''}${holidayMeta}${d.source_url?'</a>':''}${d.daily_breakdown?` <button class="expand-btn" onclick="motToggleDetail(${idx},this)">${t('mot_expand_daily')}</button>`:''}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">`:''}${fmtDateSlash(d.publish_date)||'—'}${d.source_url?'</a>':''}</td>
     <td>${motFmtCell(d.total_flow,d.total_flow_unit,d.source_url)}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoySimple(d.total_flow_yoy)}${d.source_url?'</a>':''}</td>
@@ -1282,7 +1304,7 @@ function niaRender(){
     const periodCell = d.source_url ? `<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">${periodCellRaw}</a>` : periodCellRaw;
     return `<tr>
     <td>${d.year||'—'}</td>
-    <td>${periodCell}</td>
+    <td class="col-holiday">${periodCell}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">`:''}${fmtDateSlash(d.publish_date)||'—'}${d.source_url?'</a>':''}</td>
     <td>${niaFmtCount(d.total_count, d.total_unit, d.source_url)}</td>
     <td>${niaFmtYoyCell(d.total_yoy, d.source_url)}</td>
