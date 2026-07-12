@@ -116,7 +116,7 @@ function adminPage(env, secret) {
   }
   return (async () => {
     const subscribers = await listKVPrefix(env, 'email:');
-    const messages = (await listKVPrefix(env, 'message:')).sort((a, b) => (b.created || 0) - (a.created || 0));
+    const messages = (await listKVPrefix(env, 'contact:')).sort((a, b) => (b.created || 0) - (a.created || 0));
     const dateFmt = ts => ts ? new Date(ts).toLocaleString('zh-CN') : '—';
     const esc = text => (text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const subscribersHtml = subscribers.length
