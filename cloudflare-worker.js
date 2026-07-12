@@ -96,6 +96,83 @@ function htmlResponse(title, body) {
   );
 }
 
+async function listKVPrefix(env, prefix) {
+  const results = [];
+  let cursor = null;
+  do {
+    const list = await env.SUBSCRIBERS.list({ prefix, cursor: cursor || undefined });
+    for (const key of list.keys) {
+      const raw = await env.SUBSCRIBERS.get(key.name);
+      if (raw) results.push({ key: key.name, ...JSON.parse(raw) });
+    }
+    cursor = list.list_complete ? null : list.cursor;
+  } while (cursor);
+  return results;
+}
+
+function adminPage(env, secret) {
+  if (!secret || secret !== env.NOTIFY_SECRET) {
+    return new Response('Unauthorized', { status: 401, headers: { 'Content-Type': 'text/plain' } });
+  }
+  return (async () => {
+    const subscribers = await listKVPrefix(env, 'email:');
+    const messages = (await listKVPrefix(env, 'message:')).sort((a, b) => (b.created || 0) - (a.created || 0));
+    const dateFmt = ts => ts ? new Date(ts).toLocaleString('zh-CN') : '—';
+    const esc = text => (text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const subscribersHtml = subscribers.length
+      ? `<table><thead><tr><th>Email</th><th>Name</th><th>Company</th><th>Job</th><th>Phone</th><th>Lang</th><th>Status</th><th>Created</th></tr></thead><tbody>` +
+        subscribers.map(s => `<tr>
+          <td>${esc(s.email)}</td>
+          <td>${esc([s.last_name, s.first_name].filter(Boolean).join(' '))}</td>
+          <td>${esc(s.company)}</td>
+          <td>${esc(s.job_title)}</td>
+          <td>${esc(s.phone)}</td>
+          <td>${esc(s.language)}</td>
+          <td>${esc(s.status)}</td>
+          <td>${dateFmt(s.created)}</td>
+        </tr>`).join('') +
+        `</tbody></table>`
+      : '<p>No subscribers yet.</p>';
+    const messagesHtml = messages.length
+      ? `<table><thead><tr><th>Time</th><th>Name</th><th>Company</th><th>Job</th><th>Email</th><th>Phone</th><th>Message</th><th>IP</th></tr></thead><tbody>` +
+        messages.map(m => `<tr>
+          <td>${dateFmt(m.created)}</td>
+          <td>${esc([m.last_name, m.first_name].filter(Boolean).join(' '))}</td>
+          <td>${esc(m.company)}</td>
+          <td>${esc(m.job_title)}</td>
+          <td>${esc(m.email)}</td>
+          <td>${esc(m.phone)}</td>
+          <td style="white-space:pre-wrap;">${esc(m.message)}</td>
+          <td>${esc(m.ip)}</td>
+        </tr>`).join('') +
+        `</tbody></table>`
+      : '<p>No messages yet.</p>';
+    const html = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datavoy Admin</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;max-width:1200px;margin:40px auto;padding:24px;line-height:1.6;color:#0f172a;background:#f8fafc}
+h1,h2{color:#0e7490}
+section{background:#fff;border-radius:12px;padding:24px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;margin-top:12px}
+th,td{padding:10px 12px;text-align:left;font-size:13px;border-bottom:1px solid #e2e8f0}
+th{background:#f1f5f9;font-weight:600}
+tr:hover{background:#f8fafc}
+</style>
+</head>
+<body>
+<h1>Datavoy Admin</h1>
+<section><h2>Subscribers (${subscribers.length})</h2>${subscribersHtml}</section>
+<section><h2>Messages (${messages.length})</h2>${messagesHtml}</section>
+</body>
+</html>`;
+    return new Response(html, { headers: { 'Content-Type': 'text/html;charset=utf-8' } });
+  })();
+}
+
 function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -248,10 +325,17 @@ export default {
           </div>
         `;
         await sendEmail(env, adminEmail, subject, html);
+        const msgKey = `message:${crypto.randomUUID()}`;
+        await env.SUBSCRIBERS.put(msgKey, JSON.stringify({ last_name, first_name, company, job_title, email, phone, message, ip: clientIP, created: Date.now() }), { expirationTtl: 90 * 86400 });
         return jsonResponse({ success: true });
       } catch (e) {
         return jsonResponse({ error: e.message }, 500);
       }
+    }
+
+    // Admin page
+    if (pathname === '/admin' && request.method === 'GET') {
+      return adminPage(env, url.searchParams.get('secret'));
     }
 
     // API: notify (admin)
