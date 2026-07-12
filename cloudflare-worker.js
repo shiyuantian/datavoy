@@ -206,13 +206,18 @@ export default {
     if (pathname === '/api/contact' && request.method === 'POST') {
       try {
         const data = await request.json();
-        const name = (data.name || '').trim();
+        const last_name = (data.last_name || '').trim();
+        const first_name = (data.first_name || '').trim();
+        const company = (data.company || '').trim();
+        const job_title = (data.job_title || '').trim();
         const email = (data.email || '').trim().toLowerCase();
+        const phone = (data.phone || '').trim();
         const message = (data.message || '').trim();
+        const name = [last_name, first_name].filter(Boolean).join(' ');
         const honey = data._gotcha || data.website || '';
         if (honey) return jsonResponse({ success: true });
-        if (!message || message.length < 5) {
-          return jsonResponse({ error: 'Message is too short' }, 400);
+        if (!last_name && !first_name && !company && !job_title && !email && !phone && !message) {
+          return jsonResponse({ error: 'Please fill in at least one field' }, 400);
         }
         if (email && !validateEmail(email)) {
           return jsonResponse({ error: 'Invalid email address' }, 400);
@@ -232,9 +237,13 @@ export default {
         const html = `
           <div style="max-width:480px;margin:40px auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.6;color:#0f172a;">
             <h2 style="color:#0e7490;">Datavoy Feedback</h2>
-            <p><strong>From:</strong> ${name || 'Anonymous'} ${email ? `(${email})` : ''}</p>
+            <p><strong>Name:</strong> ${name ? escapeHtml(name) : '—'}</p>
+            <p><strong>Company:</strong> ${company ? escapeHtml(company) : '—'}</p>
+            <p><strong>Job Title:</strong> ${job_title ? escapeHtml(job_title) : '—'}</p>
+            <p><strong>Email:</strong> ${email ? escapeHtml(email) : '—'}</p>
+            <p><strong>Phone:</strong> ${phone ? escapeHtml(phone) : '—'}</p>
             <p><strong>Message:</strong></p>
-            <p style="white-space:pre-wrap;">${escapeHtml(message)}</p>
+            <p style="white-space:pre-wrap;">${message ? escapeHtml(message) : '—'}</p>
             <p style="font-size:12px;color:#64748b;margin-top:40px;">IP: ${clientIP}</p>
           </div>
         `;
