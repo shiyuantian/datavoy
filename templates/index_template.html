@@ -1002,8 +1002,8 @@ function mctRender(){
     <td colspan="5"><span class="missing-note">${t('missing_note')}</span></td>
   </tr>` : `<tr>
     <td>${d.year||'—'}</td>
-    <td>${fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days)}</td>
-    <td>${fmtDateSlash(d.publish_date)||'—'}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">`:''}${fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days)}${d.source_url?'</a>':''}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">`:''}${fmtDateSlash(d.publish_date)||'—'}${d.source_url?'</a>':''}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}<span class="metric-value">${fmtNum(d.visitor_count)}</span>${d.source_url?'</a>':''}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoy(d.visitor_yoy,d.visitor_daily_yoy,d.missing_reason_visitor_yoy)}${d.source_url?'</a>':''}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}<span class="metric-value">${fmtNum(d.spending)}</span>${d.source_url?'</a>':''}</td>
@@ -1157,10 +1157,11 @@ function motRender(){
       <td colspan="11"><span class="missing-note">${t('missing_note')}</span></td>
     </tr>`;
     const idx=recIdx++;
+    const holidayMeta = fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days,d.daily_breakdown?d.source_note:null);
     return `<tr>
     <td>${d.year||'—'}</td>
-    <td>${fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days,d.daily_breakdown?d.source_note:null)}${d.daily_breakdown?` <button class="expand-btn" onclick="motToggleDetail(${idx},this)">${t('mot_expand_daily')}</button>`:''}</td>
-    <td>${fmtDateSlash(d.publish_date)||'—'}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">`:''}${holidayMeta}${d.source_url?'</a>':''}${d.daily_breakdown?` <button class="expand-btn" onclick="motToggleDetail(${idx},this)">${t('mot_expand_daily')}</button>`:''}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">`:''}${fmtDateSlash(d.publish_date)||'—'}${d.source_url?'</a>':''}</td>
     <td>${motFmtCell(d.total_flow,d.total_flow_unit,d.source_url)}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoySimple(d.total_flow_yoy)}${d.source_url?'</a>':''}</td>
     <td>${motFmtCell(d.railway,d.railway_unit,d.source_url)}</td>
@@ -1275,13 +1276,14 @@ function niaRender(){
   if(!filtered.length){ tb.innerHTML=`<tr><td colspan="13" class="empty">${t('no_records')}</td></tr>`; niaRenderCharts(filtered); return; }
   tb.innerHTML = filtered.map(d=>{
     const meta = getHolidayMeta(d.year, d.period_name);
-    const periodCell = meta
+    const periodCellRaw = meta
       ? fmtHolidayMeta(d.period_name, meta.start, meta.end, meta.days)
       : `<span class="tag">${translatePeriod(d.period_name)||'—'}</span>`;
+    const periodCell = d.source_url ? `<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">${periodCellRaw}</a>` : periodCellRaw;
     return `<tr>
     <td>${d.year||'—'}</td>
     <td>${periodCell}</td>
-    <td>${fmtDateSlash(d.publish_date)||'—'}</td>
+    <td>${d.source_url?`<a href="${d.source_url}" target="_blank" style="color:inherit;text-decoration:none;">`:''}${fmtDateSlash(d.publish_date)||'—'}${d.source_url?'</a>':''}</td>
     <td>${niaFmtCount(d.total_count, d.total_unit, d.source_url)}</td>
     <td>${niaFmtYoyCell(d.total_yoy, d.source_url)}</td>
     <td>${niaFmtCount(d.mainland_count, d.mainland_unit, d.source_url)}</td>
