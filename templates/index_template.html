@@ -184,6 +184,31 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
 .subscribe-msg.success { color:var(--success); }
 .subscribe-msg.error { color:var(--danger); }
 .privacy-note { font-size:12px; color:var(--muted); margin-top:10px; line-height:1.6; }
+.contact-fab { position:fixed; right:18px; bottom:18px; z-index:60; padding:12px 18px; border-radius:24px; background:linear-gradient(135deg,var(--primary),var(--accent)); color:#fff; font-size:13px; font-weight:600; border:none; box-shadow:0 4px 14px rgba(14,116,144,.3); cursor:pointer; transition:transform .15s ease,box-shadow .15s ease; }
+.contact-fab:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(14,116,144,.35); }
+.modal-overlay { position:fixed; inset:0; background:rgba(15,23,42,.45); backdrop-filter:blur(4px); z-index:70; display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-overlay.active { display:flex; }
+.modal-card { background:var(--card); border-radius:18px; padding:24px; width:100%; max-width:480px; box-shadow:0 20px 50px rgba(15,23,42,.15); border:1px solid rgba(226,232,240,.7); position:relative; }
+.modal-close { position:absolute; top:14px; right:14px; width:32px; height:32px; border-radius:50%; border:none; background:#f1f5f9; color:#64748b; font-size:18px; cursor:pointer; display:grid; place-items:center; }
+.modal-close:hover { background:#e2e8f0; }
+.modal-title { font-size:18px; font-weight:700; margin:0 0 16px; }
+.contact-form { display:flex; flex-direction:column; gap:12px; }
+.contact-form .field { display:flex; flex-direction:column; gap:6px; }
+.contact-form label { font-size:13px; font-weight:600; color:#374151; }
+.contact-form input, .contact-form textarea { padding:10px 14px; border:1px solid var(--border); border-radius:10px; font-size:14px; outline:none; transition:border-color .15s ease,box-shadow .15s ease; }
+.contact-form input:focus, .contact-form textarea:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(14,116,144,.12); }
+.contact-form textarea { min-height:120px; resize:vertical; }
+.contact-form .gotcha { display:none; }
+.contact-form button { padding:10px 18px; background:linear-gradient(135deg,var(--primary),var(--accent)); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; transition:transform .15s ease,box-shadow .15s ease; }
+.contact-form button:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(14,116,144,.25); }
+.contact-form button:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+.contact-msg { margin-top:10px; font-size:13px; min-height:20px; }
+.contact-msg.success { color:var(--success); }
+.contact-msg.error { color:var(--danger); }
+@media (max-width: 480px) {
+  .contact-fab { right:12px; bottom:12px; padding:10px 14px; font-size:12px; }
+  .modal-card { padding:18px; }
+}
 </style>
 </head>
 <body>
@@ -509,6 +534,30 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
 <footer data-i18n="footer">
   Datavoy · 旅数参考
 </footer>
+<button class="contact-fab" id="contact-fab" data-i18n="contact_button">反馈</button>
+<div class="modal-overlay" id="contact-modal">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeContactModal()">×</button>
+    <div class="modal-title" data-i18n="contact_title">联系我们</div>
+    <form id="contact-form" class="contact-form">
+      <input type="text" name="_gotcha" class="gotcha" tabindex="-1" autocomplete="off">
+      <div class="field">
+        <label for="contact-name" data-i18n="contact_name">姓名（可选）</label>
+        <input id="contact-name" type="text" name="name">
+      </div>
+      <div class="field">
+        <label for="contact-email" data-i18n="contact_email">邮箱（可选）</label>
+        <input id="contact-email" type="email" name="email">
+      </div>
+      <div class="field">
+        <label for="contact-message" data-i18n="contact_message">留言内容</label>
+        <textarea id="contact-message" name="message" required></textarea>
+      </div>
+      <button type="submit" id="contact-submit" data-i18n="contact_send">发送</button>
+      <div id="contact-msg" class="contact-msg"></div>
+    </form>
+  </div>
+</div>
 <script>
 const mctData = {mct_data_json};
 const motData = {mot_data_json};
@@ -586,7 +635,16 @@ const I18N = {
     no_records: '没有符合条件的记录', total_flow_unit: '亿人次', trips_unit: '亿人次', spending_unit: '亿元',
     metric_total: '中外人员', metric_mainland: '内地居民', metric_hktwmo: '港澳台居民', metric_foreign: '外国人', metric_visafree: '免签外国人',
     yoy_daily: '（日均）', days_meta: '共{0}天',
-    footer: 'Datavoy · 旅数参考'
+    footer: 'Datavoy · 旅数参考',
+    contact_button: '反馈',
+    contact_title: '联系我们',
+    contact_name: '姓名（可选）',
+    contact_email: '邮箱（可选）',
+    contact_message: '留言内容',
+    contact_send: '发送',
+    contact_sending: '发送中…',
+    contact_success: '已发送，感谢反馈！',
+    contact_error: '发送失败，请稍后重试'
   },
   en: {
     nav_home: 'Home', nav_mct: 'MCT', nav_mot: 'MOT', nav_nia: 'NIA',
@@ -659,7 +717,16 @@ const I18N = {
     no_records: 'No matching records', total_flow_unit: '100M trips', trips_unit: '100M trips', spending_unit: '100M CNY',
     metric_total: 'Total', metric_mainland: 'Mainland', metric_hktwmo: 'HK/TW/MO', metric_foreign: 'Foreigners', metric_visafree: 'Visa-free',
     yoy_daily: ' (daily avg)', days_meta: '{0} days',
-    footer: 'Datavoy · Travel Data Reference'
+    footer: 'Datavoy · Travel Data Reference',
+    contact_button: 'Feedback',
+    contact_title: 'Contact Us',
+    contact_name: 'Name (optional)',
+    contact_email: 'Email (optional)',
+    contact_message: 'Message',
+    contact_send: 'Send',
+    contact_sending: 'Sending…',
+    contact_success: 'Sent, thank you!',
+    contact_error: 'Failed to send, please try again later.'
   }
 };
 
@@ -1180,6 +1247,49 @@ document.getElementById('subscribe-form').addEventListener('submit', async funct
   } finally {
     btn.disabled = false;
     btn.textContent = t('form_subscribe');
+  }
+});
+
+// ---------- Contact Modal ----------
+const contactFab = document.getElementById('contact-fab');
+const contactModal = document.getElementById('contact-modal');
+function openContactModal() { contactModal.classList.add('active'); document.getElementById('contact-message').focus(); }
+function closeContactModal() { contactModal.classList.remove('active'); document.getElementById('contact-msg').textContent = ''; document.getElementById('contact-msg').className = 'contact-msg'; }
+contactFab.addEventListener('click', openContactModal);
+contactModal.addEventListener('click', e => { if(e.target === contactModal) closeContactModal(); });
+document.getElementById('contact-form').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const btn = document.getElementById('contact-submit');
+  const msg = document.getElementById('contact-msg');
+  const name = document.getElementById('contact-name').value.trim();
+  const email = document.getElementById('contact-email').value.trim();
+  const message = document.getElementById('contact-message').value.trim();
+  const gotcha = e.target._gotcha.value;
+  btn.disabled = true;
+  btn.textContent = t('contact_sending');
+  msg.textContent = '';
+  msg.className = 'contact-msg';
+  try {
+    const resp = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, message, _gotcha: gotcha })
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (resp.ok && data.success) {
+      msg.textContent = t('contact_success');
+      msg.classList.add('success');
+      e.target.reset();
+    } else {
+      msg.textContent = data.error || t('contact_error');
+      msg.classList.add('error');
+    }
+  } catch (err) {
+    msg.textContent = t('contact_error') + ': ' + err.message;
+    msg.classList.add('error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = t('contact_send');
   }
 });
 </script>

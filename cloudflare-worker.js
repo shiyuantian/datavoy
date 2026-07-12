@@ -99,6 +99,9 @@ function htmlResponse(title, body) {
 function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
+function escapeHtml(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
 
 export default {
   async fetch(request, env, ctx) {
@@ -194,6 +197,49 @@ export default {
         const pending = subscribers.filter(s => s.status === 'pending').length;
         const unsubscribed = subscribers.filter(s => s.status === 'unsubscribed').length;
         return jsonResponse({ total: subscribers.length, confirmed, pending, unsubscribed, subscribers });
+      } catch (e) {
+        return jsonResponse({ error: e.message }, 500);
+      }
+    }
+
+    // API: contact
+    if (pathname === '/api/contact' && request.method === 'POST') {
+      try {
+        const data = await request.json();
+        const name = (data.name || '').trim();
+        const email = (data.email || '').trim().toLowerCase();
+        const message = (data.message || '').trim();
+        const honey = data._gotcha || data.website || '';
+        if (honey) return jsonResponse({ success: true });
+        if (!message || message.length < 5) {
+          return jsonResponse({ error: 'Message is too short' }, 400);
+        }
+        if (email && !validateEmail(email)) {
+          return jsonResponse({ error: 'Invalid email address' }, 400);
+        }
+        const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
+        const rateKey = `contact:${clientIP}`;
+        const lastRaw = await env.SUBSCRIBERS.get(rateKey);
+        if (lastRaw) {
+          const last = JSON.parse(lastRaw);
+          if (Date.now() - last.ts < 60 * 60 * 1000) {
+            return jsonResponse({ error: 'Too many messages. Please try again later.' }, 429);
+          }
+        }
+        await env.SUBSCRIBERS.put(rateKey, JSON.stringify({ ts: Date.now() }), { expirationTtl: 3600 });
+        const adminEmail = env.ADMIN_EMAIL || 'tsy-0526@hotmail.com';
+        const subject = `Datavoy feedback from ${name || 'anonymous'}${email ? ` <${email}>` : ''}`;
+        const html = `
+          <div style="max-width:480px;margin:40px auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.6;color:#0f172a;">
+            <h2 style="color:#0e7490;">Datavoy Feedback</h2>
+            <p><strong>From:</strong> ${name || 'Anonymous'} ${email ? `(${email})` : ''}</p>
+            <p><strong>Message:</strong></p>
+            <p style="white-space:pre-wrap;">${escapeHtml(message)}</p>
+            <p style="font-size:12px;color:#64748b;margin-top:40px;">IP: ${clientIP}</p>
+          </div>
+        `;
+        await sendEmail(env, adminEmail, subject, html);
+        return jsonResponse({ success: true });
       } catch (e) {
         return jsonResponse({ error: e.message }, 500);
       }
