@@ -222,8 +222,9 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
 .contact-form .required-mark { color:var(--danger); margin-left:2px; }
 .contact-form input, .contact-form textarea { padding:12px 14px; border:1px solid var(--border); border-radius:10px; font-size:15px; outline:none; transition:border-color .15s ease,box-shadow .15s ease; }
 .contact-form input:focus, .contact-form textarea:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(14,116,144,.12); }
-.contact-form textarea { min-height:120px; resize:vertical; }
+.contact-form textarea { min-height:100px; resize:vertical; }
 .contact-form .gotcha { display:none; }
+.contact-row { display:grid; grid-template-columns:repeat(2, 1fr); gap:14px; }
 .contact-form button { padding:12px 18px; background:linear-gradient(135deg,var(--primary),var(--accent)); color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; transition:transform .15s ease,box-shadow .15s ease; }
 .contact-form button:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(14,116,144,.25); }
 .contact-form button:disabled { opacity:.6; cursor:not-allowed; transform:none; }
@@ -237,6 +238,7 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
   @keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
   .modal-title { font-size:17px; }
   .contact-form input, .contact-form textarea { font-size:16px; }
+  .contact-row { grid-template-columns:1fr; gap:14px; }
 }
 </style>
 </head>
@@ -597,13 +599,35 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
     <div class="modal-title" data-i18n="contact_title">联系我们</div>
     <form id="contact-form" class="contact-form">
       <input type="text" name="_gotcha" class="gotcha" tabindex="-1" autocomplete="off">
-      <div class="field">
-        <label for="contact-name" data-i18n="contact_name">称呼（可选）</label>
-        <input id="contact-name" type="text" name="name" autocomplete="name">
+      <div class="contact-row">
+        <div class="field required">
+          <label for="contact-last-name" data-i18n-html="contact_last_name_required">姓氏 <span class="required-mark">*</span></label>
+          <input id="contact-last-name" type="text" name="last_name" required>
+        </div>
+        <div class="field required">
+          <label for="contact-first-name" data-i18n-html="contact_first_name_required">名字 <span class="required-mark">*</span></label>
+          <input id="contact-first-name" type="text" name="first_name" required>
+        </div>
       </div>
-      <div class="field required">
-        <label for="contact-email" data-i18n-html="contact_email_required">邮箱 <span class="required-mark">*</span></label>
-        <input id="contact-email" type="email" name="email" autocomplete="email" required>
+      <div class="contact-row">
+        <div class="field required">
+          <label for="contact-company" data-i18n-html="contact_company_required">公司 <span class="required-mark">*</span></label>
+          <input id="contact-company" type="text" name="company" required>
+        </div>
+        <div class="field required">
+          <label for="contact-job-title" data-i18n-html="contact_job_title_required">职位 <span class="required-mark">*</span></label>
+          <input id="contact-job-title" type="text" name="job_title" required>
+        </div>
+      </div>
+      <div class="contact-row">
+        <div class="field required">
+          <label for="contact-email" data-i18n-html="contact_email_required">邮箱 <span class="required-mark">*</span></label>
+          <input id="contact-email" type="email" name="email" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="contact-phone" data-i18n="contact_phone">手机号</label>
+          <input id="contact-phone" type="tel" name="phone">
+        </div>
       </div>
       <div class="field required">
         <label for="contact-message" data-i18n-html="contact_message_required">留言内容 <span class="required-mark">*</span></label>
@@ -695,10 +719,14 @@ const I18N = {
     contact_button: '联系我们',
     contact_title: '联系我们',
     contact_last_name: '姓氏',
+    contact_last_name_required: '姓氏 <span class="required-mark">*</span>',
     contact_first_name: '名字',
+    contact_first_name_required: '名字 <span class="required-mark">*</span>',
     contact_name: '称呼（可选）',
     contact_company: '公司',
+    contact_company_required: '公司 <span class="required-mark">*</span>',
     contact_job_title: '职位',
+    contact_job_title_required: '职位 <span class="required-mark">*</span>',
     contact_email: '邮箱',
     contact_email_required: '邮箱 <span class="required-mark">*</span>',
     contact_phone: '手机号',
@@ -708,6 +736,10 @@ const I18N = {
     contact_sending: '发送中…',
     contact_success: '已发送，感谢反馈！',
     contact_error: '发送失败，请稍后重试',
+    contact_last_name_required_error: '请填写姓氏',
+    contact_first_name_required_error: '请填写名字',
+    contact_company_required_error: '请填写公司',
+    contact_job_title_required_error: '请填写职位',
     contact_email_required_error: '请填写邮箱',
     contact_email_invalid_error: '请填写有效邮箱',
     contact_message_required_error: '请填写留言内容',
@@ -796,10 +828,14 @@ const I18N = {
     contact_button: 'Contact us',
     contact_title: 'Contact us',
     contact_last_name: 'Last name',
+    contact_last_name_required: 'Last name <span class="required-mark">*</span>',
     contact_first_name: 'First name',
+    contact_first_name_required: 'First name <span class="required-mark">*</span>',
     contact_name: 'Name (optional)',
     contact_company: 'Company',
+    contact_company_required: 'Company <span class="required-mark">*</span>',
     contact_job_title: 'Job title',
+    contact_job_title_required: 'Job title <span class="required-mark">*</span>',
     contact_email: 'Email',
     contact_email_required: 'Email <span class="required-mark">*</span>',
     contact_phone: 'Phone',
@@ -809,6 +845,10 @@ const I18N = {
     contact_sending: 'Sending…',
     contact_success: 'Sent, thank you!',
     contact_error: 'Failed to send, please try again later.',
+    contact_last_name_required_error: 'Please enter your last name',
+    contact_first_name_required_error: 'Please enter your first name',
+    contact_company_required_error: 'Please enter your company',
+    contact_job_title_required_error: 'Please enter your job title',
     contact_email_required_error: 'Please enter your email',
     contact_email_invalid_error: 'Please enter a valid email',
     contact_message_required_error: 'Please enter a message',
@@ -1418,25 +1458,25 @@ document.getElementById('contact-form').addEventListener('submit', async functio
   e.preventDefault();
   const btn = document.getElementById('contact-submit');
   const msg = document.getElementById('contact-msg');
-  const name = document.getElementById('contact-name').value.trim();
-  const email = document.getElementById('contact-email').value.trim();
-  const message = document.getElementById('contact-message').value.trim();
-  msg.textContent = '';
-  msg.className = 'contact-msg';
-  if(!email) { msg.textContent = t('contact_email_required_error') || '请填写邮箱'; msg.classList.add('error'); return; }
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.textContent = t('contact_email_invalid_error') || '请填写有效邮箱'; msg.classList.add('error'); return; }
-  if(!message) { msg.textContent = t('contact_message_required_error') || '请填写留言内容'; msg.classList.add('error'); return; }
-  // Map simplified UI fields back to the existing backend schema.
   const payload = {
-    last_name: '',
-    first_name: name,
-    company: '',
-    job_title: '',
-    email: email,
-    phone: '',
-    message: message,
+    last_name: document.getElementById('contact-last-name').value.trim(),
+    first_name: document.getElementById('contact-first-name').value.trim(),
+    company: document.getElementById('contact-company').value.trim(),
+    job_title: document.getElementById('contact-job-title').value.trim(),
+    email: document.getElementById('contact-email').value.trim(),
+    phone: document.getElementById('contact-phone').value.trim(),
+    message: document.getElementById('contact-message').value.trim(),
     _gotcha: e.target._gotcha.value
   };
+  msg.textContent = '';
+  msg.className = 'contact-msg';
+  if(!payload.last_name) { msg.textContent = t('contact_last_name_required_error') || '请填写姓氏'; msg.classList.add('error'); return; }
+  if(!payload.first_name) { msg.textContent = t('contact_first_name_required_error') || '请填写名字'; msg.classList.add('error'); return; }
+  if(!payload.company) { msg.textContent = t('contact_company_required_error') || '请填写公司'; msg.classList.add('error'); return; }
+  if(!payload.job_title) { msg.textContent = t('contact_job_title_required_error') || '请填写职位'; msg.classList.add('error'); return; }
+  if(!payload.email) { msg.textContent = t('contact_email_required_error') || '请填写邮箱'; msg.classList.add('error'); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) { msg.textContent = t('contact_email_invalid_error') || '请填写有效邮箱'; msg.classList.add('error'); return; }
+  if(!payload.message) { msg.textContent = t('contact_message_required_error') || '请填写留言内容'; msg.classList.add('error'); return; }
   btn.disabled = true;
   btn.textContent = t('contact_sending');
   try {
