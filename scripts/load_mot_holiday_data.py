@@ -67,6 +67,15 @@ def init_db(conn: sqlite3.Connection):
     conn.commit()
 
 
+def to_wan(value, unit):
+    """Normalize a count value to 万人次. Keeps raw value and unit otherwise."""
+    if value is None:
+        return None, unit
+    if unit == "亿人次":
+        return round(value * 10000, 1), "万人次"
+    return value, unit
+
+
 def load_data(conn: sqlite3.Connection):
     with open(RAW_FILE, "r", encoding="utf-8") as f:
         records = json.load(f)
@@ -77,6 +86,25 @@ def load_data(conn: sqlite3.Connection):
     now = datetime.now().isoformat()
     rows = []
     for r in records:
+        total_flow, total_flow_unit = to_wan(r.get("total_flow"), r.get("total_flow_unit", "亿人次"))
+        railway, railway_unit = to_wan(r.get("railway"), r.get("railway_unit", "万人次"))
+        highway, highway_unit = to_wan(r.get("highway"), r.get("highway_unit", "亿人次"))
+        waterway, waterway_unit = to_wan(r.get("waterway"), r.get("waterway_unit", "万人次"))
+        aviation, aviation_unit = to_wan(r.get("aviation"), r.get("aviation_unit", "万人次"))
+
+        # Normalize daily breakdown counts to 万人次 as well.
+        daily_breakdown = r.get("daily_breakdown")
+        if daily_breakdown is not None:
+            normalized_daily = []
+            for day in daily_breakdown:
+                norm_day = dict(day)
+                for key in ("total_flow", "railway", "highway", "waterway", "aviation"):
+                    unit_key = f"{key}_unit"
+                    if key in norm_day and unit_key in norm_day:
+                        norm_day[key], norm_day[unit_key] = to_wan(norm_day[key], norm_day[unit_key])
+                normalized_daily.append(norm_day)
+            daily_breakdown = normalized_daily
+
         rows.append((
             r.get("year"),
             r.get("holiday_name"),
@@ -86,22 +114,22 @@ def load_data(conn: sqlite3.Connection):
             r.get("publish_date"),
             r.get("source_url"),
             r.get("source_note", ""),
-            r.get("total_flow"),
-            r.get("total_flow_unit", "亿人次"),
+            total_flow,
+            total_flow_unit,
             r.get("total_flow_yoy"),
-            r.get("railway"),
-            r.get("railway_unit", "万人次"),
+            railway,
+            railway_unit,
             r.get("railway_yoy"),
-            r.get("highway"),
-            r.get("highway_unit", "亿人次"),
+            highway,
+            highway_unit,
             r.get("highway_yoy"),
-            r.get("waterway"),
-            r.get("waterway_unit", "万人次"),
+            waterway,
+            waterway_unit,
             r.get("waterway_yoy"),
-            r.get("aviation"),
-            r.get("aviation_unit", "万人次"),
+            aviation,
+            aviation_unit,
             r.get("aviation_yoy"),
-            json.dumps(r.get("daily_breakdown"), ensure_ascii=False) if r.get("daily_breakdown") is not None else None,
+            json.dumps(daily_breakdown, ensure_ascii=False) if daily_breakdown is not None else None,
             now,
         ))
 

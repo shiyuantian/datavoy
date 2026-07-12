@@ -84,8 +84,11 @@ a:hover { color:var(--primary); text-decoration:underline; }
 .detail-card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
 .detail-title { font-size:12px; font-weight:600; margin-bottom:10px; color:#374151; }
 .detail-table { width:100%; border-collapse:collapse; }
-.detail-table th, .detail-table td { padding:8px 10px; font-size:12px; text-align:left; border-bottom:1px solid #f1f5f9; }
+.detail-table th, .detail-table td { padding:8px 10px; font-size:12px; text-align:center; border-bottom:1px solid #f1f5f9; }
 .detail-table th { background:#f8fafc; font-weight:600; color:#6b7280; }
+.detail-table th.th-section { border-bottom:none; }
+.detail-table th.th-metric { font-weight:500; color:#6b7280; }
+.detail-table td:first-child, .detail-table th:first-child { text-align:left; }
 .detail-table tr:last-child td { border-bottom:none; }
 .daily-cell { display:flex; flex-direction:row; gap:6px; align-items:center; justify-content:center; flex-wrap:wrap; }
 .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:16px; box-shadow:var(--shadow); margin-bottom:20px; }
@@ -209,19 +212,19 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
 .contact-fab svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 .modal-overlay { position:fixed; inset:0; background:rgba(15,23,42,.45); backdrop-filter:blur(4px); z-index:70; display:none; align-items:center; justify-content:center; padding:20px; }
 .modal-overlay.active { display:flex; }
-.modal-card { background:var(--card); border-radius:18px; padding:24px; width:100%; max-width:480px; box-shadow:0 20px 50px rgba(15,23,42,.15); border:1px solid rgba(226,232,240,.7); position:relative; }
+.modal-card { background:var(--card); border-radius:18px; padding:24px; width:100%; max-width:480px; max-height:calc(100vh - 40px); overflow:auto; box-shadow:0 20px 50px rgba(15,23,42,.15); border:1px solid rgba(226,232,240,.7); position:relative; }
 .modal-close { position:absolute; top:14px; right:14px; width:32px; height:32px; border-radius:50%; border:none; background:#f1f5f9; color:#64748b; font-size:18px; cursor:pointer; display:grid; place-items:center; }
 .modal-close:hover { background:#e2e8f0; }
-.modal-title { font-size:18px; font-weight:700; margin:0 0 16px; }
-.contact-form { display:flex; flex-direction:column; gap:12px; }
+.modal-title { font-size:18px; font-weight:700; margin:0 0 16px; padding-right:36px; }
+.contact-form { display:flex; flex-direction:column; gap:14px; }
 .contact-form .field { display:flex; flex-direction:column; gap:6px; }
 .contact-form label { font-size:13px; font-weight:600; color:#374151; }
-.contact-form input, .contact-form textarea { padding:10px 14px; border:1px solid var(--border); border-radius:10px; font-size:14px; outline:none; transition:border-color .15s ease,box-shadow .15s ease; }
+.contact-form .required-mark { color:var(--danger); margin-left:2px; }
+.contact-form input, .contact-form textarea { padding:12px 14px; border:1px solid var(--border); border-radius:10px; font-size:15px; outline:none; transition:border-color .15s ease,box-shadow .15s ease; }
 .contact-form input:focus, .contact-form textarea:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(14,116,144,.12); }
 .contact-form textarea { min-height:120px; resize:vertical; }
 .contact-form .gotcha { display:none; }
-.contact-row { display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; }
-.contact-form button { padding:10px 18px; background:linear-gradient(135deg,var(--primary),var(--accent)); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; transition:transform .15s ease,box-shadow .15s ease; }
+.contact-form button { padding:12px 18px; background:linear-gradient(135deg,var(--primary),var(--accent)); color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; transition:transform .15s ease,box-shadow .15s ease; }
 .contact-form button:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(14,116,144,.25); }
 .contact-form button:disabled { opacity:.6; cursor:not-allowed; transform:none; }
 .contact-msg { margin-top:10px; font-size:13px; min-height:20px; }
@@ -229,8 +232,11 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
 .contact-msg.error { color:var(--danger); }
 @media (max-width: 480px) {
   .contact-fab { right:12px; bottom:calc(12px + env(safe-area-inset-bottom)); padding:10px 14px; font-size:12px; }
-  .modal-card { padding:18px; }
-  .contact-row { grid-template-columns:1fr; }
+  .modal-overlay { align-items:flex-end; padding:0; background:rgba(15,23,42,.55); }
+  .modal-card { border-radius:18px 18px 0 0; padding:20px; padding-bottom:calc(20px + env(safe-area-inset-bottom)); max-width:none; max-height:90vh; animation:slideUp .25s ease; }
+  @keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+  .modal-title { font-size:17px; }
+  .contact-form input, .contact-form textarea { font-size:16px; }
 }
 </style>
 </head>
@@ -591,39 +597,17 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
     <div class="modal-title" data-i18n="contact_title">联系我们</div>
     <form id="contact-form" class="contact-form">
       <input type="text" name="_gotcha" class="gotcha" tabindex="-1" autocomplete="off">
-      <div class="contact-row">
-        <div class="field">
-          <label for="contact-last-name" data-i18n="contact_last_name">姓氏</label>
-          <input id="contact-last-name" type="text" name="last_name">
-        </div>
-        <div class="field">
-          <label for="contact-first-name" data-i18n="contact_first_name">名字</label>
-          <input id="contact-first-name" type="text" name="first_name">
-        </div>
-      </div>
-      <div class="contact-row">
-        <div class="field">
-          <label for="contact-company" data-i18n="contact_company">公司</label>
-          <input id="contact-company" type="text" name="company">
-        </div>
-        <div class="field">
-          <label for="contact-job-title" data-i18n="contact_job_title">职位</label>
-          <input id="contact-job-title" type="text" name="job_title">
-        </div>
-      </div>
-      <div class="contact-row">
-        <div class="field">
-          <label for="contact-email" data-i18n="contact_email">邮箱</label>
-          <input id="contact-email" type="email" name="email">
-        </div>
-        <div class="field">
-          <label for="contact-phone" data-i18n="contact_phone">手机号</label>
-          <input id="contact-phone" type="tel" name="phone">
-        </div>
-      </div>
       <div class="field">
-        <label for="contact-message" data-i18n="contact_message">留言内容</label>
-        <textarea id="contact-message" name="message"></textarea>
+        <label for="contact-name" data-i18n="contact_name">称呼（可选）</label>
+        <input id="contact-name" type="text" name="name" autocomplete="name">
+      </div>
+      <div class="field required">
+        <label for="contact-email" data-i18n-html="contact_email_required">邮箱 <span class="required-mark">*</span></label>
+        <input id="contact-email" type="email" name="email" autocomplete="email" required>
+      </div>
+      <div class="field required">
+        <label for="contact-message" data-i18n-html="contact_message_required">留言内容 <span class="required-mark">*</span></label>
+        <textarea id="contact-message" name="message" required></textarea>
       </div>
       <button type="submit" id="contact-submit" data-i18n="contact_send">发送</button>
       <div id="contact-msg" class="contact-msg"></div>
@@ -666,7 +650,7 @@ const I18N = {
     mct_desc: '汇总文化和旅游部官方披露的国内出游人次、出游总花费及同比数据，每个数字均可追溯原文出处。',
     mct_filter_year: '年份（多选）', mct_filter_holiday: '节假日（多选）',
     mct_select_all: '全选', mct_clear: '清空',
-    date_label: '日期', mct_table_year: '年份', mct_table_holiday: '节假日', mct_table_publish: '发布日期',
+    date_label: '日期', value_label: '数值', yoy_label: '同比', mct_table_year: '年份', mct_table_holiday: '节假日', mct_table_publish: '发布日期',
     mct_table_visitors: '国内出游人次<span class="th-unit">（亿人次）</span>', mct_table_visitors_yoy: '同比', mct_table_spending: '国内出游总花费<span class="th-unit">（亿元）</span>', mct_table_spending_yoy: '同比',
     mct_chart_abs_title: '绝对值趋势', mct_chart_abs_subtitle: '出游人次（亿人次）与出游总花费（亿元）',
     mct_chart_growth_title: '同比趋势', mct_chart_growth_subtitle: '官方同比，缺失时以日均同比补齐（%）',
@@ -712,15 +696,21 @@ const I18N = {
     contact_title: '联系我们',
     contact_last_name: '姓氏',
     contact_first_name: '名字',
+    contact_name: '称呼（可选）',
     contact_company: '公司',
     contact_job_title: '职位',
     contact_email: '邮箱',
+    contact_email_required: '邮箱 <span class="required-mark">*</span>',
     contact_phone: '手机号',
     contact_message: '留言内容',
+    contact_message_required: '留言内容 <span class="required-mark">*</span>',
     contact_send: '发送',
     contact_sending: '发送中…',
     contact_success: '已发送，感谢反馈！',
     contact_error: '发送失败，请稍后重试',
+    contact_email_required_error: '请填写邮箱',
+    contact_email_invalid_error: '请填写有效邮箱',
+    contact_message_required_error: '请填写留言内容',
     support_title: '支持我们',
     support_desc: '如果 Datavoy 对你有帮助，欢迎买杯咖啡支持我们继续更新。',
     support_paypal_label: 'PayPal',
@@ -761,7 +751,7 @@ const I18N = {
     mct_desc: 'Domestic trips, tourism revenue, and YoY growth released by the Ministry of Culture and Tourism. Every figure links back to the official source.',
     mct_filter_year: 'Year (multi-select)', mct_filter_holiday: 'Holiday (multi-select)',
     mct_select_all: 'Select all', mct_clear: 'Clear',
-    date_label: 'Date', mct_table_year: 'Year', mct_table_holiday: 'Holiday', mct_table_publish: 'Published',
+    date_label: 'Date', value_label: 'Value', yoy_label: 'YoY', mct_table_year: 'Year', mct_table_holiday: 'Holiday', mct_table_publish: 'Published',
     mct_table_visitors: 'Domestic Trips<span class="th-unit"> (100M)</span>', mct_table_visitors_yoy: 'YoY', mct_table_spending: 'Tourism Revenue<span class="th-unit"> (100M CNY)</span>', mct_table_spending_yoy: 'YoY',
     mct_chart_abs_title: 'Absolute Trend', mct_chart_abs_subtitle: 'Domestic trips (100M) and tourism revenue (100M CNY)',
     mct_chart_growth_title: 'YoY Trend', mct_chart_growth_subtitle: 'Official YoY; daily-average YoY used when official is missing (%)',
@@ -807,15 +797,21 @@ const I18N = {
     contact_title: 'Contact us',
     contact_last_name: 'Last name',
     contact_first_name: 'First name',
+    contact_name: 'Name (optional)',
     contact_company: 'Company',
     contact_job_title: 'Job title',
     contact_email: 'Email',
+    contact_email_required: 'Email <span class="required-mark">*</span>',
     contact_phone: 'Phone',
     contact_message: 'Message',
+    contact_message_required: 'Message <span class="required-mark">*</span>',
     contact_send: 'Send',
     contact_sending: 'Sending…',
     contact_success: 'Sent, thank you!',
     contact_error: 'Failed to send, please try again later.',
+    contact_email_required_error: 'Please enter your email',
+    contact_email_invalid_error: 'Please enter a valid email',
+    contact_message_required_error: 'Please enter a message',
     support_title: 'Support Us',
     support_desc: 'If Datavoy is helpful, buy us a coffee to support more updates.',
     support_paypal_label: 'PayPal',
@@ -1094,25 +1090,34 @@ function motGetRows(){
 }
 function motFmtCell(value, unit, url){
   if(value===null||value===undefined) return '<span class="yoy neutral">—</span>';
-  const wanValue = unit==='亿' ? value*10000 : value;
+  const wanValue = (unit==='亿' || unit==='亿人次') ? value*10000 : value;
   const inner = `<span class="metric-value">${fmtNum(wanValue,1)}</span>`;
   return url ? `<a href="${url}" target="_blank">${inner}</a>` : inner;
 }
 function motRenderDailyBreakdown(d,idx){
+  const metricHeaders = ['mot_table_total','mot_table_railway','mot_table_highway','mot_table_waterway','mot_table_aviation'];
   return `<tr class="detail-row" id="mot-detail-${idx}" style="display:none;">
     <td colspan="13">
       <div class="detail-card">
         <div class="detail-title">${t('mot_daily_title')}</div>
         <table class="detail-table">
-          <thead><tr><th>${t('date_label')}</th><th>${t('mot_table_total')}</th><th>${t('mot_table_railway')}</th><th>${t('mot_table_highway')}</th><th>${t('mot_table_waterway')}</th><th>${t('mot_table_aviation')}</th></tr></thead>
+          <thead>
+            <tr>
+              <th rowspan="2">${t('date_label')}</th>
+              ${metricHeaders.map(k=>`<th colspan="2" class="th-section">${t(k)}</th>`).join('')}
+            </tr>
+            <tr>
+              ${metricHeaders.map(()=>`<th class="th-metric">${t('value_label')}</th><th class="th-metric">${t('yoy_label')}</th>`).join('')}
+            </tr>
+          </thead>
           <tbody>
             ${d.daily_breakdown.map(day=>`<tr>
               <td>${fmtDateSlash(day.date)}</td>
-              <td><div class="daily-cell">${motFmtCell(day.total_flow,day.total_flow_unit,day.source_url)}${fmtYoySimple(day.total_flow_yoy)}</div></td>
-              <td><div class="daily-cell">${motFmtCell(day.railway,day.railway_unit,day.source_url)}${fmtYoySimple(day.railway_yoy)}</div></td>
-              <td><div class="daily-cell">${motFmtCell(day.highway,day.highway_unit,day.source_url)}${fmtYoySimple(day.highway_yoy)}</div></td>
-              <td><div class="daily-cell">${motFmtCell(day.waterway,day.waterway_unit,day.source_url)}${fmtYoySimple(day.waterway_yoy)}</div></td>
-              <td><div class="daily-cell">${motFmtCell(day.aviation,day.aviation_unit,day.source_url)}${fmtYoySimple(day.aviation_yoy)}</div></td>
+              <td>${motFmtCell(day.total_flow,day.total_flow_unit,day.source_url)}</td><td>${fmtYoySimple(day.total_flow_yoy)}</td>
+              <td>${motFmtCell(day.railway,day.railway_unit,day.source_url)}</td><td>${fmtYoySimple(day.railway_yoy)}</td>
+              <td>${motFmtCell(day.highway,day.highway_unit,day.source_url)}</td><td>${fmtYoySimple(day.highway_yoy)}</td>
+              <td>${motFmtCell(day.waterway,day.waterway_unit,day.source_url)}</td><td>${fmtYoySimple(day.waterway_yoy)}</td>
+              <td>${motFmtCell(day.aviation,day.aviation_unit,day.source_url)}</td><td>${fmtYoySimple(day.aviation_yoy)}</td>
             </tr>`).join('')}
           </tbody>
         </table>
@@ -1404,28 +1409,36 @@ document.getElementById('subscribe-form').addEventListener('submit', async funct
 // ---------- Contact Modal ----------
 const contactFab = document.getElementById('contact-fab');
 const contactModal = document.getElementById('contact-modal');
-function openContactModal() { contactModal.classList.add('active'); document.getElementById('contact-message').focus(); }
-function closeContactModal() { contactModal.classList.remove('active'); document.getElementById('contact-msg').textContent = ''; document.getElementById('contact-msg').className = 'contact-msg'; }
+function openContactModal() { contactModal.classList.add('active'); document.body.style.overflow = 'hidden'; document.getElementById('contact-message').focus(); }
+function closeContactModal() { contactModal.classList.remove('active'); document.body.style.overflow = ''; document.getElementById('contact-msg').textContent = ''; document.getElementById('contact-msg').className = 'contact-msg'; }
 contactFab.addEventListener('click', openContactModal);
 contactModal.addEventListener('click', e => { if(e.target === contactModal) closeContactModal(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && contactModal.classList.contains('active')) closeContactModal(); });
 document.getElementById('contact-form').addEventListener('submit', async function(e){
   e.preventDefault();
   const btn = document.getElementById('contact-submit');
   const msg = document.getElementById('contact-msg');
+  const name = document.getElementById('contact-name').value.trim();
+  const email = document.getElementById('contact-email').value.trim();
+  const message = document.getElementById('contact-message').value.trim();
+  msg.textContent = '';
+  msg.className = 'contact-msg';
+  if(!email) { msg.textContent = t('contact_email_required_error') || '请填写邮箱'; msg.classList.add('error'); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.textContent = t('contact_email_invalid_error') || '请填写有效邮箱'; msg.classList.add('error'); return; }
+  if(!message) { msg.textContent = t('contact_message_required_error') || '请填写留言内容'; msg.classList.add('error'); return; }
+  // Map simplified UI fields back to the existing backend schema.
   const payload = {
-    last_name: document.getElementById('contact-last-name').value.trim(),
-    first_name: document.getElementById('contact-first-name').value.trim(),
-    company: document.getElementById('contact-company').value.trim(),
-    job_title: document.getElementById('contact-job-title').value.trim(),
-    email: document.getElementById('contact-email').value.trim(),
-    phone: document.getElementById('contact-phone').value.trim(),
-    message: document.getElementById('contact-message').value.trim(),
+    last_name: '',
+    first_name: name,
+    company: '',
+    job_title: '',
+    email: email,
+    phone: '',
+    message: message,
     _gotcha: e.target._gotcha.value
   };
   btn.disabled = true;
   btn.textContent = t('contact_sending');
-  msg.textContent = '';
-  msg.className = 'contact-msg';
   try {
     const resp = await fetch('/api/contact', {
       method: 'POST',
