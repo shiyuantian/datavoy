@@ -240,6 +240,32 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
   .contact-form input, .contact-form textarea { font-size:16px; }
   .contact-row { grid-template-columns:1fr; gap:14px; }
 }
+
+/* Narrative Generator */
+.narrative-intro { margin:0 0 16px; font-size:14px; color:var(--muted); line-height:1.7; }
+.narrative-form { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; align-items:end; margin-bottom:16px; }
+.narrative-field { display:flex; flex-direction:column; gap:6px; }
+.narrative-field label { font-size:13px; font-weight:600; color:#374151; }
+.narrative-field select, .narrative-field button { padding:10px 14px; border:1px solid var(--border); border-radius:10px; font-size:14px; outline:none; background:#fff; }
+.narrative-field select { cursor:pointer; appearance:none; background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center; padding-right:32px; }
+.narrative-field select:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(14,116,144,.12); }
+.narrative-field .narrative-generate-btn { width:100%; white-space:nowrap; background:linear-gradient(135deg,var(--primary),var(--accent)); color:#fff; border:none; font-weight:600; cursor:pointer; transition:transform .15s ease,box-shadow .15s ease; }
+.narrative-field .narrative-generate-btn:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(14,116,144,.25); }
+.narrative-field .narrative-generate-btn:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+.narrative-output { background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:18px; font-size:14px; line-height:1.8; color:var(--text); min-height:120px; white-space:pre-wrap; }
+.narrative-output:empty::before { content:attr(data-placeholder); color:var(--muted); }
+.narrative-output b, .narrative-output strong { color:var(--primary); font-weight:700; }
+.narrative-actions { display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
+.narrative-actions button { padding:8px 16px; border-radius:8px; border:1px solid var(--border); background:#fff; cursor:pointer; font-size:13px; font-weight:600; color:#4b5563; transition:all .15s ease; }
+.narrative-actions button:hover { background:var(--primary-light); border-color:var(--primary); color:var(--primary); }
+.narrative-actions button:disabled { opacity:.5; cursor:not-allowed; }
+.narrative-msg { margin-top:10px; font-size:13px; min-height:20px; }
+.narrative-msg.success { color:var(--success); }
+.narrative-msg.error { color:var(--danger); }
+.narrative-source { display:block; margin-top:10px; font-size:12px; color:var(--muted); }
+@media (max-width: 768px) {
+  .narrative-form { grid-template-columns:1fr; }
+}
 </style>
 </head>
 <body>
@@ -345,6 +371,41 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
           <div class="module-desc" data-i18n="module_nia_desc">国家移民管理局披露的中外人员、内地居民、港澳台居民、外国人及免签外国人人次与同比。</div>
         </div>
       </div>
+    </section>
+    <section class="card narrative-card">
+      <div class="section-title"><svg><use href="#icon-message"></use></svg><span data-i18n="home_narrative_title">叙事生成</span></div>
+      <p class="narrative-intro" data-i18n="home_narrative_desc">基于 Datavoy 已整合的官方数据，一键生成可直接引用的数据叙事。所有数字均来自页面中的政府公开披露，并附原文链接。</p>
+      <div class="narrative-form">
+        <div class="narrative-field">
+          <label for="narrative-module" data-i18n="narrative_module_label">数据来源</label>
+          <select id="narrative-module">
+            <option value="mct" data-i18n="module_mct_title">文旅部 · 国内假期出行数据</option>
+            <option value="mot" data-i18n="module_mot_title">交通部 · 节假日综合交通数据</option>
+            <option value="nia" data-i18n="module_nia_title">移民局 · 出入境数据</option>
+          </select>
+        </div>
+        <div class="narrative-field">
+          <label for="narrative-period" data-i18n="narrative_period_label">节假日 / 时期</label>
+          <select id="narrative-period"></select>
+        </div>
+        <div class="narrative-field">
+          <label for="narrative-type" data-i18n="narrative_type_label">叙事类型</label>
+          <select id="narrative-type">
+            <option value="ir" data-i18n="narrative_type_ir">IR · 投资者关系</option>
+            <option value="pr" data-i18n="narrative_type_pr">PR · 公关传播</option>
+            <option value="brief" data-i18n="narrative_type_brief">简报 · 中性摘要</option>
+          </select>
+        </div>
+        <div class="narrative-field">
+          <button id="narrative-generate" class="narrative-generate-btn" data-i18n="narrative_generate">生成叙事</button>
+        </div>
+      </div>
+      <div id="narrative-output" class="narrative-output" data-placeholder="选择数据并点击“生成叙事”，即可在此处查看结果…"></div>
+      <div class="narrative-actions">
+        <button id="narrative-copy" data-i18n="narrative_copy" disabled>复制全文</button>
+        <button id="narrative-download" data-i18n="narrative_download" disabled>下载 .txt</button>
+      </div>
+      <div id="narrative-msg" class="narrative-msg"></div>
     </section>
     <section class="card status-card">
       <div class="section-title"><svg><use href="#icon-compass-needle"></use></svg><span data-i18n="home_status_title">数据更新状态</span></div>
@@ -663,6 +724,23 @@ const I18N = {
     module_mot_desc: '全社会跨区域人员流动量及铁路、公路、水路、民航客运量，聚焦节假日综合交通出行。',
     module_nia_title: '移民局 · 出入境数据',
     module_nia_desc: '国家移民管理局披露的中外人员、内地居民、港澳台居民、外国人及免签外国人人次与同比。',
+    home_narrative_title: '叙事生成',
+    home_narrative_desc: '基于 Datavoy 已整合的官方数据，一键生成可直接引用的数据叙事。所有数字均来自页面中的政府公开披露，并附原文链接。',
+    narrative_module_label: '数据来源',
+    narrative_period_label: '节假日 / 时期',
+    narrative_type_label: '叙事类型',
+    narrative_type_ir: 'IR · 投资者关系',
+    narrative_type_pr: 'PR · 公关传播',
+    narrative_type_brief: '简报 · 中性摘要',
+    narrative_generate: '生成叙事',
+    narrative_copy: '复制全文',
+    narrative_download: '下载 .txt',
+    narrative_placeholder: '选择数据并点击“生成叙事”，即可在此处查看结果…',
+    narrative_copied: '已复制到剪贴板',
+    narrative_downloaded: '已下载',
+    narrative_no_data: '暂无可用的叙事数据',
+    narrative_source_prefix: '数据来源',
+    narrative_disclaimer: '注：以上数据均来自政府官方公开披露，同比口径可能因假期天数调整而有所不同，引用时建议核对原文。',
     home_status_title: '数据更新状态',
     home_subscribe_title: '订阅数据更新',
     home_subscribe_desc: '新数据上线时，第一时间通过邮件通知你。欢迎留下基本信息，方便我们未来做更精准的行业数据推送。',
@@ -772,6 +850,23 @@ const I18N = {
     module_mot_desc: 'Total cross-region person trips and railway, highway, waterway, and aviation passenger volumes during holidays.',
     module_nia_title: 'NIA · Entry & Exit Data',
     module_nia_desc: 'Entry and exit person trips and YoY growth by category: total, mainland residents, HK/TW/MO residents, foreigners, and visa-free foreigners.',
+    home_narrative_title: 'Narrative Generator',
+    home_narrative_desc: 'Generate ready-to-use narratives from Datavoy\'s consolidated official data. Every figure is sourced from government disclosures on this page, with original links attached.',
+    narrative_module_label: 'Data source',
+    narrative_period_label: 'Holiday / Period',
+    narrative_type_label: 'Narrative type',
+    narrative_type_ir: 'Investor Relations',
+    narrative_type_pr: 'Public Relations',
+    narrative_type_brief: 'Neutral summary',
+    narrative_generate: 'Generate Narrative',
+    narrative_copy: 'Copy text',
+    narrative_download: 'Download .txt',
+    narrative_placeholder: 'Select data and click "Generate narrative" to see the result…',
+    narrative_copied: 'Copied to clipboard',
+    narrative_downloaded: 'Downloaded',
+    narrative_no_data: 'No narrative data available for the current selection',
+    narrative_source_prefix: 'Data source',
+    narrative_disclaimer: 'Note: All figures are from official government disclosures. Year-on-year comparisons may be affected by holiday-length adjustments; please verify against the original source when citing.',
     home_status_title: 'Data Update Status',
     home_subscribe_title: 'Subscribe to Updates',
     home_subscribe_desc: 'Get an email alert when new data is released. Leave your details so we can send more targeted industry data in the future.',
@@ -893,6 +988,13 @@ function setLanguage(lang) {
   preserveAndRender('panel-mot', motRenderFilters);
   preserveAndRender('panel-nia', niaRenderFilters);
   mctRender(); motRender(); niaRender();
+  if (typeof narrativeUpdatePeriods === 'function') {
+    narrativeUpdatePeriods();
+    const out = document.getElementById('narrative-output');
+    if (out) { out.textContent = ''; out.setAttribute('data-placeholder', t('narrative_placeholder')); }
+    document.getElementById('narrative-copy').disabled = true;
+    document.getElementById('narrative-download').disabled = true;
+  }
   updateStatusText();
 }
 function updateLangButtons() {
@@ -1394,6 +1496,277 @@ document.getElementById('sub-language').value = currentLang;
 mctRenderFilters(); mctRender();
 motRenderFilters(); motRender();
 niaRenderFilters(); niaRender();
+
+// ---------- IR / PR Narrative Generator ----------
+function narrativeGetRecords(module) {
+  if (module === 'mct') return mctData2 || [];
+  if (module === 'mot') return motData || [];
+  if (module === 'nia') return niaData || [];
+  return [];
+}
+function narrativePeriodLabel(d, module) {
+  if (module === 'nia') return `${d.year} ${translatePeriod(d.period_name)}`;
+  return `${d.year} ${translateHoliday(d.holiday_name)}`;
+}
+function narrativePeriodKey(d, module) {
+  if (module === 'nia') return `${d.year}|${d.period_name}`;
+  return `${d.year}|${d.holiday_name}`;
+}
+function narrativeParseKey(key, module) {
+  const [year, name] = key.split('|');
+  return { year: Number(year), name };
+}
+function narrativeFindRecord(module, key) {
+  const { year, name } = narrativeParseKey(key, module);
+  const records = narrativeGetRecords(module);
+  if (module === 'nia') return records.find(d => d.year === year && d.period_name === name);
+  return records.find(d => d.year === year && d.holiday_name === name);
+}
+function narrativeInit() {
+  const moduleSelect = document.getElementById('narrative-module');
+  const typeSelect = document.getElementById('narrative-type');
+  const generateBtn = document.getElementById('narrative-generate');
+  const copyBtn = document.getElementById('narrative-copy');
+  const downloadBtn = document.getElementById('narrative-download');
+  const output = document.getElementById('narrative-output');
+  if (!moduleSelect) return;
+  output.setAttribute('data-placeholder', t('narrative_placeholder'));
+  moduleSelect.addEventListener('change', narrativeUpdatePeriods);
+  generateBtn.addEventListener('click', narrativeGenerate);
+  copyBtn.addEventListener('click', narrativeCopy);
+  downloadBtn.addEventListener('click', narrativeDownload);
+  narrativeUpdatePeriods();
+}
+function narrativeUpdatePeriods() {
+  const module = document.getElementById('narrative-module').value;
+  const periodSelect = document.getElementById('narrative-period');
+  const records = narrativeGetRecords(module);
+  const seen = new Set();
+  const options = [];
+  records.forEach(d => {
+    const key = narrativePeriodKey(d, module);
+    if (seen.has(key)) return;
+    seen.add(key);
+    options.push({ key, label: narrativePeriodLabel(d, module), sort: (d.publish_date || '') });
+  });
+  options.sort((a, b) => b.sort.localeCompare(a.sort));
+  periodSelect.innerHTML = options.map(o => `<option value="${o.key}">${escHtml(o.label)}</option>`).join('');
+  if (!options.length) {
+    periodSelect.innerHTML = `<option value="">${t('narrative_no_data')}</option>`;
+  }
+}
+function narrativeDirection(yoy) {
+  if (yoy === null || yoy === undefined) return null;
+  if (yoy > 0) return { word: currentLang === 'zh' ? '增长' : 'increase', sign: '+' };
+  if (yoy < 0) return { word: currentLang === 'zh' ? '下降' : 'decrease', sign: '' };
+  return { word: currentLang === 'zh' ? '持平' : 'flat', sign: '' };
+}
+function narrativeFmtYoy(yoy) {
+  if (yoy === null || yoy === undefined) return null;
+  return (yoy > 0 ? '+' : '') + Number(yoy).toFixed(1) + '%';
+}
+function narrativeFmtYoyZh(yoy) {
+  if (yoy === null || yoy === undefined) return '—';
+  const dir = yoy > 0 ? '增长' : (yoy < 0 ? '下降' : '持平');
+  return dir + Math.abs(Number(yoy)).toFixed(1) + '%';
+}
+function narrativeFmtYoyEn(yoy) {
+  if (yoy === null || yoy === undefined) return '—';
+  const dir = yoy > 0 ? 'increase' : (yoy < 0 ? 'decrease' : 'flat');
+  return dir + ' of ' + (yoy > 0 ? '+' : '') + Number(yoy).toFixed(1) + '%';
+}
+function narrativeFmtYoyPhrase(yoy) {
+  return currentLang === 'zh' ? narrativeFmtYoyZh(yoy) : narrativeFmtYoyEn(yoy);
+}
+function narrativeFmtNum(value, unit) {
+  if (value === null || value === undefined) return null;
+  return Number(value).toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + (unit || '');
+}
+function narrativeGenerateMCT(d, type) {
+  const holiday = translateHoliday(d.holiday_name);
+  const year = d.year;
+  const publish = fmtDateSlash(d.publish_date) || '';
+  const visitors = narrativeFmtNum(d.visitor_count, currentLang === 'zh' ? '亿人次' : '100M trips');
+  const visitorYoy = narrativeFmtYoy(d.visitor_yoy);
+  const visitorDir = narrativeDirection(d.visitor_yoy);
+  const spending = narrativeFmtNum(d.spending, currentLang === 'zh' ? '亿元' : '100M CNY');
+  const spendingYoy = narrativeFmtYoy(d.spending_yoy);
+  const spendingDir = narrativeDirection(d.spending_yoy);
+  const perCapita = d.visitor_count && d.spending ? narrativeFmtNum((d.spending * 100000000) / (d.visitor_count * 100000000), currentLang === 'zh' ? '元' : ' CNY') : null;
+  const source = d.source_url || '';
+  if (type === 'ir') {
+    let text = currentLang === 'zh'
+      ? `据文化和旅游部${publish ? '于' + publish + '发布的数据' : '发布的数据'}，${year}年${holiday}期间，全国国内出游人次达${visitors}，同比${narrativeFmtYoyPhrase(d.visitor_yoy)}；实现国内出游总花费${spending}，同比${narrativeFmtYoyPhrase(d.spending_yoy)}。`
+      : `According to data released by the Ministry of Culture and Tourism${publish ? ' on ' + publish : ''}, during the ${year} ${holiday} period, domestic trips in China reached ${visitors}, a year-on-year ${narrativeFmtYoyPhrase(d.visitor_yoy)}; total tourism revenue reached ${spending}, a year-on-year ${narrativeFmtYoyPhrase(d.spending_yoy)}.`;
+    if (perCapita) {
+      text += currentLang === 'zh' ? `按出游人次估算，<b>人均花费约${perCapita}</b>。` : ` <b>Estimated per-capita spending was approximately ${perCapita}.</b>`;
+    }
+    text += currentLang === 'zh'
+      ? ` <b>从投资视角看，出游人次与总花费的${visitorDir.word === spendingDir.word ? '同步' : '分化'}走势反映了居民旅游消费的${(d.visitor_yoy > 0 && d.spending_yoy > 0) ? '持续回暖' : '结构性调整'}，建议关注酒店、景区、OTA及航空等板块的客流弹性与客单价变化。</b>`
+      : ` <b>From an investment perspective, the ${visitorDir.word === spendingDir.word ? 'aligned' : 'divergent'} movement in trips and revenue reflects ${(d.visitor_yoy > 0 && d.spending_yoy > 0) ? 'continued recovery' : 'structural adjustment'} in consumer travel spending; monitor passenger volume elasticity and per-capita spending in hotels, attractions, OTAs, and aviation.</b>`;
+    return { text, source };
+  }
+  if (type === 'pr') {
+    const text = currentLang === 'zh'
+      ? `${year}年${holiday}旅游数据出炉！全国国内出游${visitors}，同比${narrativeFmtYoyPhrase(d.visitor_yoy)}；出游总花费${spending}，同比${narrativeFmtYoyPhrase(d.spending_yoy)}。这个假期，越来越多的人走出家门、感受旅途美好。<b>旅游市场的${(d.visitor_yoy > 0 && d.spending_yoy > 0) ? '持续升温' : '稳健运行'}，展现了消费升级的活力与文旅融合的魅力。</b>`
+      : `${year} ${holiday} travel figures are out! Domestic trips reached ${visitors}, a year-on-year ${narrativeFmtYoyPhrase(d.visitor_yoy)}; total tourism revenue reached ${spending}, a year-on-year ${narrativeFmtYoyPhrase(d.spending_yoy)}. More people are getting out and experiencing the joy of travel this holiday. <b>The ${(d.visitor_yoy > 0 && d.spending_yoy > 0) ? 'continued warming' : 'steady performance'} of the travel market highlights the vitality of consumption upgrading and the appeal of culture-tourism integration.</b>`;
+    return { text, source };
+  }
+  // brief
+  let text = currentLang === 'zh' ? `<b>【${year}年${holiday}国内旅游数据】</b>` : `<b>[${year} ${holiday} Domestic Travel Data]</b>`;
+  text += currentLang === 'zh' ? `\n• 出游人次：${visitors}，同比${narrativeFmtYoyPhrase(d.visitor_yoy)}` : `\n• Domestic trips: ${visitors}, YoY ${narrativeFmtYoyPhrase(d.visitor_yoy)}`;
+  text += currentLang === 'zh' ? `\n• 出游总花费：${spending}，同比${narrativeFmtYoyPhrase(d.spending_yoy)}` : `\n• Tourism revenue: ${spending}, YoY ${narrativeFmtYoyPhrase(d.spending_yoy)}`;
+  if (perCapita) text += (currentLang === 'zh' ? '\n• 人均花费：<b>' : '\n• Per-capita spending: <b>') + perCapita + '</b>';
+  return { text, source };
+}
+function narrativeGenerateMOT(d, type) {
+  const holiday = translateHoliday(d.holiday_name);
+  const year = d.year;
+  const publish = fmtDateSlash(d.publish_date) || '';
+  const total = narrativeFmtNum(d.total_flow, currentLang === 'zh' ? '万人次' : '10,000 trips');
+  const totalYoy = narrativeFmtYoy(d.total_flow_yoy);
+  const totalDir = narrativeDirection(d.total_flow_yoy);
+  const rail = narrativeFmtNum(d.railway, currentLang === 'zh' ? '万人次' : '10,000 trips');
+  const railYoy = narrativeFmtYoy(d.railway_yoy);
+  const highway = narrativeFmtNum(d.highway, currentLang === 'zh' ? '万人次' : '10,000 trips');
+  const highwayYoy = narrativeFmtYoy(d.highway_yoy);
+  const aviation = narrativeFmtNum(d.aviation, currentLang === 'zh' ? '万人次' : '10,000 trips');
+  const aviationYoy = narrativeFmtYoy(d.aviation_yoy);
+  const source = d.source_url || '';
+  if (type === 'ir') {
+    const text = currentLang === 'zh'
+      ? `交通运输部${publish ? '于' + publish + '披露' : '披露'}，${year}年${holiday}期间全社会跨区域人员流动量达${total}，同比${narrativeFmtYoyPhrase(d.total_flow_yoy)}。其中铁路客运量${rail}（同比${narrativeFmtYoyPhrase(d.railway_yoy)}），公路${highway}（同比${narrativeFmtYoyPhrase(d.highway_yoy)}），民航${aviation}（同比${narrativeFmtYoyPhrase(d.aviation_yoy)}）。<b>从投资角度，${d.aviation_yoy > d.total_flow_yoy ? '民航增速高于整体出行增速，提示航空出行需求韧性较强' : '各运输方式增速分化，反映出行结构正在调整'}，建议结合运力投放与票价数据进一步研判。</b>`
+      : `The Ministry of Transport disclosed${publish ? ' on ' + publish : ''} that total cross-region person trips during the ${year} ${holiday} period reached ${total}, a year-on-year ${narrativeFmtYoyPhrase(d.total_flow_yoy)}. Railway passenger volume was ${rail} (YoY ${narrativeFmtYoyPhrase(d.railway_yoy)}), highway ${highway} (YoY ${narrativeFmtYoyPhrase(d.highway_yoy)}), and aviation ${aviation} (YoY ${narrativeFmtYoyPhrase(d.aviation_yoy)}). <b>From an investment standpoint, ${d.aviation_yoy > d.total_flow_yoy ? 'aviation growth outpaced overall travel growth, indicating resilient air travel demand' : 'modal growth rates diverged, reflecting shifting travel structure'}; further analysis should incorporate capacity deployment and fare data.</b>`;
+    return { text, source };
+  }
+  if (type === 'pr') {
+    const text = currentLang === 'zh'
+      ? `${year}年${holiday}，全国跨区域人员流动量达${total}，同比${narrativeFmtYoyPhrase(d.total_flow_yoy)}！其中铁路发送${rail}，公路${highway}，民航${aviation}。<b>繁忙的旅途背后，是人民群众旺盛的出行意愿，也是交通系统高效运转、保障有力的生动写照。</b>`
+      : `During ${year} ${holiday}, national cross-region person trips reached ${total}, a year-on-year ${narrativeFmtYoyPhrase(d.total_flow_yoy)}! Railway carried ${rail}, highway ${highway}, and aviation ${aviation}. <b>Behind these busy journeys lies strong public demand for travel and the efficient, reliable operation of the transport system.</b>`;
+    return { text, source };
+  }
+  let text = currentLang === 'zh' ? `<b>【${year}年${holiday}综合交通数据】</b>` : `<b>[${year} ${holiday} Transport Data]</b>`;
+  text += currentLang === 'zh' ? `\n• 全社会跨区域人员流动量：${total}，同比${narrativeFmtYoyPhrase(d.total_flow_yoy)}` : `\n• Total cross-region trips: ${total}, YoY ${narrativeFmtYoyPhrase(d.total_flow_yoy)}`;
+  text += currentLang === 'zh' ? `\n• 铁路：${rail}，同比${narrativeFmtYoyPhrase(d.railway_yoy)}` : `\n• Railway: ${rail}, YoY ${narrativeFmtYoyPhrase(d.railway_yoy)}`;
+  text += currentLang === 'zh' ? `\n• 公路：${highway}，同比${narrativeFmtYoyPhrase(d.highway_yoy)}` : `\n• Highway: ${highway}, YoY ${narrativeFmtYoyPhrase(d.highway_yoy)}`;
+  text += currentLang === 'zh' ? `\n• 民航：${aviation}，同比${narrativeFmtYoyPhrase(d.aviation_yoy)}` : `\n• Aviation: ${aviation}, YoY ${narrativeFmtYoyPhrase(d.aviation_yoy)}`;
+  return { text, source };
+}
+function narrativeGenerateNIA(d, type) {
+  const period = translatePeriod(d.period_name);
+  const year = d.year;
+  const publish = fmtDateSlash(d.publish_date) || '';
+  const total = narrativeFmtNum(d.total_count, currentLang === 'zh' ? '万人次' : '10,000 trips');
+  const totalYoy = narrativeFmtYoy(d.total_yoy);
+  const totalDir = narrativeDirection(d.total_yoy);
+  const foreign = narrativeFmtNum(d.foreign_count, currentLang === 'zh' ? '万人次' : '10,000 trips');
+  const foreignYoy = narrativeFmtYoy(d.foreign_yoy);
+  const visaFree = narrativeFmtNum(d.visa_free_count, currentLang === 'zh' ? '万人次' : '10,000 trips');
+  const visaFreeYoy = narrativeFmtYoy(d.visa_free_yoy);
+  const source = d.source_url || '';
+  if (type === 'ir') {
+    let text = currentLang === 'zh'
+      ? `国家移民管理局${publish ? '于' + publish + '发布' : '发布'}数据显示，${year}年${period}，全国出入境人员${total}，同比${narrativeFmtYoyPhrase(d.total_yoy)}。其中外国人出入境${foreign}（同比${narrativeFmtYoyPhrase(d.foreign_yoy)}），免签外国人${visaFree}（同比${narrativeFmtYoyPhrase(d.visa_free_yoy)}）。`
+      : `Data from the National Immigration Administration${publish ? ' released on ' + publish : ''} show that in ${year} ${period}, national entry/exit trips totaled ${total}, a year-on-year ${narrativeFmtYoyPhrase(d.total_yoy)}. Foreigner trips were ${foreign} (YoY ${narrativeFmtYoyPhrase(d.foreign_yoy)}), and visa-free foreigner trips were ${visaFree} (YoY ${narrativeFmtYoyPhrase(d.visa_free_yoy)}).`;
+    text += currentLang === 'zh'
+      ? ` <b>${d.visa_free_yoy > 0 && d.visa_free_yoy > (d.total_yoy || 0) ? '免签外国人增速高于总体，显示免签政策对入境游拉动效应明显' : '外国人入境恢复节奏需结合国际航班恢复与签证政策综合观察'}，建议关注入境游相关标的及高端消费复苏。</b>`
+      : ` <b>${d.visa_free_yoy > 0 && d.visa_free_yoy > (d.total_yoy || 0) ? 'Visa-free foreigner growth outpaced the overall figure, suggesting the visa-free policy is visibly boosting inbound tourism' : 'The pace of foreigner entry recovery should be assessed alongside international flight recovery and visa policies'}; monitor inbound-tourism related names and premium consumption recovery.</b>`;
+    return { text, source };
+  }
+  if (type === 'pr') {
+    const text = currentLang === 'zh'
+      ? `${year}年${period}，全国出入境人员${total}，同比${narrativeFmtYoyPhrase(d.total_yoy)}；其中外国人${foreign}，免签外国人${visaFree}。<b>越来越频繁的跨国往来，是中国持续扩大开放、深化国际交流的鲜明注脚，也为全球游客感受中国魅力打开了更多窗口。</b>`
+      : `In ${year} ${period}, national entry/exit trips reached ${total}, a year-on-year ${narrativeFmtYoyPhrase(d.total_yoy)}; foreigners accounted for ${foreign}, and visa-free foreigners for ${visaFree}. <b>Increasingly frequent cross-border travel is a vivid sign of China\'s continued opening-up and deepening international exchanges, opening more windows for global visitors to experience the country.</b>`;
+    return { text, source };
+  }
+  let text = currentLang === 'zh' ? `<b>【${year}年${period}出入境数据】</b>` : `<b>[${year} ${period} Entry/Exit Data]</b>`;
+  text += currentLang === 'zh' ? `\n• 出入境人员总量：${total}，同比${narrativeFmtYoyPhrase(d.total_yoy)}` : `\n• Total entry/exit trips: ${total}, YoY ${narrativeFmtYoyPhrase(d.total_yoy)}`;
+  text += currentLang === 'zh' ? `\n• 外国人：${foreign}，同比${narrativeFmtYoyPhrase(d.foreign_yoy)}` : `\n• Foreigners: ${foreign}, YoY ${narrativeFmtYoyPhrase(d.foreign_yoy)}`;
+  text += currentLang === 'zh' ? `\n• 免签外国人：${visaFree}，同比${narrativeFmtYoyPhrase(d.visa_free_yoy)}` : `\n• Visa-free foreigners: ${visaFree}, YoY ${narrativeFmtYoyPhrase(d.visa_free_yoy)}`;
+  return { text, source };
+}
+function narrativeGenerate() {
+  const module = document.getElementById('narrative-module').value;
+  const periodKey = document.getElementById('narrative-period').value;
+  const type = document.getElementById('narrative-type').value;
+  const output = document.getElementById('narrative-output');
+  const msg = document.getElementById('narrative-msg');
+  const copyBtn = document.getElementById('narrative-copy');
+  const downloadBtn = document.getElementById('narrative-download');
+  msg.textContent = '';
+  msg.className = 'narrative-msg';
+  if (!periodKey) {
+    output.innerHTML = '';
+    copyBtn.disabled = true;
+    downloadBtn.disabled = true;
+    return;
+  }
+  const d = narrativeFindRecord(module, periodKey);
+  if (!d) {
+    output.textContent = t('narrative_no_data');
+    copyBtn.disabled = true;
+    downloadBtn.disabled = true;
+    return;
+  }
+  let result;
+  if (module === 'mct') result = narrativeGenerateMCT(d, type);
+  else if (module === 'mot') result = narrativeGenerateMOT(d, type);
+  else result = narrativeGenerateNIA(d, type);
+  let fullText = result.text;
+  if (result.source) {
+    fullText += currentLang === 'zh'
+      ? `\n\n${t('narrative_source_prefix')}：${result.source}`
+      : `\n\n${t('narrative_source_prefix')}: ${result.source}`;
+  }
+  fullText += currentLang === 'zh' ? `\n\n${t('narrative_disclaimer')}` : `\n\n${t('narrative_disclaimer')}`;
+  output.innerHTML = narrativeHtmlToDisplay(fullText);
+  copyBtn.disabled = false;
+  downloadBtn.disabled = false;
+}
+function narrativeHtmlToDisplay(html) {
+  return html.replace(/\n/g, '<br>');
+}
+function narrativeHtmlToPlain(html) {
+  return html
+    .replace(/<b>/gi, '**')
+    .replace(/<\/b>/gi, '**')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '');
+}
+function narrativeCopy() {
+  const output = document.getElementById('narrative-output');
+  const msg = document.getElementById('narrative-msg');
+  if (!output.innerHTML) return;
+  const plain = narrativeHtmlToPlain(output.innerHTML);
+  navigator.clipboard.writeText(plain).then(() => {
+    msg.textContent = t('narrative_copied');
+    msg.className = 'narrative-msg success';
+  }).catch(() => {
+    msg.textContent = t('form_error');
+    msg.className = 'narrative-msg error';
+  });
+}
+function narrativeDownload() {
+  const output = document.getElementById('narrative-output');
+  const module = document.getElementById('narrative-module').value;
+  const periodKey = document.getElementById('narrative-period').value;
+  const type = document.getElementById('narrative-type').value;
+  if (!output.innerHTML) return;
+  const plain = narrativeHtmlToPlain(output.innerHTML);
+  const blob = new Blob([plain], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `datavoy-narrative-${module}-${periodKey.replace(/\|/g, '-')}-${type}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  const msg = document.getElementById('narrative-msg');
+  msg.textContent = t('narrative_downloaded');
+  msg.className = 'narrative-msg success';
+}
+narrativeInit();
 
 function updateStatusText() {
   document.getElementById('home-mct-status').textContent = t('status_mct') + ' ' + latestUpdate(mctData2);
