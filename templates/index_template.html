@@ -1557,9 +1557,9 @@ function chatSourceUrl(rec) {
 }
 function chatUnitLabel(unit) {
   const u = String(unit || '');
-  if (u === '亿元') return currentLang === 'zh' ? '亿元' : '100M CNY';
-  if (u.indexOf('亿') !== -1) return t('yi_unit');
-  if (u.indexOf('万') !== -1) return t('wan_unit');
+  if (u === '亿元') return chatLang() === 'zh' ? '亿元' : '100M CNY';
+  if (u.indexOf('亿') !== -1) return chatT('yi_unit');
+  if (u.indexOf('万') !== -1) return chatT('wan_unit');
   return u;
 }
 function chatFmtValue(value, unit) {
@@ -1570,7 +1570,7 @@ function chatFmtValue(value, unit) {
 function chatCompactValue(value, unit) {
   if (value === null || value === undefined) return null;
   const u = String(unit || '');
-  if (currentLang === 'zh') {
+  if (chatLang() === 'zh') {
     const digits = u.indexOf('亿') !== -1 ? 2 : 1;
     return '**' + fmtNum(value, digits) + ' ' + chatUnitLabel(unit) + '**';
   }
@@ -1592,16 +1592,23 @@ function chatFmtYoy(yoy, prefix) {
   const s = yoy > 0 ? '+' : '';
   return (prefix || '') + s + yoy + '%';
 }
+function chatLang() { return window.chatAnswerLang || currentLang; }
+function chatT(key) {
+  const l = chatLang();
+  return I18N[l]?.[key] ?? I18N['zh']?.[key] ?? key;
+}
+function chatTranslateHoliday(name) { return HOLIDAY_NAMES[name]?.[chatLang()] || name; }
+function chatTranslatePeriod(name) { return PERIOD_NAMES[name]?.[chatLang()] || name; }
 function chatTransportModeLabel(key) {
   const map = {
-    railway: t('mot_metric_railway'), highway: t('mot_metric_highway'),
-    waterway: t('mot_metric_waterway'), aviation: t('mot_metric_aviation')
+    railway: chatT('mot_metric_railway'), highway: chatT('mot_metric_highway'),
+    waterway: chatT('mot_metric_waterway'), aviation: chatT('mot_metric_aviation')
   };
   return map[key] || key;
 }
 function chatJoinLines(lines) { return lines.filter(Boolean).join('\n\n'); }
 function chatFallback() {
-  if (currentLang === 'zh') {
+  if (chatLang() === 'zh') {
     return '我目前只能基于本页已整合的官方数据，回答关于节假日旅游、交通客流和出入境的问题。\n\n你可以试试：\n• 分析一下2026年端午旅游数据\n• 入境游恢复情况如何？\n• 交通部端午数据对投资有什么启示？\n• 2026年春节和国庆中秋数据对比';
   }
   return 'I can only answer questions based on the official data already shown on this page, such as holiday travel, transport flow, and entry/exit data.\n\nTry asking:\n• Analyze 2026 Dragon Boat travel data\n• How is inbound tourism recovering?\n• Investment implications of 2026 MOT Dragon Boat data\n• Compare 2026 Spring Festival and National Day data';
@@ -1617,7 +1624,7 @@ function chatBuildNarrative(records, parsed) {
 function chatInsight(records, parsed) {
   const mct = records.mct[0], mot = records.mot[0], nia = records.nia[0];
   const clauses = [];
-  if (currentLang === 'zh') {
+  if (chatLang() === 'zh') {
     if (mct && mct.visitor_yoy != null && mct.spending_yoy != null) {
       const diff = +(mct.spending_yoy - mct.visitor_yoy).toFixed(1);
       if (diff > 0.5) clauses.push(`花费增速快于人次，客单价提升`);
@@ -1666,10 +1673,10 @@ function chatInsight(records, parsed) {
 function chatBuildAnalysis(records, parsed) {
   const mct = records.mct[0], mot = records.mot[0], nia = records.nia[0];
   const rec = mct || mot || nia;
-  const holiday = parsed.holidays[0] ? translateHoliday(parsed.holidays[0]) : translateHoliday(rec.holiday_name || rec.period_name);
+  const holiday = parsed.holidays[0] ? chatTranslateHoliday(parsed.holidays[0]) : chatTranslateHoliday(rec.holiday_name || rec.period_name);
   const year = parsed.years[0] || rec.year;
   const lines = [];
-  if (currentLang === 'zh') {
+  if (chatLang() === 'zh') {
     lines.push(`**核心洞察：** ${year}年${holiday}——${chatInsight(records, parsed)}`);
     const quickTags = [];
     if (mct) quickTags.push('国内需求稳健');
@@ -1725,10 +1732,10 @@ function chatBuildAnalysis(records, parsed) {
 function chatBuildInbound(niaRecords, parsed) {
   if (!niaRecords.length) return chatFallback();
   const rec = niaRecords[0];
-  const period = translatePeriod(rec.period_name);
+  const period = chatTranslatePeriod(rec.period_name);
   const year = rec.year;
   const lines = [];
-  if (currentLang === 'zh') {
+  if (chatLang() === 'zh') {
     lines.push(`**核心洞察：** ${year}年${period}——中外人员出入境${chatCompactValue(rec.total_count, rec.total_unit)}（${chatFmtYoy(rec.total_yoy)}），外国人${chatFmtYoy(rec.foreign_yoy)}领跑，签证便利化红利持续释放。`);
     lines.push(`**移民局 · 出入境明细**\n• 中外人员：${chatCompactValue(rec.total_count, rec.total_unit)}（${chatFmtYoy(rec.total_yoy)}）\n• 内地居民：${rec.mainland_count != null ? chatCompactValue(rec.mainland_count, rec.mainland_unit) + '（' + chatFmtYoy(rec.mainland_yoy) + '）' : '未披露'}\n• 港澳台居民：${chatCompactValue(rec.hk_tw_mo_count, rec.hk_tw_mo_unit)}（${chatFmtYoy(rec.hk_tw_mo_yoy)}）\n• 外国人：${chatCompactValue(rec.foreign_count, rec.foreign_unit)}（${chatFmtYoy(rec.foreign_yoy)}）\n• 免签外国人：${chatCompactValue(rec.visa_free_count, rec.visa_free_unit)}（${chatFmtYoy(rec.visa_free_yoy)}）\n来源：${rec.source_url || '官方未披露链接'}`);
     lines.push('注：以上数据均来自政府官方公开披露，同比口径可能因假期天数调整而有所不同，引用时建议核对原文。');
@@ -1742,10 +1749,10 @@ function chatBuildInbound(niaRecords, parsed) {
 function chatBuildInvest(records, parsed) {
   const mct = records.mct[0], mot = records.mot[0], nia = records.nia[0];
   const rec = mct || mot || nia;
-  const holiday = parsed.holidays[0] ? translateHoliday(parsed.holidays[0]) : translateHoliday(rec.holiday_name || rec.period_name);
+  const holiday = parsed.holidays[0] ? chatTranslateHoliday(parsed.holidays[0]) : chatTranslateHoliday(rec.holiday_name || rec.period_name);
   const year = parsed.years[0] || rec.year;
   const lines = [];
-  if (currentLang === 'zh') {
+  if (chatLang() === 'zh') {
     lines.push(`**投资主线：** ${year}年${holiday}——${chatInsight(records, parsed)} 建议关注高弹性交通方式、入境游产业链及文旅消费场景。`);
     if (mct) {
       const perCapita = mct.visitor_count ? (mct.spending / mct.visitor_count).toFixed(0) : null;
@@ -1798,17 +1805,17 @@ function chatBuildCompare(records, parsed) {
   });
   const items = [...byKey.values()].slice(0, 4);
   const lines = [];
-  if (currentLang === 'zh') {
+  if (chatLang() === 'zh') {
     const sorted = [...items].filter(r => r.visitor_yoy != null).sort((a, b) => b.visitor_yoy - a.visitor_yoy);
     if (sorted.length >= 2) {
       const top = sorted[0], bottom = sorted[sorted.length - 1];
-      lines.push(`**核心洞察：** ${top.year}年${translateHoliday(top.holiday_name)}出游人次增速最高（${chatFmtYoy(top.visitor_yoy)}），${bottom.year}年${translateHoliday(bottom.holiday_name)}最低（${chatFmtYoy(bottom.visitor_yoy)}），差距约 ${(top.visitor_yoy - bottom.visitor_yoy).toFixed(1)} 个百分点。`);
+      lines.push(`**核心洞察：** ${top.year}年${chatTranslateHoliday(top.holiday_name)}出游人次增速最高（${chatFmtYoy(top.visitor_yoy)}），${bottom.year}年${chatTranslateHoliday(bottom.holiday_name)}最低（${chatFmtYoy(bottom.visitor_yoy)}），差距约 ${(top.visitor_yoy - bottom.visitor_yoy).toFixed(1)} 个百分点。`);
     } else {
       lines.push('**核心洞察：** 不同节假日/年份的规模与增速差异，主要受假期天数和出行半径影响。');
     }
     lines.push('**数据对比**');
     items.forEach(r => {
-      const label = `${r.year}年${translateHoliday(r.holiday_name || r.period_name)}`;
+      const label = `${r.year}年${chatTranslateHoliday(r.holiday_name || r.period_name)}`;
       if (records.mct.length) {
         lines.push(`• ${label}\n  出游人次 ${chatCompactValue(r.visitor_count, '亿人次')}（${chatFmtYoy(r.visitor_yoy)}），花费 ${chatCompactValue(r.spending, '亿元')}（${chatFmtYoy(r.spending_yoy)}）`);
       } else {
@@ -1819,13 +1826,13 @@ function chatBuildCompare(records, parsed) {
     const sorted = [...items].filter(r => r.visitor_yoy != null).sort((a, b) => b.visitor_yoy - a.visitor_yoy);
     if (sorted.length >= 2) {
       const top = sorted[0], bottom = sorted[sorted.length - 1];
-      lines.push(`**Key insight:** ${top.year} ${translateHoliday(top.holiday_name)} led in trip growth (${chatFmtYoy(top.visitor_yoy)}), while ${bottom.year} ${translateHoliday(bottom.holiday_name)} trailed (${chatFmtYoy(bottom.visitor_yoy)}), a gap of about ${(top.visitor_yoy - bottom.visitor_yoy).toFixed(1)} percentage points.`);
+      lines.push(`**Key insight:** ${top.year} ${chatTranslateHoliday(top.holiday_name)} led in trip growth (${chatFmtYoy(top.visitor_yoy)}), while ${bottom.year} ${chatTranslateHoliday(bottom.holiday_name)} trailed (${chatFmtYoy(bottom.visitor_yoy)}), a gap of about ${(top.visitor_yoy - bottom.visitor_yoy).toFixed(1)} percentage points.`);
     } else {
       lines.push('**Key insight:** Differences across holidays/years mainly reflect holiday length and travel radius.');
     }
     lines.push('**Data Comparison**');
     items.forEach(r => {
-      const label = `${r.year} ${translateHoliday(r.holiday_name || r.period_name)}`;
+      const label = `${r.year} ${chatTranslateHoliday(r.holiday_name || r.period_name)}`;
       if (records.mct.length) {
         lines.push(`• ${label}\n  Trips ${chatCompactValue(r.visitor_count, '亿人次')} (${chatFmtYoy(r.visitor_yoy)}), revenue ${chatCompactValue(r.spending, '亿元')} (${chatFmtYoy(r.spending_yoy)})`);
       } else {
@@ -1897,6 +1904,7 @@ async function chatSend() {
   const msg = document.getElementById('chat-msg');
   const question = input.value.trim();
   if (!question) return;
+  window.chatAnswerLang = /[\u4e00-\u9fa5]/.test(question) ? 'zh' : 'en';
   chatAddMessage('user', question);
   input.value = '';
   sendBtn.disabled = true;
