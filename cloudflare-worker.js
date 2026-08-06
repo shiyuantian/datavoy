@@ -177,58 +177,6 @@ function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function formatDataSnapshot(snapshot) {
-  const lines = [];
-  if (snapshot.mct && snapshot.mct.length) {
-    lines.push('=== Ministry of Culture and Tourism (MCT) ===');
-    snapshot.mct.forEach(d => {
-      lines.push(`- ${d.year} ${d.holiday_name}: ${d.visitor_count != null ? d.visitor_count + ' 100M trips' : 'n/a'}, YoY ${d.visitor_yoy != null ? d.visitor_yoy + '%' : 'n/a'}; spending ${d.spending != null ? d.spending + ' 100M CNY' : 'n/a'}, YoY ${d.spending_yoy != null ? d.spending_yoy + '%' : 'n/a'}; source ${d.source_url || 'n/a'}`);
-    });
-  }
-  if (snapshot.mot && snapshot.mot.length) {
-    lines.push('=== Ministry of Transport (MOT) ===');
-    snapshot.mot.forEach(d => {
-      lines.push(`- ${d.year} ${d.holiday_name}: total flow ${d.total_flow != null ? d.total_flow + ' 10k trips' : 'n/a'}, YoY ${d.total_flow_yoy != null ? d.total_flow_yoy + '%' : 'n/a'}; railway ${d.railway != null ? d.railway + ' 10k trips' : 'n/a'}, highway ${d.highway != null ? d.highway + ' 10k trips' : 'n/a'}, waterway ${d.waterway != null ? d.waterway + ' 10k trips' : 'n/a'}, aviation ${d.aviation != null ? d.aviation + ' 10k trips' : 'n/a'}; source ${d.source_url || 'n/a'}`);
-    });
-  }
-  if (snapshot.nia && snapshot.nia.length) {
-    lines.push('=== National Immigration Administration (NIA) ===');
-    snapshot.nia.forEach(d => {
-      lines.push(`- ${d.year} ${d.period_name}: total ${d.total_count != null ? d.total_count + (d.total_unit === '亿' ? ' 100M' : ' 10k') : 'n/a'}, YoY ${d.total_yoy != null ? d.total_yoy + '%' : 'n/a'}; mainland ${d.mainland_count != null ? d.mainland_count + (d.mainland_unit === '亿' ? ' 100M' : ' 10k') : 'n/a'}; HK/TW/MO ${d.hk_tw_mo_count != null ? d.hk_tw_mo_count + (d.hk_tw_mo_unit === '亿' ? ' 100M' : ' 10k') : 'n/a'}; foreign ${d.foreign_count != null ? d.foreign_count + (d.foreign_unit === '亿' ? ' 100M' : ' 10k') : 'n/a'}, YoY ${d.foreign_yoy != null ? d.foreign_yoy + '%' : 'n/a'}; visa-free ${d.visa_free_count != null ? d.visa_free_count + (d.visa_free_unit === '亿' ? ' 100M' : ' 10k') : 'n/a'}, YoY ${d.visa_free_yoy != null ? d.visa_free_yoy + '%' : 'n/a'}; source ${d.source_url || 'n/a'}`);
-    });
-  }
-  return lines.join('\n');
-}
-
-function buildChatSystemPrompt(language, snapshot) {
-  const dataText = formatDataSnapshot(snapshot);
-  if (language === 'zh') {
-    return `你是一位资深的旅游行业数据分析师，擅长从官方公开数据中提炼投资与传播价值。请基于下面提供的政府官方数据回答用户问题。
-
-【重要规则】
-1. 只能使用下方提供的数据，严禁编造数字。
-2. 每个关键数字都要标注原始来源链接。
-3. 回答要有分析深度，体现洞察（insight）和价值增量（value add），不要只是罗列数据。
-4. 把最重要的洞察用 <b>...</b> 标签加粗显示。
-5. 回答末尾附上标准免责声明："注：以上数据均来自政府官方公开披露，同比口径可能因假期天数调整而有所不同，引用时建议核对原文。"
-6. 保持简洁，控制在 400 字以内。
-
-【可用数据】
-${dataText}`;
-  }
-  return `You are a senior travel-industry data analyst skilled at extracting investment and communications value from official public data. Answer the user's question based only on the government data provided below.
-
-【Important rules】
-1. Use only the data below. Never invent figures.
-2. Cite the original source URL for every key figure.
-3. Provide analytical depth, insight, and value-added interpretation — do not just list numbers.
-4. Wrap the most important insight in <b>...</b> tags.
-5. End with this disclaimer: "Note: All figures are from official government disclosures. Year-on-year comparisons may be affected by holiday-length adjustments; please verify against the original source when citing."
-6. Keep it concise, within 400 words.
-
-【Available data】
-${dataText}`;
-}
 function escapeHtml(text) {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
@@ -430,77 +378,6 @@ export default {
           await sleep(delayMs);
         }
         return jsonResponse({ sent, failed, errors });
-      } catch (e) {
-        return jsonResponse({ error: e.message }, 500);
-      }
-    }
-
-    // API: chat (AI narrative generator)
-    if (pathname === '/api/chat' && request.method === 'POST') {
-      try {
-        const data = await request.json();
-        const question = (data.question || '').trim();
-        const language = (data.language || 'zh').trim().toLowerCase();
-        const snapshot = data.dataSnapshot || {};
-        if (!question) {
-          return jsonResponse({ error: language === 'en' ? 'Please enter a question.' : '请输入问题。' }, 400);
-        }
-
-        // Rate limit by IP: max 10 requests per hour
-        const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
-        const rateKey = `chat:${clientIP}`;
-        const now = Date.now();
-        const windowMs = 60 * 60 * 1000;
-        const limit = 10;
-        let count = 0;
-        let windowStart = now;
-        const rateRaw = await env.SUBSCRIBERS.get(rateKey);
-        if (rateRaw) {
-          const rate = JSON.parse(rateRaw);
-          if (now - rate.start < windowMs) {
-            count = rate.count;
-            windowStart = rate.start;
-          }
-        }
-        if (count >= limit) {
-          return jsonResponse({ error: language === 'en' ? 'Too many requests. Please try again later.' : '请求过于频繁，请稍后再试。' }, 429);
-        }
-
-        const openaiKey = env.OPENAI_API_KEY;
-        if (!openaiKey) {
-          return jsonResponse({ error: language === 'en' ? 'AI service is not configured.' : 'AI 服务未配置。' }, 503);
-        }
-
-        const systemPrompt = buildChatSystemPrompt(language, snapshot);
-        const messages = [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: question }
-        ];
-
-        const resp = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openaiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: env.CHAT_MODEL || 'gpt-4o-mini',
-            messages,
-            temperature: 0.4,
-            max_tokens: 1200
-          })
-        });
-
-        if (!resp.ok) {
-          const err = await resp.text().catch(() => 'OpenAI error');
-          throw new Error(`OpenAI ${resp.status}: ${err}`);
-        }
-
-        const result = await resp.json();
-        const answer = result.choices?.[0]?.message?.content || '';
-
-        await env.SUBSCRIBERS.put(rateKey, JSON.stringify({ count: count + 1, start: windowStart }), { expirationTtl: 3600 });
-        return jsonResponse({ answer });
       } catch (e) {
         return jsonResponse({ error: e.message }, 500);
       }
