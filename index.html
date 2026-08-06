@@ -1638,7 +1638,7 @@ function chatInsight(records, parsed) {
       clauses.push(`外国人出入境${chatFmtYoy(nia.foreign_yoy)}，入境复苏动能强劲`);
     }
     if (!clauses.length) return '数据整体保持平稳，建议结合后续节假日数据观察趋势。';
-    return clauses.slice(0, 2).join('；') + '。';
+    return clauses.join('；') + '。';
   } else {
     if (mct && mct.visitor_yoy != null && mct.spending_yoy != null) {
       const diff = +(mct.spending_yoy - mct.visitor_yoy).toFixed(1);
@@ -1660,7 +1660,7 @@ function chatInsight(records, parsed) {
       clauses.push(`foreigner entry/exit ${chatFmtYoy(nia.foreign_yoy)}, well above the total`);
     }
     if (!clauses.length) return 'The data is broadly stable; watch upcoming holiday releases for trend confirmation.';
-    return clauses.slice(0, 2).join('; ') + '.';
+    return clauses.join('; ') + '.';
   }
 }
 function chatBuildAnalysis(records, parsed) {
@@ -1671,6 +1671,11 @@ function chatBuildAnalysis(records, parsed) {
   const lines = [];
   if (currentLang === 'zh') {
     lines.push(`**核心洞察：** ${year}年${holiday}——${chatInsight(records, parsed)}`);
+    const quickTags = [];
+    if (mct) quickTags.push('国内需求稳健');
+    if (mot) quickTags.push('交通客流结构分化');
+    if (nia && nia.foreign_yoy != null && nia.total_yoy != null && nia.foreign_yoy > nia.total_yoy) quickTags.push('入境游延续高增');
+    if (quickTags.length) lines.push(`**速览：** ${year}年${holiday}，${quickTags.join('、')}。`);
     if (mct) {
       const url = chatSourceUrl(mct);
       lines.push(`**文旅部 · 国内出游**\n• 出游人次：${chatCompactValue(mct.visitor_count, '亿人次')}（${chatFmtYoy(mct.visitor_yoy)}）\n• 出游总花费：${chatCompactValue(mct.spending, '亿元')}（${chatFmtYoy(mct.spending_yoy)}）\n来源：${url || '官方未披露链接'}`);
@@ -1691,6 +1696,11 @@ function chatBuildAnalysis(records, parsed) {
     lines.push('注：以上数据均来自政府官方公开披露，同比口径可能因假期天数调整而有所不同，引用时建议核对原文。');
   } else {
     lines.push(`**Key insight:** ${year} ${holiday} — ${chatInsight(records, parsed)}`);
+    const quickTags = [];
+    if (mct) quickTags.push('steady domestic demand');
+    if (mot) quickTags.push('mixed transport growth');
+    if (nia && nia.foreign_yoy != null && nia.total_yoy != null && nia.foreign_yoy > nia.total_yoy) quickTags.push('strong inbound momentum');
+    if (quickTags.length) lines.push(`**At a glance:** ${year} ${holiday} — ${quickTags.join(', ')}.`);
     if (mct) {
       const url = chatSourceUrl(mct);
       lines.push(`**MCT · Domestic Travel**\n• Domestic trips: ${chatCompactValue(mct.visitor_count, '亿人次')} (${chatFmtYoy(mct.visitor_yoy)})\n• Tourism revenue: ${chatCompactValue(mct.spending, '亿元')} (${chatFmtYoy(mct.spending_yoy)})\nSource: ${url || 'source not disclosed'}`);
