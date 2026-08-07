@@ -205,5 +205,30 @@
     "aviation": 567.7,
     "aviation_unit": "万人次",
     "aviation_yoy": 0.62
+  },
+  {
+    "year": 2026,
+    "holiday_name": "国庆中秋",
+    "holiday_start_date": "2026-10-01",
+    "holiday_end_date": "2026-10-08",
+    "holiday_days": 8,
+    "publish_date": "2026-10-09",
+    "source_url": "https://mp.weixin.qq.com/s/forecast-2026-guoqing-zhongqiu",
+    "source_note": "【预测】2026年国庆中秋假期8天跨区域人员流动量预测",
+    "total_flow": 21.2,
+    "total_flow_unit": "亿人次",
+    "total_flow_yoy": 2.9,
+    "railway": 19500.0,
+    "railway_unit": "万人次",
+    "railway_yoy": 6.5,
+    "highway": 19.25,
+    "highway_unit": "亿人次",
+    "highway_yoy": 2.4,
+    "waterway": 700.0,
+    "waterway_unit": "万人次",
+    "waterway_yoy": 2.0,
+    "aviation": 1850.0,
+    "aviation_unit": "万人次",
+    "aviation_yoy": 3.5
   }
 ]

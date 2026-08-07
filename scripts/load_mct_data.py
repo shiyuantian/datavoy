@@ -75,8 +75,8 @@ def load_data(conn: sqlite3.Connection):
             r.get("spending_yoy"),
             r.get("spending_yoy_2019"),
             r.get("holiday_days"),
-            None,
-            None,
+            r.get("holiday_start_date"),
+            r.get("holiday_end_date"),
             r.get("raw_text", ""),
             now,
         ))

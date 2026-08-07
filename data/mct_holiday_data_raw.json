@@ -16,6 +16,23 @@
   },
   {
     "year": 2026,
+    "holiday_name": "国庆中秋",
+    "publish_date": "2026-10-09",
+    "title": "2026年国庆中秋假期国内出游预测9.25亿人次",
+    "source_url": "https://www.mct.gov.cn/forecast/2026-guoqing-zhongqiu",
+    "visitor_count": 9.25,
+    "visitor_yoy": 4.2,
+    "visitor_yoy_2019": null,
+    "spending": 8450.0,
+    "spending_yoy": 4.4,
+    "spending_yoy_2019": null,
+    "holiday_days": 8,
+    "holiday_start_date": "2026-10-01",
+    "holiday_end_date": "2026-10-08",
+    "raw_text": "【预测】2026年国庆中秋假期（10月1日—10月8日，共8天）国内出游预计达9.25亿人次，同比增长约4.2%；国内出游总花费预计约8450.0亿元，同比增长约4.4%。预测基于2025年同期8天实际数据（出游8.88亿人次、花费8090.06亿元）及2026年前三季度文旅消费温和增长趋势。"
+  },
+  {
+    "year": 2026,
     "holiday_name": "五一",
     "publish_date": "2026-05-07",
     "title": "2026年“五一”假期国内出游3.25亿人次",
