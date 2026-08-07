@@ -320,6 +320,9 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
   .aviation-score-number { width:96px; height:96px; font-size:34px; }
   .aviation-score-iata { font-size:24px; }
 }
+.aviation-legend { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+.aviation-legend-item { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:20px; background:#fff; border:1px solid var(--border); font-size:12px; color:#475569; }
+.aviation-legend-dot { width:12px; height:12px; border-radius:50%; }
 </style>
 </head>
 <body>
@@ -832,6 +835,12 @@ const I18N = {
     aviation_top_connectivity_suggested: '高连通性推荐航线',
     aviation_connectivity_cheaper_hint: '航班频次越高、执飞航司越多，通常意味着运力更充足、票价选择更多。',
     aviation_from_to: '从 {0} 到 {1}',
+    aviation_score_legend_title: 'Connectivity Score 等级说明',
+    aviation_score_legend_excellent: '≥80 极佳',
+    aviation_score_legend_good: '60–79 良好',
+    aviation_score_legend_moderate: '40–59 中等',
+    aviation_score_legend_limited: '20–39 有限',
+    aviation_score_legend_minimal: '<20 较弱',
     aviation_note_title: '数据说明',
     aviation_note_html: '数据来源于 <a href="https://www.flightradar24.com/" target="_blank" style="color:var(--primary);">Flightradar24</a> 亚太最繁忙航线数据。数据窗口为 2026-08-07 至 08-14，反映该周的航班计划与实际观测。<b>Connectivity Score</b> 是 Datavoy 基于四个维度合成的指标：0.4 × 归一化周出港班次 + 0.3 × 归一化实际通航目的地数 + 0.2 × 归一化通航国家/地区数 + 0.1 × 归一化执飞航司数，再乘以 100。该指标仅用于横向比较枢纽连通性，不代表官方评级。',
     status_aviation: '航空数据更新至',
@@ -983,6 +992,12 @@ const I18N = {
     aviation_top_connectivity_suggested: 'Top Connectivity Suggested',
     aviation_connectivity_cheaper_hint: 'More frequent flights and more competing airlines usually mean more capacity and more fare choices.',
     aviation_from_to: 'From {0} to {1}',
+    aviation_score_legend_title: 'Connectivity Score Levels',
+    aviation_score_legend_excellent: '≥80 Excellent',
+    aviation_score_legend_good: '60–79 Good',
+    aviation_score_legend_moderate: '40–59 Moderate',
+    aviation_score_legend_limited: '20–39 Limited',
+    aviation_score_legend_minimal: '<20 Minimal',
     aviation_note_title: 'Data Notes',
     aviation_note_html: 'Source: <a href="https://www.flightradar24.com/" target="_blank" style="color:var(--primary);">Flightradar24</a> Asia-Pacific busiest routes dataset. Schedule window: 2026-08-07 to 08-14, reflecting planned and observed flights during that week. The <b>Connectivity Score</b> is a Datavoy composite index: 0.4 × normalized weekly departures + 0.3 × normalized destinations served + 0.2 × normalized countries/regions served + 0.1 × normalized distinct airlines, scaled to 0–100. It is intended only for cross-hub comparison, not as an official rating.',
     status_aviation: 'Aviation data updated through',
@@ -1684,9 +1699,20 @@ function aviationParseBusiest(raw, origin){
   }
   return { label: t('aviation_from_to', origin, dest), total: null };
 }
+function aviationScoreLegendHtml(){
+  const levels = [
+    { key: 'excellent', min: 80, bg: 'linear-gradient(135deg,#059669,#10b981)' },
+    { key: 'good', min: 60, bg: 'linear-gradient(135deg,#0e7490,#06b6d4)' },
+    { key: 'moderate', min: 40, bg: 'linear-gradient(135deg,#d97706,#fbbf24)' },
+    { key: 'limited', min: 20, bg: 'linear-gradient(135deg,#ea580c,#fb923c)' },
+    { key: 'minimal', min: 0, bg: 'linear-gradient(135deg,#dc2626,#f87171)' }
+  ];
+  return `<div class="aviation-top-routes"><div class="aviation-top-routes-title" data-i18n="aviation_score_legend_title">${t('aviation_score_legend_title')}</div><div class="aviation-legend">${levels.map(l=>`<div class="aviation-legend-item"><span class="aviation-legend-dot" style="background:${l.bg};"></span>${t('aviation_score_legend_' + l.key)}</div>`).join('')}</div></div>`;
+}
 function aviationRenderHub(hub){
   aviationSelectedHub = hub;
-  const level = aviationScoreLevel(hub.connectivity_score);
+  const score = Math.round(hub.connectivity_score);
+  const level = aviationScoreLevel(score);
   const busiestRaw = [hub.busiest_1, hub.busiest_2, hub.busiest_3].filter(Boolean);
   const busiestParsed = busiestRaw.map(r=>aviationParseBusiest(r, hub.iata)).filter(Boolean);
   const busiestHtml = busiestParsed.length
@@ -1701,7 +1727,7 @@ function aviationRenderHub(hub){
     : '';
   document.getElementById('aviation-score-card').innerHTML = `
     <div class="aviation-score-header">
-      <div class="aviation-score-number" style="background:${level.bg};">${hub.connectivity_score.toFixed(1)}</div>
+      <div class="aviation-score-number" style="background:${level.bg};">${score}</div>
       <div class="aviation-score-meta">
         <div class="aviation-score-iata">${hub.iata}</div>
         <div class="aviation-score-airport">${escHtml(hub.airport)}</div>
@@ -1720,6 +1746,7 @@ function aviationRenderHub(hub){
     </div>
     ${suggestedHtml}
     ${busiestHtml}
+    ${aviationScoreLegendHtml()}
   `;
   renderI18n();
 }
