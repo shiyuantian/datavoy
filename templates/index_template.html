@@ -68,6 +68,7 @@ a:hover { color:var(--primary); text-decoration:underline; }
 .cell-link { color:inherit; text-decoration:none; }
 .cell-link:hover { text-decoration:underline; }
 .tag { display:inline-block; padding:4px 10px; border-radius:12px; background:var(--primary-light); color:var(--primary); font-size:12px; font-weight:500; }
+.forecast-badge { display:inline-block; margin-left:6px; padding:2px 6px; border-radius:10px; background:#fef3c7; color:#92400e; font-size:11px; font-weight:600; vertical-align:middle; }
 .empty { padding:50px; text-align:center; color:var(--muted); }
 .chart-header { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px; margin-bottom:16px; }
 .chart-title { font-size:16px; font-weight:600; }
@@ -744,6 +745,7 @@ const I18N = {
     chat_loading: '思考中…',
     chat_error: '请求失败',
     chat_disclaimer: 'AI 回答基于本页官方公开数据，引用时请核对原文。',
+    forecast_badge: '预测',
     home_status_title: '数据更新状态',
     home_subscribe_title: '订阅数据更新',
     home_subscribe_desc: '新数据上线时，第一时间通过邮件通知你。欢迎留下基本信息，方便我们未来做更精准的行业数据推送。',
@@ -863,6 +865,7 @@ const I18N = {
     chat_loading: 'Thinking…',
     chat_error: 'Request failed',
     chat_disclaimer: 'AI answers are based on official public data on this page. Please verify against original sources when citing.',
+    forecast_badge: 'Forecast',
     home_status_title: 'Data Update Status',
     home_subscribe_title: 'Subscribe to Updates',
     home_subscribe_desc: 'Get an email alert when new data is released. Leave your details so we can send more targeted industry data in the future.',
@@ -1051,6 +1054,8 @@ function fmtDateRange(start,end){
   if(!end || start===end) return fmtDateSlash(start);
   return `${fmtDateSlash(start)}-${fmtDateSlash(end)}`;
 }
+function isForecast(d){ return d && d.source_url && /forecast/i.test(d.source_url); }
+function forecastBadge(d){ return isForecast(d) ? `<span class="forecast-badge" data-i18n="forecast_badge">预测</span>` : ''; }
 function fmtHolidayMeta(name,start,end,days,note){
   const tName = translateHoliday(name) || '—';
   if(!start && days===undefined) return `<span class="tag">${tName}</span>`;
@@ -1119,7 +1124,7 @@ function mctRender(){
   if(!rows.length){ tb.innerHTML=`<tr><td colspan="7" style="height:120px;">&nbsp;</td></tr>`; mctRenderCharts([]); return; }
   tb.innerHTML = rows.map(d=>`<tr>
     <td>${d.year||'—'}</td>
-    <td class="col-holiday">${d.source_url?`<a href="${d.source_url}" target="_blank" class="cell-link">`:''}${fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days)}${d.source_url?'</a>':''}</td>
+    <td class="col-holiday">${d.source_url?`<a href="${d.source_url}" target="_blank" class="cell-link">`:''}${fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days)}${d.source_url?'</a>':''}${forecastBadge(d)}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank" class="cell-link">`:''}${fmtDateSlash(d.publish_date)||'—'}${d.source_url?'</a>':''}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}<span class="metric-value">${fmtNum(d.visitor_count)}</span>${d.source_url?'</a>':''}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoy(d.visitor_yoy,d.visitor_daily_yoy,d.missing_reason_visitor_yoy)}${d.source_url?'</a>':''}</td>
@@ -1138,7 +1143,13 @@ function mctRenderCharts(filtered){
 function mctMakeDatasets(sorted,metrics,selectedKeys){
   return metrics.filter(m=>selectedKeys.includes(m.key)).map(m=>({
     label:`${t(m.labelKey)} (${t(m.unitKey)})`, data:sorted.map(d=>d[m.key]), borderColor:m.color, backgroundColor:m.color, yAxisID:m.yAxis,
-    tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true
+    tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true,
+    segment: {
+      borderDash: ctx => {
+        const p0 = sorted[ctx.p0DataIndex], p1 = sorted[ctx.p1DataIndex];
+        return (isForecast(p0) || isForecast(p1)) ? [6, 6] : undefined;
+      }
+    }
   }));
 }
 function mctRenderAbsChart(sorted,labels){
@@ -1287,7 +1298,7 @@ function motRender(){
     const holidayMeta = fmtHolidayMeta(d.holiday_name,d.holiday_start_date,d.holiday_end_date,d.holiday_days,d.daily_breakdown?d.source_note:null);
     return `<tr>
     <td>${d.year||'—'}</td>
-    <td class="col-holiday">${d.source_url?`<a href="${d.source_url}" target="_blank" class="cell-link">`:''}${holidayMeta}${d.source_url?'</a>':''}${d.daily_breakdown?` <button class="expand-btn" onclick="motToggleDetail(${idx},this)">${t('mot_expand_daily')}</button>`:''}</td>
+    <td class="col-holiday">${d.source_url?`<a href="${d.source_url}" target="_blank" class="cell-link">`:''}${holidayMeta}${d.source_url?'</a>':''}${forecastBadge(d)}${d.daily_breakdown?` <button class="expand-btn" onclick="motToggleDetail(${idx},this)">${t('mot_expand_daily')}</button>`:''}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank" class="cell-link">`:''}${fmtDateSlash(d.publish_date)||'—'}${d.source_url?'</a>':''}</td>
     <td>${motFmtCell(d.total_flow,d.total_flow_unit,d.source_url)}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank">`:''}${fmtYoySimple(d.total_flow_yoy)}${d.source_url?'</a>':''}</td>
@@ -1314,7 +1325,13 @@ function motRenderAbsChart(sorted,labels){
   const selected=motSelectedAbs();
   const datasets=MOT_ABS_METRICS.filter(m=>selected.includes(m.key)).map(m=>({
     label:`${t(m.labelKey)} (${t(m.unitKey)})`, data:sorted.map(d=>d[m.key+'_unit']==='亿'?d[m.key]*10000:d[m.key]), borderColor:m.color, backgroundColor:m.color, yAxisID:m.yAxis,
-    tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true
+    tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true,
+    segment: {
+      borderDash: ctx => {
+        const p0 = sorted[ctx.p0DataIndex], p1 = sorted[ctx.p1DataIndex];
+        return (isForecast(p0) || isForecast(p1)) ? [6, 6] : undefined;
+      }
+    }
   }));
   const ctx=document.getElementById('mot-absoluteChart').getContext('2d');
   const opts={
@@ -1333,7 +1350,13 @@ function motRenderGrowthChart(sorted,labels){
   const selected=motSelectedGrowth();
   const datasets=MOT_GROWTH_METRICS.filter(m=>selected.includes(m.key)).map(m=>({
     label:t(m.labelKey), data:sorted.map(d=>d[m.key]), borderColor:m.color, backgroundColor:m.color,
-    tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true
+    tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true,
+    segment: {
+      borderDash: ctx => {
+        const p0 = sorted[ctx.p0DataIndex], p1 = sorted[ctx.p1DataIndex];
+        return (isForecast(p0) || isForecast(p1)) ? [6, 6] : undefined;
+      }
+    }
   }));
   const ctx=document.getElementById('mot-growthChart').getContext('2d');
   const opts={
@@ -1412,7 +1435,7 @@ function niaRender(){
     const periodCell = d.source_url ? `<a href="${d.source_url}" target="_blank" class="cell-link">${periodCellRaw}</a>` : periodCellRaw;
     return `<tr>
     <td>${d.year||'—'}</td>
-    <td class="col-holiday">${periodCell}</td>
+    <td class="col-holiday">${periodCell}${forecastBadge(d)}</td>
     <td>${d.source_url?`<a href="${d.source_url}" target="_blank" class="cell-link">`:''}${fmtDateSlash(d.publish_date)||'—'}${d.source_url?'</a>':''}</td>
     <td>${niaFmtCount(d.total_count, d.total_unit, d.source_url)}</td>
     <td>${niaFmtYoyCell(d.total_yoy, d.source_url)}</td>
@@ -1445,7 +1468,13 @@ function niaRenderAbsChart(sorted,labels){
     label:`${t(m.labelKey)} (${t('wan_unit')})`,
     data:sorted.map(d=>niaToWan(d[m.key+'_count'], d[m.key+'_unit'])),
     borderColor:m.color, backgroundColor:m.color,
-    tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true
+    tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true,
+    segment: {
+      borderDash: ctx => {
+        const p0 = sorted[ctx.p0DataIndex], p1 = sorted[ctx.p1DataIndex];
+        return (isForecast(p0) || isForecast(p1)) ? [6, 6] : undefined;
+      }
+    }
   }));
   const ctx=document.getElementById('nia-absChart').getContext('2d');
   const opts={
@@ -1462,7 +1491,13 @@ function niaRenderGrowthChart(sorted,labels){
     label:t(m.labelKey),
     data:sorted.map(d=>d[m.key+'_yoy']),
     borderColor:m.color, backgroundColor:m.color,
-    tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true
+    tension:0.25, pointRadius:5, pointHoverRadius:7, spanGaps:true,
+    segment: {
+      borderDash: ctx => {
+        const p0 = sorted[ctx.p0DataIndex], p1 = sorted[ctx.p1DataIndex];
+        return (isForecast(p0) || isForecast(p1)) ? [6, 6] : undefined;
+      }
+    }
   }));
   const ctx=document.getElementById('nia-growthChart').getContext('2d');
   const opts={
@@ -1607,6 +1642,9 @@ function chatTransportModeLabel(key) {
   return map[key] || key;
 }
 function chatJoinLines(lines) { return lines.filter(Boolean).join('\n\n'); }
+function chatHasForecast(records) {
+  return [].concat(records.mct || [], records.mot || [], records.nia || []).some(r => r.source_url && /forecast/i.test(r.source_url));
+}
 function chatFallback() {
   if (chatLang() === 'zh') {
     return '我目前只能基于本页已整合的官方数据，回答关于节假日旅游、交通客流和出入境的问题。\n\n你可以试试：\n• 分析一下2026年端午旅游数据\n• 入境游恢复情况如何？\n• 交通部端午数据对投资有什么启示？\n• 2026年春节和国庆中秋数据对比';
@@ -1701,7 +1739,7 @@ function chatBuildAnalysis(records, parsed) {
       const url = chatSourceUrl(nia);
       lines.push(`**移民局 · 出入境**\n• 中外人员出入境：${chatCompactValue(nia.total_count, nia.total_unit)}（${chatFmtYoy(nia.total_yoy)}）\n• 外国人：${chatCompactValue(nia.foreign_count, nia.foreign_unit)}（${chatFmtYoy(nia.foreign_yoy)}）\n• 免签外国人：${chatCompactValue(nia.visa_free_count, nia.visa_free_unit)}（${chatFmtYoy(nia.visa_free_yoy)}）\n${url ? '[来源](' + url + ')' : '来源：官方未披露链接'}`);
     }
-    lines.push('注：以上数据均来自政府官方公开披露，同比口径可能因假期天数调整而有所不同，引用时建议核对原文。');
+    lines.push(chatHasForecast(records) ? '注：以上含官方已披露数据及基于现有数据趋势的预测，实际公布时请以官方原文为准。' : '注：以上数据均来自政府官方公开披露，同比口径可能因假期天数调整而有所不同，引用时建议核对原文。');
   } else {
     lines.push(`**Key insight:** ${year} ${holiday}`);
     chatInsight(records, parsed).replace(/\.$/, '').split('; ').forEach(pt => { if (pt.trim()) lines.push(`• ${pt.trim()}`); });
@@ -1727,7 +1765,7 @@ function chatBuildAnalysis(records, parsed) {
       const url = chatSourceUrl(nia);
       lines.push(`**NIA · Entry & Exit**\n• Total entry/exit: ${chatCompactValue(nia.total_count, nia.total_unit)} (${chatFmtYoy(nia.total_yoy)})\n• Foreigners: ${chatCompactValue(nia.foreign_count, nia.foreign_unit)} (${chatFmtYoy(nia.foreign_yoy)})\n• Visa-free foreigners: ${chatCompactValue(nia.visa_free_count, nia.visa_free_unit)} (${chatFmtYoy(nia.visa_free_yoy)})\n${url ? '[Source](' + url + ')' : 'Source: source not disclosed'}`);
     }
-    lines.push('Note: All figures are from official government disclosures. Year-on-year comparisons may be affected by holiday-length adjustments; please verify against the original source when citing.');
+    lines.push(chatHasForecast(records) ? 'Note: Figures include official disclosures and forecasts based on current trends; please verify against the official release when available.' : 'Note: All figures are from official government disclosures. Year-on-year comparisons may be affected by holiday-length adjustments; please verify against the original source when citing.');
   }
   return chatJoinLines(lines);
 }
@@ -1736,6 +1774,8 @@ function chatBuildInbound(niaRecords, parsed) {
   const rec = niaRecords[0];
   const period = chatTranslatePeriod(rec.period_name);
   const year = rec.year;
+  const records = { mct: [], mot: [], nia: niaRecords };
+  const hasForecast = chatHasForecast(records);
   const lines = [];
   if (chatLang() === 'zh') {
     lines.push(`**核心洞察：** ${year}年${period}`);
@@ -1743,14 +1783,14 @@ function chatBuildInbound(niaRecords, parsed) {
     lines.push(`• 外国人 ${chatFmtYoy(rec.foreign_yoy)}，增速领跑入境复苏`);
     lines.push(`• 签证便利化红利持续释放，免签外国人 ${chatCompactValue(rec.visa_free_count, rec.visa_free_unit)}（${chatFmtYoy(rec.visa_free_yoy)}）`);
     lines.push(`**移民局 · 出入境明细**\n• 中外人员：${chatCompactValue(rec.total_count, rec.total_unit)}（${chatFmtYoy(rec.total_yoy)}）\n• 内地居民：${rec.mainland_count != null ? chatCompactValue(rec.mainland_count, rec.mainland_unit) + '（' + chatFmtYoy(rec.mainland_yoy) + '）' : '未披露'}\n• 港澳台居民：${chatCompactValue(rec.hk_tw_mo_count, rec.hk_tw_mo_unit)}（${chatFmtYoy(rec.hk_tw_mo_yoy)}）\n• 外国人：${chatCompactValue(rec.foreign_count, rec.foreign_unit)}（${chatFmtYoy(rec.foreign_yoy)}）\n• 免签外国人：${chatCompactValue(rec.visa_free_count, rec.visa_free_unit)}（${chatFmtYoy(rec.visa_free_yoy)}）\n${rec.source_url ? '[来源](' + rec.source_url + ')' : '来源：官方未披露链接'}`);
-    lines.push('注：以上数据均来自政府官方公开披露，同比口径可能因假期天数调整而有所不同，引用时建议核对原文。');
+    lines.push(hasForecast ? '注：以上含官方已披露数据及基于现有数据趋势的预测，实际公布时请以官方原文为准。' : '注：以上数据均来自政府官方公开披露，同比口径可能因假期天数调整而有所不同，引用时建议核对原文。');
   } else {
     lines.push(`**Key insight:** ${period} ${year}`);
     lines.push(`• Total entry/exit ${chatCompactValue(rec.total_count, rec.total_unit)} (${chatFmtYoy(rec.total_yoy)})`);
     lines.push(`• Foreigners ${chatFmtYoy(rec.foreign_yoy)} — leading inbound recovery`);
     lines.push(`• Visa-free foreigners ${chatCompactValue(rec.visa_free_count, rec.visa_free_unit)} (${chatFmtYoy(rec.visa_free_yoy)}) show policy dividends`);
     lines.push(`**NIA · Entry & Exit Breakdown**\n• Total: ${chatCompactValue(rec.total_count, rec.total_unit)} (${chatFmtYoy(rec.total_yoy)})\n• Mainland residents: ${rec.mainland_count != null ? chatCompactValue(rec.mainland_count, rec.mainland_unit) + ' (' + chatFmtYoy(rec.mainland_yoy) + ')' : 'not disclosed'}\n• HK/TW/MO residents: ${chatCompactValue(rec.hk_tw_mo_count, rec.hk_tw_mo_unit)} (${chatFmtYoy(rec.hk_tw_mo_yoy)})\n• Foreigners: ${chatCompactValue(rec.foreign_count, rec.foreign_unit)} (${chatFmtYoy(rec.foreign_yoy)})\n• Visa-free foreigners: ${chatCompactValue(rec.visa_free_count, rec.visa_free_unit)} (${chatFmtYoy(rec.visa_free_yoy)})\n${rec.source_url ? '[Source](' + rec.source_url + ')' : 'Source: source not disclosed'}`);
-    lines.push('Note: All figures are from official government disclosures. Year-on-year comparisons may be affected by holiday-length adjustments; please verify against the original source when citing.');
+    lines.push(hasForecast ? 'Note: Figures include official disclosures and forecasts based on current trends; please verify against the official release when available.' : 'Note: All figures are from official government disclosures. Year-on-year comparisons may be affected by holiday-length adjustments; please verify against the original source when citing.');
   }
   return chatJoinLines(lines);
 }
@@ -1781,7 +1821,7 @@ function chatBuildInvest(records, parsed) {
     if (nia) {
       lines.push(`**移民局 · 入境复苏**\n• 外国人：${chatCompactValue(nia.foreign_count, nia.foreign_unit)}（${chatFmtYoy(nia.foreign_yoy)}）\n• 免签外国人：${chatCompactValue(nia.visa_free_count, nia.visa_free_unit)}（${chatFmtYoy(nia.visa_free_yoy)}）\n${chatSourceUrl(nia) ? '[来源](' + chatSourceUrl(nia) + ')' : '来源：官方未披露链接'}`);
     }
-    lines.push('注：以上数据均来自政府官方公开披露，仅作信息整理，不构成投资建议。');
+    lines.push(chatHasForecast(records) ? '注：以上含官方已披露数据及基于现有数据趋势的预测，仅作信息整理，不构成投资建议；实际公布时请以官方原文为准。' : '注：以上数据均来自政府官方公开披露，仅作信息整理，不构成投资建议。');
   } else {
     lines.push(`**Investment theme:** ${year} ${holiday}`);
     chatInsight(records, parsed).replace(/\.$/, '').split('; ').forEach(pt => { if (pt.trim()) lines.push(`• ${pt.trim()}`); });
@@ -1803,7 +1843,7 @@ function chatBuildInvest(records, parsed) {
     if (nia) {
       lines.push(`**NIA · Inbound Recovery**\n• Foreigners: ${chatCompactValue(nia.foreign_count, nia.foreign_unit)} (${chatFmtYoy(nia.foreign_yoy)})\n• Visa-free foreigners: ${chatCompactValue(nia.visa_free_count, nia.visa_free_unit)} (${chatFmtYoy(nia.visa_free_yoy)})\n${chatSourceUrl(nia) ? '[Source](' + chatSourceUrl(nia) + ')' : 'Source: source not disclosed'}`);
     }
-    lines.push('Note: All figures are from official government disclosures. This is information synthesis only, not investment advice.');
+    lines.push(chatHasForecast(records) ? 'Note: Figures include official disclosures and forecasts based on current trends. This is information synthesis only, not investment advice; please verify against the official release when available.' : 'Note: All figures are from official government disclosures. This is information synthesis only, not investment advice.');
   }
   return chatJoinLines(lines);
 }
