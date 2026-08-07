@@ -1677,7 +1677,8 @@ function chatBuildAnalysis(records, parsed) {
   const year = parsed.years[0] || rec.year;
   const lines = [];
   if (chatLang() === 'zh') {
-    lines.push(`**核心洞察：** ${year}年${holiday}——${chatInsight(records, parsed)}`);
+    lines.push(`**核心洞察：** ${year}年${holiday}`);
+    chatInsight(records, parsed).replace(/。$/, '').split('；').forEach(pt => { if (pt.trim()) lines.push(`• ${pt.trim()}`); });
     const quickTags = [];
     if (mct) quickTags.push('国内需求稳健');
     if (mot) quickTags.push('交通客流结构分化');
@@ -1702,7 +1703,8 @@ function chatBuildAnalysis(records, parsed) {
     }
     lines.push('注：以上数据均来自政府官方公开披露，同比口径可能因假期天数调整而有所不同，引用时建议核对原文。');
   } else {
-    lines.push(`**Key insight:** ${year} ${holiday} — ${chatInsight(records, parsed)}`);
+    lines.push(`**Key insight:** ${year} ${holiday}`);
+    chatInsight(records, parsed).replace(/\.$/, '').split('; ').forEach(pt => { if (pt.trim()) lines.push(`• ${pt.trim()}`); });
     const quickTags = [];
     if (mct) quickTags.push('steady domestic demand');
     if (mot) quickTags.push('mixed transport growth');
@@ -1736,11 +1738,17 @@ function chatBuildInbound(niaRecords, parsed) {
   const year = rec.year;
   const lines = [];
   if (chatLang() === 'zh') {
-    lines.push(`**核心洞察：** ${year}年${period}——中外人员出入境${chatCompactValue(rec.total_count, rec.total_unit)}（${chatFmtYoy(rec.total_yoy)}），外国人${chatFmtYoy(rec.foreign_yoy)}领跑，签证便利化红利持续释放。`);
+    lines.push(`**核心洞察：** ${year}年${period}`);
+    lines.push(`• 中外人员出入境 ${chatCompactValue(rec.total_count, rec.total_unit)}（${chatFmtYoy(rec.total_yoy)}）`);
+    lines.push(`• 外国人 ${chatFmtYoy(rec.foreign_yoy)}，增速领跑入境复苏`);
+    lines.push(`• 签证便利化红利持续释放，免签外国人 ${chatCompactValue(rec.visa_free_count, rec.visa_free_unit)}（${chatFmtYoy(rec.visa_free_yoy)}）`);
     lines.push(`**移民局 · 出入境明细**\n• 中外人员：${chatCompactValue(rec.total_count, rec.total_unit)}（${chatFmtYoy(rec.total_yoy)}）\n• 内地居民：${rec.mainland_count != null ? chatCompactValue(rec.mainland_count, rec.mainland_unit) + '（' + chatFmtYoy(rec.mainland_yoy) + '）' : '未披露'}\n• 港澳台居民：${chatCompactValue(rec.hk_tw_mo_count, rec.hk_tw_mo_unit)}（${chatFmtYoy(rec.hk_tw_mo_yoy)}）\n• 外国人：${chatCompactValue(rec.foreign_count, rec.foreign_unit)}（${chatFmtYoy(rec.foreign_yoy)}）\n• 免签外国人：${chatCompactValue(rec.visa_free_count, rec.visa_free_unit)}（${chatFmtYoy(rec.visa_free_yoy)}）\n${rec.source_url ? '[来源](' + rec.source_url + ')' : '来源：官方未披露链接'}`);
     lines.push('注：以上数据均来自政府官方公开披露，同比口径可能因假期天数调整而有所不同，引用时建议核对原文。');
   } else {
-    lines.push(`**Key insight:** ${period} ${year} — total entry/exit ${chatCompactValue(rec.total_count, rec.total_unit)} (${chatFmtYoy(rec.total_yoy)}), with foreigners ${chatFmtYoy(rec.foreign_yoy)} leading the recovery as visa facilitation continues to pay off.`);
+    lines.push(`**Key insight:** ${period} ${year}`);
+    lines.push(`• Total entry/exit ${chatCompactValue(rec.total_count, rec.total_unit)} (${chatFmtYoy(rec.total_yoy)})`);
+    lines.push(`• Foreigners ${chatFmtYoy(rec.foreign_yoy)} — leading inbound recovery`);
+    lines.push(`• Visa-free foreigners ${chatCompactValue(rec.visa_free_count, rec.visa_free_unit)} (${chatFmtYoy(rec.visa_free_yoy)}) show policy dividends`);
     lines.push(`**NIA · Entry & Exit Breakdown**\n• Total: ${chatCompactValue(rec.total_count, rec.total_unit)} (${chatFmtYoy(rec.total_yoy)})\n• Mainland residents: ${rec.mainland_count != null ? chatCompactValue(rec.mainland_count, rec.mainland_unit) + ' (' + chatFmtYoy(rec.mainland_yoy) + ')' : 'not disclosed'}\n• HK/TW/MO residents: ${chatCompactValue(rec.hk_tw_mo_count, rec.hk_tw_mo_unit)} (${chatFmtYoy(rec.hk_tw_mo_yoy)})\n• Foreigners: ${chatCompactValue(rec.foreign_count, rec.foreign_unit)} (${chatFmtYoy(rec.foreign_yoy)})\n• Visa-free foreigners: ${chatCompactValue(rec.visa_free_count, rec.visa_free_unit)} (${chatFmtYoy(rec.visa_free_yoy)})\n${rec.source_url ? '[Source](' + rec.source_url + ')' : 'Source: source not disclosed'}`);
     lines.push('Note: All figures are from official government disclosures. Year-on-year comparisons may be affected by holiday-length adjustments; please verify against the original source when citing.');
   }
@@ -1753,7 +1761,9 @@ function chatBuildInvest(records, parsed) {
   const year = parsed.years[0] || rec.year;
   const lines = [];
   if (chatLang() === 'zh') {
-    lines.push(`**投资主线：** ${year}年${holiday}——${chatInsight(records, parsed)} 建议关注高弹性交通方式、入境游产业链及文旅消费场景。`);
+    lines.push(`**投资主线：** ${year}年${holiday}`);
+    chatInsight(records, parsed).replace(/。$/, '').split('；').forEach(pt => { if (pt.trim()) lines.push(`• ${pt.trim()}`); });
+    lines.push(`• 建议关注：**高弹性交通方式**、**入境游产业链**及**文旅消费场景**`);
     if (mct) {
       const perCapita = mct.visitor_count ? (mct.spending / mct.visitor_count).toFixed(0) : null;
       const diff = mct.spending_yoy != null && mct.visitor_yoy != null ? +(mct.spending_yoy - mct.visitor_yoy).toFixed(1) : null;
@@ -1773,7 +1783,9 @@ function chatBuildInvest(records, parsed) {
     }
     lines.push('注：以上数据均来自政府官方公开披露，仅作信息整理，不构成投资建议。');
   } else {
-    lines.push(`**Investment theme:** ${year} ${holiday} — ${chatInsight(records, parsed)} High-elasticity transport, inbound-tourism supply chains, and cultural tourism consumption are worth watching.`);
+    lines.push(`**Investment theme:** ${year} ${holiday}`);
+    chatInsight(records, parsed).replace(/\.$/, '').split('; ').forEach(pt => { if (pt.trim()) lines.push(`• ${pt.trim()}`); });
+    lines.push(`• Watch: **high-elasticity transport**, **inbound-tourism supply chains**, and **cultural-tourism consumption**`);
     if (mct) {
       const perCapita = mct.visitor_count ? (mct.spending / mct.visitor_count).toFixed(0) : null;
       const diff = mct.spending_yoy != null && mct.visitor_yoy != null ? +(mct.spending_yoy - mct.visitor_yoy).toFixed(1) : null;
@@ -1807,11 +1819,14 @@ function chatBuildCompare(records, parsed) {
   const lines = [];
   if (chatLang() === 'zh') {
     const sorted = [...items].filter(r => r.visitor_yoy != null).sort((a, b) => b.visitor_yoy - a.visitor_yoy);
+    lines.push('**核心洞察：**');
     if (sorted.length >= 2) {
       const top = sorted[0], bottom = sorted[sorted.length - 1];
-      lines.push(`**核心洞察：** ${top.year}年${chatTranslateHoliday(top.holiday_name)}出游人次增速最高（${chatFmtYoy(top.visitor_yoy)}），${bottom.year}年${chatTranslateHoliday(bottom.holiday_name)}最低（${chatFmtYoy(bottom.visitor_yoy)}），差距约 ${(top.visitor_yoy - bottom.visitor_yoy).toFixed(1)} 个百分点。`);
+      lines.push(`• 增速最高：${top.year}年${chatTranslateHoliday(top.holiday_name)}（${chatFmtYoy(top.visitor_yoy)}）`);
+      lines.push(`• 增速最低：${bottom.year}年${chatTranslateHoliday(bottom.holiday_name)}（${chatFmtYoy(bottom.visitor_yoy)}）`);
+      lines.push(`• 差距约 **${(top.visitor_yoy - bottom.visitor_yoy).toFixed(1)} 个百分点**，受假期天数和出行半径影响`);
     } else {
-      lines.push('**核心洞察：** 不同节假日/年份的规模与增速差异，主要受假期天数和出行半径影响。');
+      lines.push('• 不同节假日/年份的规模与增速差异，主要受假期天数和出行半径影响');
     }
     lines.push('**数据对比**');
     items.forEach(r => {
@@ -1824,11 +1839,14 @@ function chatBuildCompare(records, parsed) {
     });
   } else {
     const sorted = [...items].filter(r => r.visitor_yoy != null).sort((a, b) => b.visitor_yoy - a.visitor_yoy);
+    lines.push('**Key insight:**');
     if (sorted.length >= 2) {
       const top = sorted[0], bottom = sorted[sorted.length - 1];
-      lines.push(`**Key insight:** ${top.year} ${chatTranslateHoliday(top.holiday_name)} led in trip growth (${chatFmtYoy(top.visitor_yoy)}), while ${bottom.year} ${chatTranslateHoliday(bottom.holiday_name)} trailed (${chatFmtYoy(bottom.visitor_yoy)}), a gap of about ${(top.visitor_yoy - bottom.visitor_yoy).toFixed(1)} percentage points.`);
+      lines.push(`• Fastest growth: ${top.year} ${chatTranslateHoliday(top.holiday_name)} (${chatFmtYoy(top.visitor_yoy)})`);
+      lines.push(`• Slowest growth: ${bottom.year} ${chatTranslateHoliday(bottom.holiday_name)} (${chatFmtYoy(bottom.visitor_yoy)})`);
+      lines.push(`• Gap: about **${(top.visitor_yoy - bottom.visitor_yoy).toFixed(1)} percentage points**, driven by holiday length and travel radius`);
     } else {
-      lines.push('**Key insight:** Differences across holidays/years mainly reflect holiday length and travel radius.');
+      lines.push('• Differences across holidays/years mainly reflect holiday length and travel radius');
     }
     lines.push('**Data Comparison**');
     items.forEach(r => {
