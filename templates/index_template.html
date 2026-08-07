@@ -295,9 +295,15 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
 .aviation-explorer { display:grid; grid-template-columns:minmax(260px,360px) 1fr; gap:24px; align-items:start; }
 .aviation-selector { display:flex; flex-direction:column; gap:12px; }
 .aviation-selector label { font-weight:600; font-size:14px; color:#374151; }
-.aviation-search { width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:12px; font-size:15px; outline:none; transition:border-color .15s ease,box-shadow .15s ease; }
+.aviation-search { width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:12px; font-size:15px; outline:none; transition:border-color .15s ease,box-shadow .15s ease; background:#fff; }
 .aviation-search:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(14,116,144,.12); }
 .aviation-hint { font-size:12px; color:var(--muted); margin:0; }
+.aviation-mode-toggle { display:flex; gap:8px; margin-bottom:12px; }
+.aviation-mode-btn { flex:1; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:#f8fafc; color:#475569; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s ease; }
+.aviation-mode-btn:hover { background:#f1f5f9; }
+.aviation-mode-btn.active { background:var(--primary); border-color:var(--primary); color:#fff; }
+#aviation-route-inputs, #aviation-destination-input { display:flex; flex-direction:column; gap:10px; }
+.aviation-selector label { font-weight:600; font-size:13px; color:#374151; }
 .aviation-score-card { background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%); border:1px solid var(--border); border-radius:20px; padding:28px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:20px; }
 .aviation-score-header { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
 .aviation-score-number { width:120px; height:120px; border-radius:50%; display:grid; place-items:center; font-size:42px; font-weight:800; color:#fff; box-shadow:0 8px 24px rgba(0,0,0,.12); flex-shrink:0; }
@@ -706,26 +712,37 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
   <!-- Aviation Panel -->
   <section class="tab-panel" id="panel-aviation">
     <section class="hero" id="data-aviation">
-      <h1 data-i18n="aviation_title">航空 · 亚太枢纽连通性</h1>
-      <p data-i18n="aviation_desc">选择一个亚太航空枢纽，查看 Datavoy Connectivity Score 及连通性解读。</p>
+      <h1 data-i18n="aviation_title">Connectivity Heat Score</h1>
+      <p data-i18n="aviation_desc">选择一条航线或一个目的地，查看航班热度评分与解读。</p>
     </section>
     <section class="card">
       <div class="aviation-explorer">
         <div class="aviation-selector">
-          <label for="aviation-hub-search" data-i18n="aviation_select_label">选择机场 / 城市</label>
-          <input id="aviation-hub-search" class="aviation-search" list="aviation-hub-list" data-i18n-placeholder="aviation_search_placeholder" placeholder="输入城市、机场名或 IATA 代码">
-          <datalist id="aviation-hub-list"></datalist>
-          <p class="aviation-hint" data-i18n="aviation_search_hint">例如：Shanghai、PVG、Tokyo、Delhi</p>
+          <div class="aviation-mode-toggle">
+            <button class="aviation-mode-btn active" data-mode="route" onclick="aviationSetMode('route')" data-i18n="aviation_mode_route">Select a route</button>
+            <button class="aviation-mode-btn" data-mode="destination" onclick="aviationSetMode('destination')" data-i18n="aviation_mode_destination">Select a destination</button>
+          </div>
+          <div id="aviation-route-inputs">
+            <label for="aviation-from" data-i18n="aviation_from_label">From</label>
+            <select id="aviation-from" class="aviation-search" onchange="aviationOnRouteChange()"></select>
+            <label for="aviation-to" data-i18n="aviation_to_label">To</label>
+            <select id="aviation-to" class="aviation-search" onchange="aviationOnRouteChange()"></select>
+          </div>
+          <div id="aviation-destination-input" style="display:none;">
+            <label for="aviation-destination" data-i18n="aviation_destination_label">Destination</label>
+            <select id="aviation-destination" class="aviation-search" onchange="aviationOnDestinationChange()"></select>
+          </div>
+          <p class="aviation-hint" data-i18n="aviation_search_hint">航班越多、执飞航司越多，热度评分越高，通常也意味着更多票价选择。</p>
         </div>
         <div class="aviation-score-card" id="aviation-score-card">
-          <div class="empty" data-i18n="aviation_empty_hint">在左侧选择一个枢纽，即可查看连通性评分。</div>
+          <div class="empty" data-i18n="aviation_empty_hint">在左侧选择航线或目的地，即可查看 Connectivity Heat Score。</div>
         </div>
       </div>
     </section>
     <section class="card" style="margin-top:20px;">
       <div class="chart-title" style="margin-bottom:10px;" data-i18n="aviation_note_title">数据说明</div>
       <p style="margin:0;font-size:13px;color:var(--muted);line-height:1.7;" data-i18n-html="aviation_note_html">
-        数据来源于 <a href="https://www.flightradar24.com/" target="_blank" style="color:var(--primary);">Flightradar24</a> 亚太最繁忙航线数据。数据窗口为 2026-08-07 至 08-14，反映该周的航班计划与实际观测。<b>Connectivity Score</b> 是 Datavoy 基于四个维度合成的指标：0.4 × 归一化周出港班次 + 0.3 × 归一化实际通航目的地数 + 0.2 × 归一化通航国家/地区数 + 0.1 × 归一化执飞航司数，再乘以 100。该指标仅用于横向比较枢纽连通性，不代表官方评级。
+        数据来源于 <a href="https://www.flightradar24.com/" target="_blank" style="color:var(--primary);">Flightradar24</a> 亚太最繁忙航线数据。数据窗口为 2026-08-07 至 08-14，反映该周的航班计划与实际观测。<b>Connectivity Heat Score</b> 是 Datavoy 基于航班热度合成的指标：航线模式按该航线周航班总量在所有航线中的相对位置折算为 0–100；目的地模式按抵达该目的地的所有航线周航班总量之和的相对位置折算。该指标仅用于横向比较航班热度，不代表官方评级或实时票价。
       </p>
       <p id="aviation-last-update" class="source-note" style="margin-top:10px;"></p>
     </section>
@@ -808,41 +825,47 @@ const I18N = {
     module_nia_title: '移民局 · 出入境数据',
     module_nia_desc: '国家移民管理局披露的中外人员、内地居民、港澳台居民、外国人及免签外国人人次与同比。',
     nav_aviation: '航空',
-    module_aviation_title: '航空 · 亚太枢纽连通性',
-    module_aviation_desc: '选择一个亚太航空枢纽，查看 Datavoy Connectivity Score 及连通性解读。',
-    aviation_title: '航空 · 亚太枢纽连通性',
-    aviation_desc: '选择一个亚太航空枢纽，查看 Datavoy Connectivity Score 及连通性解读。',
-    aviation_select_label: '选择机场 / 城市',
-    aviation_search_placeholder: '输入城市、机场名或 IATA 代码',
-    aviation_search_hint: '例如：Shanghai、PVG、Tokyo、Delhi',
-    aviation_empty_hint: '在左侧选择一个枢纽，即可查看连通性评分。',
-    aviation_score_label: 'Connectivity Score',
-    aviation_score_excellent: '连通性极佳',
-    aviation_score_excellent_desc: '该枢纽是亚太地区主要门户，航班密度高、通达目的地广、国际覆盖深。',
-    aviation_score_good: '连通性良好',
-    aviation_score_good_desc: '该枢纽具备较强的区域枢纽能力，网络覆盖和航司参与均处于健康水平。',
-    aviation_score_moderate: '连通性中等',
-    aviation_score_moderate_desc: '该枢纽拥有一定规模的航线网络，但在远程航线或航司多样性上仍有提升空间。',
-    aviation_score_limited: '连通性有限',
-    aviation_score_limited_desc: '该枢纽以区域航线为主，航班密度和航司参与度相对有限。',
-    aviation_score_minimal: '连通性较弱',
-    aviation_score_minimal_desc: '该枢纽规模较小，航线网络较窄，主要服务特定区域或细分市场。',
-    aviation_metric_departures: '周出港班次',
-    aviation_metric_destinations: '通航目的地',
-    aviation_metric_countries: '通航国家/地区',
-    aviation_metric_airlines: '执飞航司',
-    aviation_top_routes: '最繁忙航线',
-    aviation_top_connectivity_suggested: '高连通性推荐航线',
+    module_aviation_title: 'Aviation · Connectivity Heat Score',
+    module_aviation_desc: '选择航线或目的地，查看航班热度评分：航班越多，评分越高。',
+    aviation_title: 'Connectivity Heat Score',
+    aviation_desc: '选择一条航线或一个目的地，查看航班热度评分与解读。',
+    aviation_mode_route: '选择航线',
+    aviation_mode_destination: '选择目的地',
+    aviation_from_label: '出发地',
+    aviation_to_label: '目的地',
+    aviation_destination_label: '目的地',
+    aviation_search_hint: '航班越多、执飞航司越多，热度评分越高，通常也意味着更多票价选择。',
+    aviation_empty_hint: '在左侧选择航线或目的地，即可查看 Connectivity Heat Score。',
+    aviation_score_label: 'Connectivity Heat Score',
+    aviation_score_excellent: '热度极高',
+    aviation_score_excellent_desc: '这条航线/目的地航班非常密集，运力充足，通常票价选择丰富。',
+    aviation_score_good: '热度较高',
+    aviation_score_good_desc: '这条航线/目的地航班较多，连接稳定，是热门出行选择。',
+    aviation_score_moderate: '热度中等',
+    aviation_score_moderate_desc: '这条航线/目的地有一定航班量，但班次或航司选择相对有限。',
+    aviation_score_limited: '热度较低',
+    aviation_score_limited_desc: '这条航线/目的地航班较少，可能以区域或小众航线为主。',
+    aviation_score_minimal: '热度很低',
+    aviation_score_minimal_desc: '这条航线/目的地航班稀少，选择非常有限。',
+    aviation_metric_route_total: '周航班总量',
+    aviation_metric_route_airlines: '执飞航司',
+    aviation_metric_route_departures: '周出港',
+    aviation_metric_route_lead: '主要航司',
+    aviation_metric_dest_total: '周抵达航班',
+    aviation_metric_dest_origins: '出发地数量',
+    aviation_metric_dest_airlines: '执飞航司',
+    aviation_metric_dest_top_origin: '最大客源地',
+    aviation_top_connectivity_suggested: '高热度推荐航线',
     aviation_connectivity_cheaper_hint: '航班频次越高、执飞航司越多，通常意味着运力更充足、票价选择更多。',
     aviation_from_to: '从 {0} 到 {1}',
-    aviation_score_legend_title: 'Connectivity Score 等级说明',
-    aviation_score_legend_excellent: '≥80 极佳',
-    aviation_score_legend_good: '60–79 良好',
-    aviation_score_legend_moderate: '40–59 中等',
-    aviation_score_legend_limited: '20–39 有限',
-    aviation_score_legend_minimal: '<20 较弱',
+    aviation_score_legend_title: 'Connectivity Heat Score 等级说明',
+    aviation_score_legend_excellent: '≥80 热度极高',
+    aviation_score_legend_good: '60–79 热度较高',
+    aviation_score_legend_moderate: '40–59 热度中等',
+    aviation_score_legend_limited: '20–39 热度较低',
+    aviation_score_legend_minimal: '<20 热度很低',
     aviation_note_title: '数据说明',
-    aviation_note_html: '数据来源于 <a href="https://www.flightradar24.com/" target="_blank" style="color:var(--primary);">Flightradar24</a> 亚太最繁忙航线数据。数据窗口为 2026-08-07 至 08-14，反映该周的航班计划与实际观测。<b>Connectivity Score</b> 是 Datavoy 基于四个维度合成的指标：0.4 × 归一化周出港班次 + 0.3 × 归一化实际通航目的地数 + 0.2 × 归一化通航国家/地区数 + 0.1 × 归一化执飞航司数，再乘以 100。该指标仅用于横向比较枢纽连通性，不代表官方评级。',
+    aviation_note_html: '数据来源于 <a href="https://www.flightradar24.com/" target="_blank" style="color:var(--primary);">Flightradar24</a> 亚太最繁忙航线数据。数据窗口为 2026-08-07 至 08-14，反映该周的航班计划与实际观测。<b>Connectivity Heat Score</b> 是 Datavoy 基于航班热度合成的指标：航线模式按该航线周航班总量在所有航线中的相对位置折算为 0–100；目的地模式按抵达该目的地的所有航线周航班总量之和的相对位置折算。该指标仅用于横向比较航班热度，不代表官方评级或实时票价。',
     status_aviation: '航空数据更新至',
     home_narrative_title: '叙事生成',
     home_narrative_desc: '选择或输入一个数据问题，Datavoy 会基于官方数据自动生成含来源、有洞察的叙事。',
@@ -965,41 +988,47 @@ const I18N = {
     module_nia_title: 'NIA · Entry & Exit Data',
     module_nia_desc: 'Entry and exit person trips and YoY growth by category: total, mainland residents, HK/TW/MO residents, foreigners, and visa-free foreigners.',
     nav_aviation: 'Aviation',
-    module_aviation_title: 'Aviation · APAC Hub Connectivity',
-    module_aviation_desc: 'Select an Asia-Pacific airport to see its Datavoy Connectivity Score and what it means.',
-    aviation_title: 'Aviation · APAC Hub Connectivity',
-    aviation_desc: 'Select an Asia-Pacific airport to see its Datavoy Connectivity Score and what it means.',
-    aviation_select_label: 'Select airport / city',
-    aviation_search_placeholder: 'Search by city, airport name or IATA code',
-    aviation_search_hint: 'e.g. Shanghai, PVG, Tokyo, Delhi',
-    aviation_empty_hint: 'Select a hub on the left to see its connectivity score.',
-    aviation_score_label: 'Connectivity Score',
-    aviation_score_excellent: 'Excellent connectivity',
-    aviation_score_excellent_desc: 'A major Asia-Pacific gateway with dense schedules, broad destination coverage and deep international reach.',
-    aviation_score_good: 'Good connectivity',
-    aviation_score_good_desc: 'A strong regional hub with healthy network coverage and airline participation.',
-    aviation_score_moderate: 'Moderate connectivity',
-    aviation_score_moderate_desc: 'The hub has a sizeable route network, but has room to grow in long-haul routes or airline diversity.',
-    aviation_score_limited: 'Limited connectivity',
-    aviation_score_limited_desc: 'The hub is mainly regionally focused, with relatively limited flight density and airline participation.',
-    aviation_score_minimal: 'Minimal connectivity',
-    aviation_score_minimal_desc: 'A smaller hub with a narrow route network, mainly serving specific regions or niche markets.',
-    aviation_metric_departures: 'Weekly Departures',
-    aviation_metric_destinations: 'Destinations Served',
-    aviation_metric_countries: 'Countries/Regions',
-    aviation_metric_airlines: 'Airlines',
-    aviation_top_routes: 'Busiest Routes',
-    aviation_top_connectivity_suggested: 'Top Connectivity Suggested',
+    module_aviation_title: 'Aviation · Connectivity Heat Score',
+    module_aviation_desc: 'Select a route or destination to see its flight frequency heat score.',
+    aviation_title: 'Connectivity Heat Score',
+    aviation_desc: 'Select a route or destination to see its flight frequency heat score and interpretation.',
+    aviation_mode_route: 'Select a route',
+    aviation_mode_destination: 'Select a destination',
+    aviation_from_label: 'From',
+    aviation_to_label: 'To',
+    aviation_destination_label: 'Destination',
+    aviation_search_hint: 'More flights and more competing airlines mean a higher heat score, usually with more fare choices.',
+    aviation_empty_hint: 'Select a route or destination on the left to see the Connectivity Heat Score.',
+    aviation_score_label: 'Connectivity Heat Score',
+    aviation_score_excellent: 'Very high heat',
+    aviation_score_excellent_desc: 'This route/destination has very dense flights, ample capacity and usually rich fare choices.',
+    aviation_score_good: 'High heat',
+    aviation_score_good_desc: 'This route/destination has frequent flights and stable connections, a popular travel choice.',
+    aviation_score_moderate: 'Moderate heat',
+    aviation_score_moderate_desc: 'This route/destination has a reasonable number of flights, but fewer schedules or airlines than top routes.',
+    aviation_score_limited: 'Low heat',
+    aviation_score_limited_desc: 'This route/destination has relatively few flights, often regional or niche.',
+    aviation_score_minimal: 'Very low heat',
+    aviation_score_minimal_desc: 'This route/destination has sparse flights and very limited options.',
+    aviation_metric_route_total: 'Weekly Flights',
+    aviation_metric_route_airlines: 'Airlines',
+    aviation_metric_route_departures: 'Weekly Departures',
+    aviation_metric_route_lead: 'Lead Airline',
+    aviation_metric_dest_total: 'Weekly Arrivals',
+    aviation_metric_dest_origins: 'Origin Airports',
+    aviation_metric_dest_airlines: 'Airlines',
+    aviation_metric_dest_top_origin: 'Top Origin',
+    aviation_top_connectivity_suggested: 'Top Heat Suggested Routes',
     aviation_connectivity_cheaper_hint: 'More frequent flights and more competing airlines usually mean more capacity and more fare choices.',
     aviation_from_to: 'From {0} to {1}',
-    aviation_score_legend_title: 'Connectivity Score Levels',
-    aviation_score_legend_excellent: '≥80 Excellent',
-    aviation_score_legend_good: '60–79 Good',
+    aviation_score_legend_title: 'Connectivity Heat Score Levels',
+    aviation_score_legend_excellent: '≥80 Very high',
+    aviation_score_legend_good: '60–79 High',
     aviation_score_legend_moderate: '40–59 Moderate',
-    aviation_score_legend_limited: '20–39 Limited',
-    aviation_score_legend_minimal: '<20 Minimal',
+    aviation_score_legend_limited: '20–39 Low',
+    aviation_score_legend_minimal: '<20 Very low',
     aviation_note_title: 'Data Notes',
-    aviation_note_html: 'Source: <a href="https://www.flightradar24.com/" target="_blank" style="color:var(--primary);">Flightradar24</a> Asia-Pacific busiest routes dataset. Schedule window: 2026-08-07 to 08-14, reflecting planned and observed flights during that week. The <b>Connectivity Score</b> is a Datavoy composite index: 0.4 × normalized weekly departures + 0.3 × normalized destinations served + 0.2 × normalized countries/regions served + 0.1 × normalized distinct airlines, scaled to 0–100. It is intended only for cross-hub comparison, not as an official rating.',
+    aviation_note_html: 'Source: <a href="https://www.flightradar24.com/" target="_blank" style="color:var(--primary);">Flightradar24</a> Asia-Pacific busiest routes dataset. Schedule window: 2026-08-07 to 08-14, reflecting planned and observed flights during that week. The <b>Connectivity Heat Score</b> is a Datavoy heat index: route mode normalizes the route\'s total weekly flights against all routes to a 0–100 scale; destination mode normalizes the sum of all weekly arrivals at that destination. It is intended only for cross-route/cross-destination comparison, not as an official rating or real-time fare indicator.',
     status_aviation: 'Aviation data updated through',
     home_narrative_title: 'Narrative Generator',
     home_narrative_desc: 'Ask a data question and Datavoy will generate a source-backed, insightful narrative from official data.',
@@ -1656,7 +1685,9 @@ function niaRenderGrowthChart(sorted,labels){
 }
 
 // ---------- Aviation ----------
-let aviationSelectedHub = null;
+let aviationMode = 'route';
+let aviationSelectedRoute = null;
+let aviationSelectedDestination = null;
 function aviationScoreLevel(score){
   if (score >= 80) return { key: 'excellent', color: '#059669', bg: 'linear-gradient(135deg,#059669,#10b981)' };
   if (score >= 60) return { key: 'good', color: '#0e7490', bg: 'linear-gradient(135deg,#0e7490,#06b6d4)' };
@@ -1664,95 +1695,174 @@ function aviationScoreLevel(score){
   if (score >= 20) return { key: 'limited', color: '#ea580c', bg: 'linear-gradient(135deg,#ea580c,#fb923c)' };
   return { key: 'minimal', color: '#dc2626', bg: 'linear-gradient(135deg,#dc2626,#f87171)' };
 }
-function aviationInitSelector(){
-  const list = document.getElementById('aviation-hub-list');
-  const sorted = [...fr24Hubs].sort((a,b)=>b.connectivity_score-a.connectivity_score);
-  list.innerHTML = sorted.map(d=>`<option value="${escHtml(d.iata)} · ${escHtml(d.airport)} (${escHtml(d.country)})">`).join('');
-  const input = document.getElementById('aviation-hub-search');
-  input.addEventListener('input', () => {
-    const raw = input.value.trim();
-    if (!raw) { aviationSelectedHub = null; aviationRenderEmpty(); return; }
-    const iata = raw.split(' · ')[0].trim().toUpperCase();
-    const hub = fr24Hubs.find(d=>d.iata.toUpperCase()===iata);
-    if (hub) { aviationSelectedHub = hub; aviationRenderHub(hub); }
-    else { aviationSelectedHub = null; aviationRenderEmpty(); }
+function aviationRouteOptionLabel(route, short){
+  const city = route.destination_city || '';
+  const airport = route.destination_airport || route.origin_airport || '';
+  const iata = route.dest || route.origin || '';
+  if (short) return `${iata} · ${city || airport}`;
+  return `${iata} · ${airport}${city ? ' (' + city + ')' : ''}`;
+}
+function aviationDestByIATA(dest){
+  return fr24Routes.find(r=>r.dest===dest);
+}
+function aviationMaxRouteTotal(){
+  return Math.max(...fr24Routes.map(r=>r.total_per_week), 1);
+}
+function aviationDestinationTotals(){
+  const map = new Map();
+  fr24Routes.forEach(r=>{
+    const cur = map.get(r.dest) || { total: 0, origins: new Set(), airlines: new Set(), routes: [] };
+    cur.total += r.total_per_week;
+    cur.origins.add(r.origin);
+    if (r.lead_airline) cur.airlines.add(r.lead_airline);
+    r.airlines_operating.split(';').forEach(a=>{ const name=a.trim(); if(name) cur.airlines.add(name); });
+    cur.routes.push(r);
+    map.set(r.dest, cur);
   });
+  return map;
+}
+let aviationDestTotalsCache = null;
+function aviationGetDestTotals(){
+  if (!aviationDestTotalsCache) aviationDestTotalsCache = aviationDestinationTotals();
+  return aviationDestTotalsCache;
+}
+function aviationMaxDestTotal(){
+  const totals = aviationGetDestTotals();
+  return Math.max(...[...totals.values()].map(v=>v.total), 1);
+}
+function aviationSetMode(mode){
+  aviationMode = mode;
+  document.querySelectorAll('.aviation-mode-btn').forEach(b=>b.classList.toggle('active', b.dataset.mode===mode));
+  document.getElementById('aviation-route-inputs').style.display = mode==='route' ? 'flex' : 'none';
+  document.getElementById('aviation-destination-input').style.display = mode==='destination' ? 'flex' : 'none';
+  aviationRenderEmpty();
+}
+function aviationInitSelectors(){
+  const origins = [...new Set(fr24Routes.map(r=>r.origin))].sort();
+  const dests = [...new Set(fr24Routes.map(r=>r.dest))].sort();
+  const fromSel = document.getElementById('aviation-from');
+  const toSel = document.getElementById('aviation-to');
+  const destSel = document.getElementById('aviation-destination');
+  fromSel.innerHTML = `<option value="">${t('aviation_from_label')}</option>` + origins.map(o=>{
+    const r = fr24Routes.find(x=>x.origin===o);
+    return `<option value="${escHtml(o)}">${escHtml(o)} · ${escHtml(r ? (r.origin_airport || o) : o)}</option>`;
+  }).join('');
+  toSel.innerHTML = `<option value="">${t('aviation_to_label')}</option>` + dests.map(d=>{
+    const r = aviationDestByIATA(d);
+    return `<option value="${escHtml(d)}">${escHtml(d)} · ${escHtml(r ? (r.destination_airport || r.destination_city || d) : d)}</option>`;
+  }).join('');
+  destSel.innerHTML = `<option value="">${t('aviation_destination_label')}</option>` + dests.map(d=>{
+    const r = aviationDestByIATA(d);
+    return `<option value="${escHtml(d)}">${escHtml(d)} · ${escHtml(r ? (r.destination_airport || r.destination_city || d) : d)}</option>`;
+  }).join('');
+}
+function aviationOnRouteChange(){
+  const origin = document.getElementById('aviation-from').value;
+  const dest = document.getElementById('aviation-to').value;
+  if (!origin || !dest) { aviationSelectedRoute = null; aviationRenderEmpty(); return; }
+  const route = fr24Routes.find(r=>r.origin===origin && r.dest===dest);
+  if (route) { aviationSelectedRoute = route; aviationRenderRoute(route); }
+  else { aviationSelectedRoute = null; aviationRenderEmpty(); }
+}
+function aviationOnDestinationChange(){
+  const dest = document.getElementById('aviation-destination').value;
+  if (!dest) { aviationSelectedDestination = null; aviationRenderEmpty(); return; }
+  aviationSelectedDestination = dest;
+  aviationRenderDestination(dest);
 }
 function aviationRenderEmpty(){
   document.getElementById('aviation-score-card').innerHTML = `<div class="empty" data-i18n="aviation_empty_hint">${t('aviation_empty_hint')}</div>`;
   renderI18n();
 }
-function aviationRouteByDest(origin, dest){
-  return fr24Routes.find(r=>r.origin===origin && r.dest===dest) || null;
-}
-function aviationParseBusiest(raw, origin){
-  if (!raw) return null;
-  const m = raw.match(/^([A-Z]{3})\s*\(/);
-  if (!m) return { raw };
-  const dest = m[1];
-  const route = aviationRouteByDest(origin, dest);
-  if (route) {
-    return {
-      label: t('aviation_from_to', route.origin, route.destination_city || route.destination_airport || route.dest),
-      total: route.total_per_week
-    };
-  }
-  return { label: t('aviation_from_to', origin, dest), total: null };
-}
 function aviationScoreLegendHtml(){
   const levels = [
-    { key: 'excellent', min: 80, bg: 'linear-gradient(135deg,#059669,#10b981)' },
-    { key: 'good', min: 60, bg: 'linear-gradient(135deg,#0e7490,#06b6d4)' },
-    { key: 'moderate', min: 40, bg: 'linear-gradient(135deg,#d97706,#fbbf24)' },
-    { key: 'limited', min: 20, bg: 'linear-gradient(135deg,#ea580c,#fb923c)' },
-    { key: 'minimal', min: 0, bg: 'linear-gradient(135deg,#dc2626,#f87171)' }
+    { key: 'excellent', bg: 'linear-gradient(135deg,#059669,#10b981)' },
+    { key: 'good', bg: 'linear-gradient(135deg,#0e7490,#06b6d4)' },
+    { key: 'moderate', bg: 'linear-gradient(135deg,#d97706,#fbbf24)' },
+    { key: 'limited', bg: 'linear-gradient(135deg,#ea580c,#fb923c)' },
+    { key: 'minimal', bg: 'linear-gradient(135deg,#dc2626,#f87171)' }
   ];
   return `<div class="aviation-top-routes"><div class="aviation-top-routes-title" data-i18n="aviation_score_legend_title">${t('aviation_score_legend_title')}</div><div class="aviation-legend">${levels.map(l=>`<div class="aviation-legend-item"><span class="aviation-legend-dot" style="background:${l.bg};"></span>${t('aviation_score_legend_' + l.key)}</div>`).join('')}</div></div>`;
 }
-function aviationRenderHub(hub){
-  aviationSelectedHub = hub;
-  const score = Math.round(hub.connectivity_score);
+function aviationTopSuggestionsHtml(getRouteKey, currentKey){
+  const totals = aviationGetDestTotals();
+  let routes = [];
+  if (aviationMode === 'route') {
+    routes = fr24Routes.filter(r=>r.origin===currentKey).sort((a,b)=>b.total_per_week-a.total_per_week).slice(0,5);
+  } else {
+    routes = fr24Routes.filter(r=>r.dest===currentKey).sort((a,b)=>b.total_per_week-a.total_per_week).slice(0,5);
+  }
+  if (!routes.length) return '';
+  return `<div class="aviation-top-routes"><div class="aviation-top-routes-title" data-i18n="aviation_top_connectivity_suggested">${t('aviation_top_connectivity_suggested')}</div><p style="margin:0 0 10px;font-size:12px;color:var(--muted);" data-i18n="aviation_connectivity_cheaper_hint">${t('aviation_connectivity_cheaper_hint')}</p>${routes.map(r=>`<span class="aviation-route-tag">${escHtml(t('aviation_from_to', r.origin, r.destination_city || r.destination_airport || r.dest))} · ${fmtNum(r.total_per_week,1)}</span>`).join('')}</div>`;
+}
+function aviationRenderRoute(route){
+  const score = Math.round((route.total_per_week / aviationMaxRouteTotal()) * 100);
   const level = aviationScoreLevel(score);
-  const busiestRaw = [hub.busiest_1, hub.busiest_2, hub.busiest_3].filter(Boolean);
-  const busiestParsed = busiestRaw.map(r=>aviationParseBusiest(r, hub.iata)).filter(Boolean);
-  const busiestHtml = busiestParsed.length
-    ? `<div class="aviation-top-routes"><div class="aviation-top-routes-title" data-i18n="aviation_top_routes">${t('aviation_top_routes')}</div>${busiestParsed.map(r=>`<span class="aviation-route-tag" title="${r.total != null ? fmtNum(r.total,1) + ' weekly flights' : ''}">${escHtml(r.label)}</span>`).join('')}</div>`
-    : '';
-  const suggestedRoutes = fr24Routes
-    .filter(r=>r.origin===hub.iata)
-    .sort((a,b)=>b.total_per_week-a.total_per_week)
-    .slice(0,5);
-  const suggestedHtml = suggestedRoutes.length
-    ? `<div class="aviation-top-routes"><div class="aviation-top-routes-title" data-i18n="aviation_top_connectivity_suggested">${t('aviation_top_connectivity_suggested')}</div><p style="margin:0 0 10px;font-size:12px;color:var(--muted);" data-i18n="aviation_connectivity_cheaper_hint">${t('aviation_connectivity_cheaper_hint')}</p>${suggestedRoutes.map(r=>`<span class="aviation-route-tag">${escHtml(t('aviation_from_to', r.origin, r.destination_city || r.destination_airport || r.dest))} · ${fmtNum(r.total_per_week,1)}</span>`).join('')}</div>`
-    : '';
+  const suggestions = aviationTopSuggestionsHtml('origin', route.origin);
   document.getElementById('aviation-score-card').innerHTML = `
     <div class="aviation-score-header">
       <div class="aviation-score-number" style="background:${level.bg};">${score}</div>
       <div class="aviation-score-meta">
-        <div class="aviation-score-iata">${hub.iata}</div>
-        <div class="aviation-score-airport">${escHtml(hub.airport)}</div>
-        <div class="aviation-score-country">${escHtml(hub.country)}</div>
+        <div class="aviation-score-iata">${escHtml(route.origin)} → ${escHtml(route.dest)}</div>
+        <div class="aviation-score-airport">${escHtml(t('aviation_from_to', route.origin_airport || route.origin, route.destination_airport || route.dest))}</div>
+        <div class="aviation-score-country">${escHtml(route.country)}</div>
       </div>
       <div class="aviation-score-badge" style="background:${level.bg};">${t('aviation_score_' + level.key)}</div>
     </div>
-    <div class="aviation-score-interpret">
-      ${t('aviation_score_' + level.key + '_desc')}
-    </div>
+    <div class="aviation-score-interpret">${t('aviation_score_' + level.key + '_desc')}</div>
     <div class="aviation-metrics-grid">
-      <div class="aviation-metric"><div class="aviation-metric-value">${fmtNum(hub.departures_per_week,0)}</div><div class="aviation-metric-label" data-i18n="aviation_metric_departures">${t('aviation_metric_departures')}</div></div>
-      <div class="aviation-metric"><div class="aviation-metric-value">${fmtNum(hub.destinations_with_service,0)}</div><div class="aviation-metric-label" data-i18n="aviation_metric_destinations">${t('aviation_metric_destinations')}</div></div>
-      <div class="aviation-metric"><div class="aviation-metric-value">${fmtNum(hub.countries_served,0)}</div><div class="aviation-metric-label" data-i18n="aviation_metric_countries">${t('aviation_metric_countries')}</div></div>
-      <div class="aviation-metric"><div class="aviation-metric-value">${fmtNum(hub.distinct_airlines,0)}</div><div class="aviation-metric-label" data-i18n="aviation_metric_airlines">${t('aviation_metric_airlines')}</div></div>
+      <div class="aviation-metric"><div class="aviation-metric-value">${fmtNum(route.total_per_week,1)}</div><div class="aviation-metric-label" data-i18n="aviation_metric_route_total">${t('aviation_metric_route_total')}</div></div>
+      <div class="aviation-metric"><div class="aviation-metric-value">${fmtNum(route.departures_per_week,1)}</div><div class="aviation-metric-label" data-i18n="aviation_metric_route_departures">${t('aviation_metric_route_departures')}</div></div>
+      <div class="aviation-metric"><div class="aviation-metric-value">${fmtNum(route.airlines_count,0)}</div><div class="aviation-metric-label" data-i18n="aviation_metric_route_airlines">${t('aviation_metric_route_airlines')}</div></div>
+      <div class="aviation-metric"><div class="aviation-metric-value" style="font-size:14px;">${escHtml(route.lead_airline||'—')}</div><div class="aviation-metric-label" data-i18n="aviation_metric_route_lead">${t('aviation_metric_route_lead')}</div></div>
     </div>
-    ${suggestedHtml}
-    ${busiestHtml}
+    ${suggestions}
+    ${aviationScoreLegendHtml()}
+  `;
+  renderI18n();
+}
+function aviationRenderDestination(dest){
+  const totals = aviationGetDestTotals();
+  const info = totals.get(dest);
+  if (!info) { aviationRenderEmpty(); return; }
+  const sample = aviationDestByIATA(dest);
+  const score = Math.round((info.total / aviationMaxDestTotal()) * 100);
+  const level = aviationScoreLevel(score);
+  const topOriginRoute = [...info.routes].sort((a,b)=>b.total_per_week-a.total_per_week)[0];
+  const suggestions = aviationTopSuggestionsHtml('dest', dest);
+  document.getElementById('aviation-score-card').innerHTML = `
+    <div class="aviation-score-header">
+      <div class="aviation-score-number" style="background:${level.bg};">${score}</div>
+      <div class="aviation-score-meta">
+        <div class="aviation-score-iata">${escHtml(dest)}</div>
+        <div class="aviation-score-airport">${escHtml(sample ? (sample.destination_airport || sample.destination_city || dest) : dest)}</div>
+        <div class="aviation-score-country">${escHtml(sample ? sample.country : '')}</div>
+      </div>
+      <div class="aviation-score-badge" style="background:${level.bg};">${t('aviation_score_' + level.key)}</div>
+    </div>
+    <div class="aviation-score-interpret">${t('aviation_score_' + level.key + '_desc')}</div>
+    <div class="aviation-metrics-grid">
+      <div class="aviation-metric"><div class="aviation-metric-value">${fmtNum(info.total,1)}</div><div class="aviation-metric-label" data-i18n="aviation_metric_dest_total">${t('aviation_metric_dest_total')}</div></div>
+      <div class="aviation-metric"><div class="aviation-metric-value">${fmtNum(info.origins.size,0)}</div><div class="aviation-metric-label" data-i18n="aviation_metric_dest_origins">${t('aviation_metric_dest_origins')}</div></div>
+      <div class="aviation-metric"><div class="aviation-metric-value">${fmtNum(info.airlines.size,0)}</div><div class="aviation-metric-label" data-i18n="aviation_metric_dest_airlines">${t('aviation_metric_dest_airlines')}</div></div>
+      <div class="aviation-metric"><div class="aviation-metric-value" style="font-size:14px;">${escHtml(topOriginRoute ? topOriginRoute.origin : '—')}</div><div class="aviation-metric-label" data-i18n="aviation_metric_dest_top_origin">${t('aviation_metric_dest_top_origin')}</div></div>
+    </div>
+    ${suggestions}
     ${aviationScoreLegendHtml()}
   `;
   renderI18n();
 }
 function aviationRender(){
-  aviationInitSelector();
-  if (aviationSelectedHub) aviationRenderHub(aviationSelectedHub);
+  const fromVal = document.getElementById('aviation-from')?.value;
+  const toVal = document.getElementById('aviation-to')?.value;
+  const destVal = document.getElementById('aviation-destination')?.value;
+  aviationInitSelectors();
+  if (fromVal) document.getElementById('aviation-from').value = fromVal;
+  if (toVal) document.getElementById('aviation-to').value = toVal;
+  if (destVal) document.getElementById('aviation-destination').value = destVal;
+  aviationSetMode(aviationMode);
+  if (aviationMode==='route' && aviationSelectedRoute) aviationRenderRoute(aviationSelectedRoute);
+  else if (aviationMode==='destination' && aviationSelectedDestination) aviationRenderDestination(aviationSelectedDestination);
   else aviationRenderEmpty();
 }
 
