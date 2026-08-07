@@ -329,6 +329,25 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
 .aviation-legend { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
 .aviation-legend-item { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:20px; background:#fff; border:1px solid var(--border); font-size:12px; color:#475569; }
 .aviation-legend-dot { width:12px; height:12px; border-radius:50%; }
+.finder-explorer { display:grid; grid-template-columns:minmax(260px,360px) 1fr; gap:24px; align-items:start; }
+.finder-selector { display:flex; flex-direction:column; gap:12px; }
+.finder-selector label { font-weight:600; font-size:13px; color:#374151; }
+.finder-mode-btn { flex:1; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:#f8fafc; color:#475569; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s ease; }
+.finder-mode-btn:hover { background:#f1f5f9; }
+.finder-mode-btn.active { background:var(--primary); border-color:var(--primary); color:#fff; }
+.finder-results { background:#f8fafc; border:1px solid var(--border); border-radius:16px; padding:18px; min-height:220px; }
+.finder-results table { width:100%; border-collapse:collapse; background:transparent; box-shadow:none; border:none; border-radius:0; }
+.finder-results th, .finder-results td { padding:10px 8px; text-align:left; font-size:13px; border-bottom:1px solid #e2e8f0; }
+.finder-results th { background:transparent; font-weight:600; color:#475569; }
+.finder-results tr:last-child td { border-bottom:none; }
+.finder-results .metric-value { font-weight:700; color:var(--text); }
+.finder-results .tag { font-size:11px; padding:3px 8px; }
+@media (max-width: 768px) {
+  .aviation-explorer { grid-template-columns:1fr; }
+  .finder-explorer { grid-template-columns:1fr; }
+  .finder-results { padding:12px; }
+  .finder-results th, .finder-results td { padding:10px 6px; font-size:12px; }
+}
 </style>
 </head>
 <body>
@@ -740,6 +759,30 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
       </div>
     </section>
     <section class="card" style="margin-top:20px;">
+      <div class="section-title"><svg><use href="#icon-plane"></use></svg><span data-i18n="finder_title">Flights Finder</span></div>
+      <p style="margin:0 0 16px;font-size:14px;color:var(--muted);" data-i18n="finder_desc">快速查看：从某个出发地有哪些热门目的地，或某家航司运营最多的航线。</p>
+      <div class="finder-explorer">
+        <div class="finder-selector">
+          <div class="aviation-mode-toggle">
+            <button class="finder-mode-btn active" data-mode="origin" onclick="finderSetMode('origin')" data-i18n="finder_mode_origin">By origin</button>
+            <button class="finder-mode-btn" data-mode="airline" onclick="finderSetMode('airline')" data-i18n="finder_mode_airline">By airline</button>
+          </div>
+          <div id="finder-origin-input">
+            <label for="finder-origin" data-i18n="finder_origin_label">出发地</label>
+            <select id="finder-origin" class="aviation-search" onchange="finderOnOriginChange()"></select>
+          </div>
+          <div id="finder-airline-input" style="display:none;">
+            <label for="finder-airline" data-i18n="finder_airline_label">航空公司</label>
+            <select id="finder-airline" class="aviation-search" onchange="finderOnAirlineChange()"></select>
+          </div>
+          <p class="aviation-hint" data-i18n="finder_hint">结果按周航班总量排序，展示前 10 条。</p>
+        </div>
+        <div class="finder-results" id="finder-results">
+          <div class="empty" data-i18n="finder_empty_hint">在左侧选择出发地或航空公司，查看热门航线。</div>
+        </div>
+      </div>
+    </section>
+    <section class="card" style="margin-top:20px;">
       <div class="chart-title" style="margin-bottom:10px;" data-i18n="aviation_note_title">数据说明</div>
       <p style="margin:0;font-size:13px;color:var(--muted);line-height:1.7;" data-i18n-html="aviation_note_html">
         数据来源于 <a href="https://www.flightradar24.com/" target="_blank" style="color:var(--primary);">Flightradar24</a> 亚太最繁忙航线数据。数据窗口为 2026-08-07 至 08-14，反映该周的航班计划与实际观测。<b>Connectivity Heat Score</b> 是 Datavoy 基于航班热度合成的指标：航线模式按该航线周航班总量在所有航线中的相对位置折算为 0–100；目的地模式按抵达该目的地的所有航线周航班总量之和的相对位置折算。该指标仅用于横向比较航班热度，不代表官方评级或实时票价。
@@ -860,6 +903,18 @@ const I18N = {
     aviation_from_to: '从 {0} 到 {1}',
     aviation_weekly_flights: '班/周',
     aviation_score_legend_title: 'Connectivity Heat Score 等级说明',
+    finder_title: 'Flights Finder',
+    finder_desc: '快速查看：从某个出发地有哪些热门目的地，或某家航司运营最多的航线。',
+    finder_mode_origin: '按出发地',
+    finder_mode_airline: '按航空公司',
+    finder_origin_label: '出发地',
+    finder_airline_label: '航空公司',
+    finder_hint: '结果按周航班总量排序，展示前 10 条。',
+    finder_empty_hint: '在左侧选择出发地或航空公司，查看热门航线。',
+    finder_table_route: '航线',
+    finder_table_total: '周航班总量',
+    finder_table_airlines: '执飞航司',
+    finder_table_lead: '主要航司',
     aviation_score_legend_excellent: '≥80 热度极高',
     aviation_score_legend_good: '60–79 热度较高',
     aviation_score_legend_moderate: '40–59 热度中等',
@@ -1024,6 +1079,18 @@ const I18N = {
     aviation_from_to: 'From {0} to {1}',
     aviation_weekly_flights: 'flights/wk',
     aviation_score_legend_title: 'Connectivity Heat Score Levels',
+    finder_title: 'Flights Finder',
+    finder_desc: 'Quickly see: top destinations from an origin, or busiest routes for an airline.',
+    finder_mode_origin: 'By origin',
+    finder_mode_airline: 'By airline',
+    finder_origin_label: 'Origin',
+    finder_airline_label: 'Airline',
+    finder_hint: 'Results are sorted by total weekly flights, showing the top 10.',
+    finder_empty_hint: 'Select an origin or airline on the left to see popular routes.',
+    finder_table_route: 'Route',
+    finder_table_total: 'Weekly Flights',
+    finder_table_airlines: 'Airlines',
+    finder_table_lead: 'Lead Airline',
     aviation_score_legend_excellent: '≥80 Very high',
     aviation_score_legend_good: '60–79 High',
     aviation_score_legend_moderate: '40–59 Moderate',
@@ -1163,7 +1230,7 @@ function setLanguage(lang) {
   preserveAndRender('panel-mct', mctRenderFilters);
   preserveAndRender('panel-mot', motRenderFilters);
   preserveAndRender('panel-nia', niaRenderFilters);
-  mctRender(); motRender(); niaRender(); aviationRender();
+  mctRender(); motRender(); niaRender(); aviationRender(); finderRender();
   if (typeof chatClear === 'function') {
     chatClear();
     const input = document.getElementById('chat-input');
@@ -1871,6 +1938,93 @@ function aviationRender(){
   else aviationRenderEmpty();
 }
 
+// ---------- Flights Finder ----------
+let finderMode = 'origin';
+let finderSelectedOrigin = null;
+let finderSelectedAirline = null;
+function finderAllAirlines(){
+  const set = new Set();
+  fr24Routes.forEach(r=>{
+    r.airlines_operating.split(';').forEach(a=>{ const name=a.trim(); if(name) set.add(name); });
+  });
+  return [...set].sort((a,b)=>a.localeCompare(b));
+}
+function finderInitSelectors(){
+  const origins = [...new Set(fr24Routes.map(r=>r.origin))].sort();
+  const airlines = finderAllAirlines();
+  const originSel = document.getElementById('finder-origin');
+  const airlineSel = document.getElementById('finder-airline');
+  originSel.innerHTML = `<option value="">${t('finder_origin_label')}</option>` + origins.map(o=>{
+    const r = fr24Routes.find(x=>x.origin===o);
+    return `<option value="${escHtml(o)}">${escHtml(o)} · ${escHtml(r ? (r.origin_airport || o) : o)}</option>`;
+  }).join('');
+  airlineSel.innerHTML = `<option value="">${t('finder_airline_label')}</option>` + airlines.map(a=>`<option value="${escHtml(a)}">${escHtml(a)}</option>`).join('');
+}
+function finderSetMode(mode){
+  finderMode = mode;
+  document.querySelectorAll('.finder-mode-btn').forEach(b=>b.classList.toggle('active', b.dataset.mode===mode));
+  document.getElementById('finder-origin-input').style.display = mode==='origin' ? 'flex' : 'none';
+  document.getElementById('finder-airline-input').style.display = mode==='airline' ? 'flex' : 'none';
+  finderRenderEmpty();
+}
+function finderRenderEmpty(){
+  document.getElementById('finder-results').innerHTML = `<div class="empty" data-i18n="finder_empty_hint">${t('finder_empty_hint')}</div>`;
+  renderI18n();
+}
+function finderRenderResults(routes, mode){
+  if (!routes.length) { finderRenderEmpty(); return; }
+  const rows = routes.map((r, idx)=>`<tr>
+    <td><span class="metric-value">${idx+1}</span></td>
+    <td><span class="tag">${escHtml(r.origin)}</span> → <span class="tag">${escHtml(r.dest)}</span><div style="font-size:12px;color:var(--muted);margin-top:4px;">${escHtml(r.destination_city || r.destination_airport || r.dest)}</div></td>
+    <td><span class="metric-value">${fmtNum(r.total_per_week,1)}</span></td>
+    <td>${fmtNum(r.airlines_count,0)}</td>
+    <td style="white-space:normal;max-width:160px;font-size:12px;">${escHtml(r.lead_airline||'—')}</td>
+  </tr>`).join('');
+  document.getElementById('finder-results').innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th data-i18n="finder_table_route">${t('finder_table_route')}</th>
+          <th data-i18n="finder_table_total">${t('finder_table_total')}</th>
+          <th data-i18n="finder_table_airlines">${t('finder_table_airlines')}</th>
+          <th data-i18n="finder_table_lead">${t('finder_table_lead')}</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+  renderI18n();
+}
+function finderOnOriginChange(){
+  const origin = document.getElementById('finder-origin').value;
+  if (!origin) { finderSelectedOrigin = null; finderRenderEmpty(); return; }
+  finderSelectedOrigin = origin;
+  const routes = fr24Routes.filter(r=>r.origin===origin).sort((a,b)=>b.total_per_week-a.total_per_week).slice(0,10);
+  finderRenderResults(routes, 'origin');
+}
+function finderOnAirlineChange(){
+  const airline = document.getElementById('finder-airline').value;
+  if (!airline) { finderSelectedAirline = null; finderRenderEmpty(); return; }
+  finderSelectedAirline = airline;
+  const routes = fr24Routes.filter(r=>{
+    const ops = r.airlines_operating.split(';').map(a=>a.trim());
+    return ops.includes(airline);
+  }).sort((a,b)=>b.total_per_week-a.total_per_week).slice(0,10);
+  finderRenderResults(routes, 'airline');
+}
+function finderRender(){
+  const originVal = document.getElementById('finder-origin')?.value;
+  const airlineVal = document.getElementById('finder-airline')?.value;
+  finderInitSelectors();
+  if (originVal) document.getElementById('finder-origin').value = originVal;
+  if (airlineVal) document.getElementById('finder-airline').value = airlineVal;
+  finderSetMode(finderMode);
+  if (finderMode==='origin' && finderSelectedOrigin) finderOnOriginChange();
+  else if (finderMode==='airline' && finderSelectedAirline) finderOnAirlineChange();
+  else finderRenderEmpty();
+}
+
 function latestUpdate(records, dateKey='publish_date'){
   if(!records||!records.length) return t('no_records');
   const sorted=[...records].sort((a,b)=>{
@@ -1895,6 +2049,7 @@ mctRenderFilters(); mctRender();
 motRenderFilters(); motRender();
 niaRenderFilters(); niaRender();
 aviationRender();
+finderRender();
 
 // ---------- AI Data Assistant Chat ----------
 function chatInit() {
