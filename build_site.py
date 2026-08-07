@@ -19,6 +19,8 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 MCT_DB = os.path.join(ROOT_DIR, "data", "mct_tourism.db")
 MOT_DB = os.path.join(ROOT_DIR, "data", "mot_holiday_data.db")
 NIA_DB = os.path.join(ROOT_DIR, "data", "nia_entry_exit.db")
+FR24_HUBS_JSON = os.path.join(ROOT_DIR, "data", "fr24_apac_hubs.json")
+FR24_ROUTES_JSON = os.path.join(ROOT_DIR, "data", "fr24_apac_routes.json")
 OUT_PATH = os.path.join(ROOT_DIR, "index.html")
 TEMPLATE_PATH = os.path.join(ROOT_DIR, "templates", "index_template.html")
 
@@ -64,20 +66,38 @@ def read_nia():
     return records
 
 
+def read_fr24_hubs():
+    if not os.path.exists(FR24_HUBS_JSON):
+        return []
+    with open(FR24_HUBS_JSON, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def read_fr24_routes():
+    if not os.path.exists(FR24_ROUTES_JSON):
+        return []
+    with open(FR24_ROUTES_JSON, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
 def main():
     mct_records = read_mct()
     mot_records = read_mot()
     nia_records = read_nia()
+    fr24_hubs = read_fr24_hubs()
+    fr24_routes = read_fr24_routes()
     template = load_template()
     rendered = (
         template
         .replace("{mct_data_json}", json.dumps(mct_records, ensure_ascii=False))
         .replace("{mot_data_json}", json.dumps(mot_records, ensure_ascii=False))
         .replace("{nia_data_json}", json.dumps(nia_records, ensure_ascii=False))
+        .replace("{fr24_hubs_json}", json.dumps(fr24_hubs, ensure_ascii=False))
+        .replace("{fr24_routes_json}", json.dumps(fr24_routes, ensure_ascii=False))
     )
     with open(OUT_PATH, "w", encoding="utf-8") as f:
         f.write(rendered)
-    print(f"Generated {OUT_PATH} (MCT: {len(mct_records)}, MOT: {len(mot_records)}, NIA: {len(nia_records)})")
+    print(f"Generated {OUT_PATH} (MCT: {len(mct_records)}, MOT: {len(mot_records)}, NIA: {len(nia_records)}, FR24 hubs: {len(fr24_hubs)}, FR24 routes: {len(fr24_routes)})")
 
 
 if __name__ == "__main__":
