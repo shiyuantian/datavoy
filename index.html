@@ -858,6 +858,7 @@ const I18N = {
     aviation_top_connectivity_suggested: '高热度推荐航线',
     aviation_connectivity_cheaper_hint: '航班频次越高、执飞航司越多，通常意味着运力更充足、票价选择更多。',
     aviation_from_to: '从 {0} 到 {1}',
+    aviation_weekly_flights: '班/周',
     aviation_score_legend_title: 'Connectivity Heat Score 等级说明',
     aviation_score_legend_excellent: '≥80 热度极高',
     aviation_score_legend_good: '60–79 热度较高',
@@ -1021,6 +1022,7 @@ const I18N = {
     aviation_top_connectivity_suggested: 'Top Heat Suggested Routes',
     aviation_connectivity_cheaper_hint: 'More frequent flights and more competing airlines usually mean more capacity and more fare choices.',
     aviation_from_to: 'From {0} to {1}',
+    aviation_weekly_flights: 'flights/wk',
     aviation_score_legend_title: 'Connectivity Heat Score Levels',
     aviation_score_legend_excellent: '≥80 Very high',
     aviation_score_legend_good: '60–79 High',
@@ -1796,7 +1798,7 @@ function aviationTopSuggestionsHtml(getRouteKey, currentKey){
     routes = fr24Routes.filter(r=>r.dest===currentKey).sort((a,b)=>b.total_per_week-a.total_per_week).slice(0,5);
   }
   if (!routes.length) return '';
-  return `<div class="aviation-top-routes"><div class="aviation-top-routes-title" data-i18n="aviation_top_connectivity_suggested">${t('aviation_top_connectivity_suggested')}</div><p style="margin:0 0 10px;font-size:12px;color:var(--muted);" data-i18n="aviation_connectivity_cheaper_hint">${t('aviation_connectivity_cheaper_hint')}</p>${routes.map(r=>`<span class="aviation-route-tag">${escHtml(t('aviation_from_to', r.origin, r.destination_city || r.destination_airport || r.dest))} · ${fmtNum(r.total_per_week,1)}</span>`).join('')}</div>`;
+  return `<div class="aviation-top-routes"><div class="aviation-top-routes-title" data-i18n="aviation_top_connectivity_suggested">${t('aviation_top_connectivity_suggested')}</div><p style="margin:0 0 10px;font-size:12px;color:var(--muted);" data-i18n="aviation_connectivity_cheaper_hint">${t('aviation_connectivity_cheaper_hint')}</p>${routes.map(r=>`<span class="aviation-route-tag">${escHtml(t('aviation_from_to', r.origin, r.destination_city || r.destination_airport || r.dest))} · ${fmtNum(r.total_per_week,1)} ${t('aviation_weekly_flights')}</span>`).join('')}</div>`;
 }
 function aviationRenderRoute(route){
   const score = aviationRoutePercentile(route.total_per_week);
