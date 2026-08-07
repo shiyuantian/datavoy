@@ -865,7 +865,7 @@ const I18N = {
     aviation_score_legend_limited: '20–39 热度较低',
     aviation_score_legend_minimal: '<20 热度很低',
     aviation_note_title: '数据说明',
-    aviation_note_html: '数据来源于 <a href="https://www.flightradar24.com/" target="_blank" style="color:var(--primary);">Flightradar24</a> 亚太最繁忙航线数据。数据窗口为 2026-08-07 至 08-14，反映该周的航班计划与实际观测。<b>Connectivity Heat Score</b> 是 Datavoy 基于航班热度合成的指标：航线模式按该航线周航班总量在所有航线中的相对位置折算为 0–100；目的地模式按抵达该目的地的所有航线周航班总量之和的相对位置折算。该指标仅用于横向比较航班热度，不代表官方评级或实时票价。',
+    aviation_note_html: '数据来源于 <a href="https://www.flightradar24.com/" target="_blank" style="color:var(--primary);">Flightradar24</a> 亚太最繁忙航线数据。数据窗口为 2026-08-07 至 08-14，反映该周的航班计划与实际观测。<b>Connectivity Heat Score</b> 是 Datavoy 基于航班热度合成的百分位指标：航线模式表示该航线周航班总量超过多少百分比的航线；目的地模式表示抵达该目的地的周航班总量超过多少百分比的目的地。例如 90 分意味着该航线/目的地比 90% 的对比对象更热。该指标仅用于横向比较航班热度，不代表官方评级或实时票价。',
     status_aviation: '航空数据更新至',
     home_narrative_title: '叙事生成',
     home_narrative_desc: '选择或输入一个数据问题，Datavoy 会基于官方数据自动生成含来源、有洞察的叙事。',
@@ -1028,7 +1028,7 @@ const I18N = {
     aviation_score_legend_limited: '20–39 Low',
     aviation_score_legend_minimal: '<20 Very low',
     aviation_note_title: 'Data Notes',
-    aviation_note_html: 'Source: <a href="https://www.flightradar24.com/" target="_blank" style="color:var(--primary);">Flightradar24</a> Asia-Pacific busiest routes dataset. Schedule window: 2026-08-07 to 08-14, reflecting planned and observed flights during that week. The <b>Connectivity Heat Score</b> is a Datavoy heat index: route mode normalizes the route\'s total weekly flights against all routes to a 0–100 scale; destination mode normalizes the sum of all weekly arrivals at that destination. It is intended only for cross-route/cross-destination comparison, not as an official rating or real-time fare indicator.',
+    aviation_note_html: 'Source: <a href="https://www.flightradar24.com/" target="_blank" style="color:var(--primary);">Flightradar24</a> Asia-Pacific busiest routes dataset. Schedule window: 2026-08-07 to 08-14, reflecting planned and observed flights during that week. The <b>Connectivity Heat Score</b> is a Datavoy percentile heat index: route mode shows the share of routes with fewer weekly flights than this route; destination mode shows the share of destinations with fewer total weekly arrivals. For example, a score of 90 means this route/destination is hotter than 90% of peers. It is intended only for cross-route/cross-destination comparison, not as an official rating or real-time fare indicator.',
     status_aviation: 'Aviation data updated through',
     home_narrative_title: 'Narrative Generator',
     home_narrative_desc: 'Ask a data question and Datavoy will generate a source-backed, insightful narrative from official data.',
@@ -1705,8 +1705,10 @@ function aviationRouteOptionLabel(route, short){
 function aviationDestByIATA(dest){
   return fr24Routes.find(r=>r.dest===dest);
 }
-function aviationMaxRouteTotal(){
-  return Math.max(...fr24Routes.map(r=>r.total_per_week), 1);
+function aviationRoutePercentile(total){
+  const sorted = fr24Routes.map(r=>r.total_per_week).sort((a,b)=>a-b);
+  const below = sorted.filter(v=>v<total).length;
+  return Math.round((below / sorted.length) * 100);
 }
 function aviationDestinationTotals(){
   const map = new Map();
@@ -1726,9 +1728,10 @@ function aviationGetDestTotals(){
   if (!aviationDestTotalsCache) aviationDestTotalsCache = aviationDestinationTotals();
   return aviationDestTotalsCache;
 }
-function aviationMaxDestTotal(){
-  const totals = aviationGetDestTotals();
-  return Math.max(...[...totals.values()].map(v=>v.total), 1);
+function aviationDestPercentile(total){
+  const totals = [...aviationGetDestTotals().values()].map(v=>v.total).sort((a,b)=>a-b);
+  const below = totals.filter(v=>v<total).length;
+  return Math.round((below / totals.length) * 100);
 }
 function aviationSetMode(mode){
   aviationMode = mode;
@@ -1796,7 +1799,7 @@ function aviationTopSuggestionsHtml(getRouteKey, currentKey){
   return `<div class="aviation-top-routes"><div class="aviation-top-routes-title" data-i18n="aviation_top_connectivity_suggested">${t('aviation_top_connectivity_suggested')}</div><p style="margin:0 0 10px;font-size:12px;color:var(--muted);" data-i18n="aviation_connectivity_cheaper_hint">${t('aviation_connectivity_cheaper_hint')}</p>${routes.map(r=>`<span class="aviation-route-tag">${escHtml(t('aviation_from_to', r.origin, r.destination_city || r.destination_airport || r.dest))} · ${fmtNum(r.total_per_week,1)}</span>`).join('')}</div>`;
 }
 function aviationRenderRoute(route){
-  const score = Math.round((route.total_per_week / aviationMaxRouteTotal()) * 100);
+  const score = aviationRoutePercentile(route.total_per_week);
   const level = aviationScoreLevel(score);
   const suggestions = aviationTopSuggestionsHtml('origin', route.origin);
   document.getElementById('aviation-score-card').innerHTML = `
@@ -1826,7 +1829,7 @@ function aviationRenderDestination(dest){
   const info = totals.get(dest);
   if (!info) { aviationRenderEmpty(); return; }
   const sample = aviationDestByIATA(dest);
-  const score = Math.round((info.total / aviationMaxDestTotal()) * 100);
+  const score = aviationDestPercentile(info.total);
   const level = aviationScoreLevel(score);
   const topOriginRoute = [...info.routes].sort((a,b)=>b.total_per_week-a.total_per_week)[0];
   const suggestions = aviationTopSuggestionsHtml('dest', dest);
