@@ -829,6 +829,9 @@ const I18N = {
     aviation_metric_countries: '通航国家/地区',
     aviation_metric_airlines: '执飞航司',
     aviation_top_routes: '最繁忙航线',
+    aviation_top_connectivity_suggested: '高连通性推荐航线',
+    aviation_connectivity_cheaper_hint: '航班频次越高、执飞航司越多，通常意味着运力更充足、票价选择更多。',
+    aviation_from_to: '从 {0} 到 {1}',
     aviation_note_title: '数据说明',
     aviation_note_html: '数据来源于 <a href="https://www.flightradar24.com/" target="_blank" style="color:var(--primary);">Flightradar24</a> 亚太最繁忙航线数据。数据窗口为 2026-08-07 至 08-14，反映该周的航班计划与实际观测。<b>Connectivity Score</b> 是 Datavoy 基于四个维度合成的指标：0.4 × 归一化周出港班次 + 0.3 × 归一化实际通航目的地数 + 0.2 × 归一化通航国家/地区数 + 0.1 × 归一化执飞航司数，再乘以 100。该指标仅用于横向比较枢纽连通性，不代表官方评级。',
     status_aviation: '航空数据更新至',
@@ -977,6 +980,9 @@ const I18N = {
     aviation_metric_countries: 'Countries/Regions',
     aviation_metric_airlines: 'Airlines',
     aviation_top_routes: 'Busiest Routes',
+    aviation_top_connectivity_suggested: 'Top Connectivity Suggested',
+    aviation_connectivity_cheaper_hint: 'More frequent flights and more competing airlines usually mean more capacity and more fare choices.',
+    aviation_from_to: 'From {0} to {1}',
     aviation_note_title: 'Data Notes',
     aviation_note_html: 'Source: <a href="https://www.flightradar24.com/" target="_blank" style="color:var(--primary);">Flightradar24</a> Asia-Pacific busiest routes dataset. Schedule window: 2026-08-07 to 08-14, reflecting planned and observed flights during that week. The <b>Connectivity Score</b> is a Datavoy composite index: 0.4 × normalized weekly departures + 0.3 × normalized destinations served + 0.2 × normalized countries/regions served + 0.1 × normalized distinct airlines, scaled to 0–100. It is intended only for cross-hub comparison, not as an official rating.',
     status_aviation: 'Aviation data updated through',
@@ -1661,12 +1667,37 @@ function aviationRenderEmpty(){
   document.getElementById('aviation-score-card').innerHTML = `<div class="empty" data-i18n="aviation_empty_hint">${t('aviation_empty_hint')}</div>`;
   renderI18n();
 }
+function aviationRouteByDest(origin, dest){
+  return fr24Routes.find(r=>r.origin===origin && r.dest===dest) || null;
+}
+function aviationParseBusiest(raw, origin){
+  if (!raw) return null;
+  const m = raw.match(/^([A-Z]{3})\s*\(/);
+  if (!m) return { raw };
+  const dest = m[1];
+  const route = aviationRouteByDest(origin, dest);
+  if (route) {
+    return {
+      label: t('aviation_from_to', route.origin, route.destination_city || route.destination_airport || route.dest),
+      total: route.total_per_week
+    };
+  }
+  return { label: t('aviation_from_to', origin, dest), total: null };
+}
 function aviationRenderHub(hub){
   aviationSelectedHub = hub;
   const level = aviationScoreLevel(hub.connectivity_score);
-  const topRoutes = [hub.busiest_1, hub.busiest_2, hub.busiest_3].filter(Boolean);
-  const routesHtml = topRoutes.length
-    ? `<div class="aviation-top-routes"><div class="aviation-top-routes-title" data-i18n="aviation_top_routes">${t('aviation_top_routes')}</div>${topRoutes.map(r=>`<span class="aviation-route-tag">${escHtml(r)}</span>`).join('')}</div>`
+  const busiestRaw = [hub.busiest_1, hub.busiest_2, hub.busiest_3].filter(Boolean);
+  const busiestParsed = busiestRaw.map(r=>aviationParseBusiest(r, hub.iata)).filter(Boolean);
+  const busiestHtml = busiestParsed.length
+    ? `<div class="aviation-top-routes"><div class="aviation-top-routes-title" data-i18n="aviation_top_routes">${t('aviation_top_routes')}</div>${busiestParsed.map(r=>`<span class="aviation-route-tag" title="${r.total != null ? fmtNum(r.total,1) + ' weekly flights' : ''}">${escHtml(r.label)}</span>`).join('')}</div>`
+    : '';
+  const suggestedRoutes = fr24Routes
+    .filter(r=>r.origin===hub.iata)
+    .sort((a,b)=>b.total_per_week-a.total_per_week)
+    .slice(0,5);
+  const suggestedHtml = suggestedRoutes.length
+    ? `<div class="aviation-top-routes"><div class="aviation-top-routes-title" data-i18n="aviation_top_connectivity_suggested">${t('aviation_top_connectivity_suggested')}</div><p style="margin:0 0 10px;font-size:12px;color:var(--muted);" data-i18n="aviation_connectivity_cheaper_hint">${t('aviation_connectivity_cheaper_hint')}</p>${suggestedRoutes.map(r=>`<span class="aviation-route-tag">${escHtml(t('aviation_from_to', r.origin, r.destination_city || r.destination_airport || r.dest))} · ${fmtNum(r.total_per_week,1)}</span>`).join('')}</div>`
     : '';
   document.getElementById('aviation-score-card').innerHTML = `
     <div class="aviation-score-header">
@@ -1687,7 +1718,8 @@ function aviationRenderHub(hub){
       <div class="aviation-metric"><div class="aviation-metric-value">${fmtNum(hub.countries_served,0)}</div><div class="aviation-metric-label" data-i18n="aviation_metric_countries">${t('aviation_metric_countries')}</div></div>
       <div class="aviation-metric"><div class="aviation-metric-value">${fmtNum(hub.distinct_airlines,0)}</div><div class="aviation-metric-label" data-i18n="aviation_metric_airlines">${t('aviation_metric_airlines')}</div></div>
     </div>
-    ${routesHtml}
+    ${suggestedHtml}
+    ${busiestHtml}
   `;
   renderI18n();
 }
