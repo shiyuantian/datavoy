@@ -378,7 +378,7 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
             <div class="module-icon"><svg><use href="#icon-building"></use></svg></div>
             <div class="module-title" data-i18n="module_mct_title">文旅部 · 国内假期出行数据</div>
           </div>
-          <div class="module-desc" data-i18n="module_mct_desc">国内出游人次、出游总花费及同比，覆盖春节、清明、五一、端午、国庆中秋、元旦等节假日。</div>
+          <div class="module-desc" data-i18n="module_mct_desc">国内出游人次、出游总花费及同比，覆盖春节、清明、五一、端午、中秋、国庆、元旦等节假日。</div>
         </div>
         <div class="module-item" onclick="switchTab('mot')">
           <div class="module-header">
@@ -730,7 +730,7 @@ const I18N = {
     value_community_desc: '链接旅游从业者，共建一个活跃社群与持续进化的行业数据图谱。你的反馈、线索与建议，会让这个工具对所有人更有价值。',
     home_modules_title: '已上线模块',
     module_mct_title: '文旅部 · 国内假期出行数据',
-    module_mct_desc: '国内出游人次、出游总花费及同比，覆盖春节、清明、五一、端午、国庆中秋、元旦等节假日。',
+    module_mct_desc: '国内出游人次、出游总花费及同比，覆盖春节、清明、五一、端午、中秋、国庆、元旦等节假日。',
     module_mot_title: '交通部 · 节假日综合交通数据',
     module_mot_desc: '全社会跨区域人员流动量及铁路、公路、水路、民航客运量，聚焦节假日综合交通出行。',
     module_nia_title: '移民局 · 出入境数据',
@@ -850,7 +850,7 @@ const I18N = {
     value_community_desc: 'We connect travel professionals into a community that builds an evolving industry data map. Your feedback, tips, and suggestions make the tool better for everyone.', 
     home_modules_title: 'Live Modules',
     module_mct_title: 'MCT · Domestic Holiday Travel',
-    module_mct_desc: 'Domestic trips, tourism revenue, and YoY growth for major holidays including Spring Festival, Qingming, Labour Day, Dragon Boat Festival, National Day & Mid-Autumn, and New Year.',
+    module_mct_desc: 'Domestic trips, tourism revenue, and YoY growth for major holidays including Spring Festival, Qingming, Labour Day, Dragon Boat Festival, Mid-Autumn, National Day, and New Year.',
     module_mot_title: 'MOT · Holiday Transport Data',
     module_mot_desc: 'Total cross-region person trips and railway, highway, waterway, and aviation passenger volumes during holidays.',
     module_nia_title: 'NIA · Entry & Exit Data',
@@ -1055,7 +1055,7 @@ function fmtDateRange(start,end){
   return `${fmtDateSlash(start)}-${fmtDateSlash(end)}`;
 }
 function isForecast(d){ return d && d.source_url && /forecast/i.test(d.source_url); }
-function forecastBadge(d){ return isForecast(d) ? `<span class="forecast-badge" data-i18n="forecast_badge">预测</span>` : ''; }
+function forecastBadge(d){ return isForecast(d) ? `<span class="forecast-badge">${t('forecast_badge')}</span>` : ''; }
 function fmtHolidayMeta(name,start,end,days,note){
   const tName = translateHoliday(name) || '—';
   if(!start && days===undefined) return `<span class="tag">${tName}</span>`;
@@ -1553,7 +1553,7 @@ function chatParseQuestion(q) {
   Object.keys(HOLIDAY_NAMES).forEach(h => { if (q.includes(h)) holidays.push(h); });
   const enHolidays = {
     'spring festival': '春节', 'qingming': '清明', 'qing ming': '清明', 'labour day': '五一',
-    'may day': '五一', 'dragon boat': '端午', 'national & mid-autumn': '国庆中秋',
+    'may day': '五一', 'dragon boat': '端午',
     'national day': '国庆', 'mid-autumn': '中秋', "new year's day": '元旦', 'new year': '元旦'
   };
   Object.entries(enHolidays).forEach(([en, h]) => { if (text.includes(en)) holidays.push(h); });
@@ -1647,9 +1647,9 @@ function chatHasForecast(records) {
 }
 function chatFallback() {
   if (chatLang() === 'zh') {
-    return '我目前只能基于本页已整合的官方数据，回答关于节假日旅游、交通客流和出入境的问题。\n\n你可以试试：\n• 分析一下2026年端午旅游数据\n• 入境游恢复情况如何？\n• 交通部端午数据对投资有什么启示？\n• 2026年春节和国庆中秋数据对比';
+    return '我目前只能基于本页已整合的官方数据，回答关于节假日旅游、交通客流和出入境的问题。\n\n你可以试试：\n• 分析一下2026年端午旅游数据\n• 入境游恢复情况如何？\n• 交通部端午数据对投资有什么启示？\n• 对比一下2026年中秋和国庆数据';
   }
-  return 'I can only answer questions based on the official data already shown on this page, such as holiday travel, transport flow, and entry/exit data.\n\nTry asking:\n• Analyze 2026 Dragon Boat travel data\n• How is inbound tourism recovering?\n• Investment implications of 2026 MOT Dragon Boat data\n• Compare 2026 Spring Festival and National Day data';
+  return 'I can only answer questions based on the official data already shown on this page, such as holiday travel, transport flow, and entry/exit data.\n\nTry asking:\n• Analyze 2026 Dragon Boat travel data\n• How is inbound tourism recovering?\n• Investment implications of 2026 MOT Dragon Boat data\n• Compare 2026 Mid-Autumn and National Day data';
 }
 function chatBuildNarrative(records, parsed) {
   const hasMct = records.mct.length > 0, hasMot = records.mot.length > 0, hasNia = records.nia.length > 0;
