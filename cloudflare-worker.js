@@ -334,6 +334,53 @@ export default {
       }
     }
 
+    // API: narrative (LLM-powered data assistant)
+    if (pathname === '/api/narrative' && request.method === 'POST') {
+      try {
+        const data = await request.json();
+        const question = (data.question || '').trim();
+        const lang = (data.lang || 'zh').trim().toLowerCase();
+        const context = data.context || '';
+        if (!question) {
+          return jsonResponse({ error: 'Question is required' }, 400);
+        }
+        if (!env.AI) {
+          return jsonResponse({ error: 'Workers AI binding is not configured. Please add an AI binding in the Cloudflare dashboard.' }, 503);
+        }
+        const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
+        const rateKey = `narrative:${clientIP}`;
+        const lastRaw = await env.SUBSCRIBERS.get(rateKey);
+        if (lastRaw) {
+          const last = JSON.parse(lastRaw);
+          if (Date.now() - last.ts < 10 * 1000) {
+            return jsonResponse({ error: 'Please wait a moment before asking again.' }, 429);
+          }
+        }
+        await env.SUBSCRIBERS.put(rateKey, JSON.stringify({ ts: Date.now() }), { expirationTtl: 60 });
+
+        const systemPrompt = lang === 'en'
+          ? `You are Datavoy AI, a data assistant for travel industry professionals. Answer the user's question using ONLY the official data provided in the context below. Be concise, use bullet points, and bold key insights. Always cite the source URL when referencing specific figures. If the context does not contain enough information, say so clearly. Do not make up data. Today's date is 2026-08-07.`
+          : `你是 Datavoy AI，一位面向旅游行业从业者的数据助手。请仅使用下面「官方数据」中的信息回答用户问题。回答要简洁，使用 bullet point 分点，并加粗关键洞察。引用具体数字时请标注来源链接。如果上下文信息不足，请明确说明。不要编造数据。今天是 2026-08-07。`;
+        const userPrompt = lang === 'en'
+          ? `Official data context:\n${context}\n\nUser question: ${question}\n\nPlease answer in English.`
+          : `官方数据上下文：\n${context}\n\n用户问题：${question}\n\n请用中文回答。`;
+
+        const model = env.WORKERS_AI_MODEL || '@cf/meta/llama-3.1-8b-instruct-fp8';
+        const aiResp = await env.AI.run(model, {
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          max_tokens: 1024,
+          temperature: 0.3
+        });
+        const answer = (aiResp && (aiResp.response || aiResp.text || (aiResp.choices && aiResp.choices[0] && aiResp.choices[0].message && aiResp.choices[0].message.content))) || '';
+        return jsonResponse({ success: true, answer });
+      } catch (e) {
+        return jsonResponse({ error: e.message }, 500);
+      }
+    }
+
     // Admin page
     if (pathname === '/admin' && request.method === 'GET') {
       return adminPage(env, url.searchParams.get('secret'));

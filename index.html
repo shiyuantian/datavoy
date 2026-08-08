@@ -2484,6 +2484,28 @@ function chatHideLoading() {
   const el = document.getElementById('chat-loading');
   if (el) el.remove();
 }
+function chatBuildContext(records) {
+  const lines = [];
+  if (records.mct.length) {
+    lines.push('MCT (Ministry of Culture and Tourism) data:');
+    records.mct.forEach(r => {
+      lines.push(`- ${r.year} ${r.holiday_name}: domestic trips ${r.visitor_count} (${r.visitor_yoy}% YoY), tourism revenue ${r.spending} CNY (${r.spending_yoy}% YoY). Source: ${r.source_url || 'not disclosed'}`);
+    });
+  }
+  if (records.mot.length) {
+    lines.push('MOT (Ministry of Transport) data:');
+    records.mot.forEach(r => {
+      lines.push(`- ${r.year} ${r.holiday_name}: total cross-region flow ${r.total_flow} (${r.total_flow_yoy}% YoY); railway ${r.railway_yoy}%, highway ${r.highway_yoy}%, waterway ${r.waterway_yoy}%, aviation ${r.aviation_yoy}%. Source: ${r.source_url || 'not disclosed'}`);
+    });
+  }
+  if (records.nia.length) {
+    lines.push('NIA (National Immigration Administration) data:');
+    records.nia.forEach(r => {
+      lines.push(`- ${r.year} ${r.period_name}: total entry/exit ${r.total_count} (${r.total_yoy}% YoY); mainland ${r.mainland_count} (${r.mainland_yoy}%); HK/TW/MO ${r.hk_tw_mo_count} (${r.hk_tw_mo_yoy}%); foreigners ${r.foreign_count} (${r.foreign_yoy}%); visa-free foreigners ${r.visa_free_count} (${r.visa_free_yoy}%). Source: ${r.source_url || 'not disclosed'}`);
+    });
+  }
+  return lines.join('\n');
+}
 async function chatSend() {
   const input = document.getElementById('chat-input');
   const sendBtn = document.getElementById('chat-send');
@@ -2497,13 +2519,29 @@ async function chatSend() {
   msg.textContent = '';
   msg.className = 'chat-msg';
   chatShowLoading();
-  await new Promise(resolve => setTimeout(resolve, 600 + Math.floor(Math.random() * 400)));
+  await new Promise(resolve => setTimeout(resolve, 300 + Math.floor(Math.random() * 200)));
   try {
     const parsed = chatParseQuestion(question);
     const records = chatFindRecords(parsed);
-    const answer = chatBuildNarrative(records, parsed);
+    const context = chatBuildContext(records);
+    const response = await fetch('/api/narrative', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question, lang: chatAnswerLang, context })
+    });
+    const data = await response.json().catch(() => ({}));
     chatHideLoading();
-    chatAddMessage('assistant', answer, false);
+    if (response.ok && data.answer) {
+      chatAddMessage('assistant', data.answer, false);
+    } else {
+      // Fallback to local rule-based narrative
+      const fallback = chatBuildNarrative(records, parsed);
+      chatAddMessage('assistant', fallback, false);
+      if (data.error) {
+        msg.textContent = (t('chat_error') || 'Error') + ': ' + data.error + ' (showing local fallback)';
+        msg.className = 'chat-msg error';
+      }
+    }
   } catch (e) {
     chatHideLoading();
     msg.textContent = (t('chat_error') || 'Error') + ': ' + e.message;
