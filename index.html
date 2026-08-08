@@ -2507,6 +2507,28 @@ function chatBuildContext(records) {
   }
   return lines.join('\n');
 }
+function chatDetectTopicHint(question) {
+  const q = question.toLowerCase();
+  if (/\b(railway|train|rail|高铁|火车|铁路)\b/.test(q)) {
+    return 'CRITICAL: The user is asking about TRAIN/RAILWAY. You MUST use MOT railway_yoy and railway volume as the primary metric. NEVER use total cross-region flow as a proxy for train business.';
+  }
+  if (/\b(flight|aviation|airline|air|plane|民航|航班|飞机)\b/.test(q)) {
+    return 'CRITICAL: The user is asking about AVIATION/FLIGHTS. You MUST use MOT aviation_yoy and aviation volume as the primary metric.';
+  }
+  if (/\b(highway|road|bus|公路|高速|大巴)\b/.test(q)) {
+    return 'CRITICAL: The user is asking about HIGHWAY/ROAD transport. You MUST use MOT highway_yoy and highway volume as the primary metric.';
+  }
+  if (/\b(waterway|ferry|水路|轮船|轮渡)\b/.test(q)) {
+    return 'CRITICAL: The user is asking about WATERWAY transport. You MUST use MOT waterway_yoy and waterway volume as the primary metric.';
+  }
+  if (/\b(inbound|foreigner|visa[-\s]?free|入境|外国|免签)\b/.test(q)) {
+    return 'CRITICAL: The user is asking about INBOUND/FOREIGNER travel. You MUST use NIA foreigner and visa-free foreigner data as the primary metrics.';
+  }
+  if (/\b(domestic trips|tourism revenue|visitor|spending|出游人次|旅游收入|国内游)\b/.test(q)) {
+    return 'CRITICAL: The user is asking about DOMESTIC TOURISM. You MUST use MCT visitor_count and spending data as the primary metrics.';
+  }
+  return '';
+}
 async function chatSend() {
   const input = document.getElementById('chat-input');
   const sendBtn = document.getElementById('chat-send');
@@ -2525,10 +2547,11 @@ async function chatSend() {
     const parsed = chatParseQuestion(question);
     const records = chatFindRecords(parsed);
     const context = chatBuildContext(records);
+    const topicHint = chatDetectTopicHint(question);
     const response = await fetch('/api/narrative', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question, lang: chatAnswerLang, context })
+      body: JSON.stringify({ question, lang: chatAnswerLang, context, topicHint })
     });
     const data = await response.json().catch(() => ({}));
     chatHideLoading();
