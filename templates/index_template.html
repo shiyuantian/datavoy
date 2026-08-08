@@ -2487,28 +2487,34 @@ function chatHideLoading() {
 function chatIsForecast(rec) {
   return rec && rec.source_url && /forecast/i.test(rec.source_url);
 }
-function chatBuildContext(records) {
+function chatBuildContext(records, lang) {
   const lines = [];
-  lines.push('Use only the actual disclosed data below. IGNORE any forecast records. When the user mentions a specific segment (e.g. train, railway, flight, aviation, highway, hotel, domestic trips, inbound, foreigner, visa-free), anchor your answer to the matching metric, not the broad total.');
+  const isEn = lang === 'en';
+  lines.push(isEn
+    ? 'Use only the actual disclosed data below. IGNORE any forecast records. Holiday names are translated to English. When the user mentions a specific segment (e.g. train, railway, flight, aviation, highway, hotel, domestic trips, inbound, foreigner, visa-free), anchor your answer to the matching metric, not the broad total.'
+    : '只能使用下方实际已披露的数据，忽略任何预测数据。节假日名称已翻译为中文。当用户提到具体领域（例如火车/铁路、航班、公路、入境、外国、免签、国内游）时，请对应到正确指标，而不是用总口径。');
   const recentMct = records.mct.filter(r => !chatIsForecast(r)).slice(0, 3);
   const recentMot = records.mot.filter(r => !chatIsForecast(r)).slice(0, 3);
   const recentNia = records.nia.filter(r => !chatIsForecast(r)).slice(0, 3);
   if (recentMct.length) {
-    lines.push('MCT (Ministry of Culture and Tourism) actual data:');
+    lines.push(isEn ? 'MCT (Ministry of Culture and Tourism) actual data:' : '文旅部实际数据：');
     recentMct.forEach(r => {
-      lines.push(`- ${r.year} ${r.holiday_name}: domestic trips ${r.visitor_count} 100M trips (${r.visitor_yoy}% YoY), tourism revenue ${r.spending} 100M CNY (${r.spending_yoy}% YoY). Source: ${r.source_url || 'not disclosed'}`);
+      const holiday = isEn ? translateHoliday(r.holiday_name) : r.holiday_name;
+      lines.push(`- ${r.year} ${holiday}: domestic trips ${r.visitor_count} 100M trips (${r.visitor_yoy}% YoY), tourism revenue ${r.spending} 100M CNY (${r.spending_yoy}% YoY). Source: ${r.source_url || 'not disclosed'}`);
     });
   }
   if (recentMot.length) {
-    lines.push('MOT (Ministry of Transport) actual holiday transport data:');
+    lines.push(isEn ? 'MOT (Ministry of Transport) actual holiday transport data:' : '交通部实际节假日交通数据：');
     recentMot.forEach(r => {
-      lines.push(`- ${r.year} ${r.holiday_name}: total cross-region flow ${r.total_flow} 10,000 trips (${r.total_flow_yoy}% YoY). By mode — railway ${r.railway} 10,000 trips (${r.railway_yoy}% YoY), highway ${r.highway} 10,000 trips (${r.highway_yoy}% YoY), waterway ${r.waterway} 10,000 trips (${r.waterway_yoy}% YoY), aviation ${r.aviation} 10,000 trips (${r.aviation_yoy}% YoY). Source: ${r.source_url || 'not disclosed'}`);
+      const holiday = isEn ? translateHoliday(r.holiday_name) : r.holiday_name;
+      lines.push(`- ${r.year} ${holiday}: total cross-region flow ${r.total_flow} 10,000 trips (${r.total_flow_yoy}% YoY). By mode — railway ${r.railway} 10,000 trips (${r.railway_yoy}% YoY), highway ${r.highway} 10,000 trips (${r.highway_yoy}% YoY), waterway ${r.waterway} 10,000 trips (${r.waterway_yoy}% YoY), aviation ${r.aviation} 10,000 trips (${r.aviation_yoy}% YoY). Source: ${r.source_url || 'not disclosed'}`);
     });
   }
   if (recentNia.length) {
-    lines.push('NIA (National Immigration Administration) actual data:');
+    lines.push(isEn ? 'NIA (National Immigration Administration) actual data:' : '移民局实际数据：');
     recentNia.forEach(r => {
-      lines.push(`- ${r.year} ${r.period_name}: total entry/exit ${r.total_count} 10,000 trips (${r.total_yoy}% YoY); mainland ${r.mainland_count} (${r.mainland_yoy}%); HK/TW/MO ${r.hk_tw_mo_count} (${r.hk_tw_mo_yoy}%); foreigners ${r.foreign_count} (${r.foreign_yoy}%); visa-free foreigners ${r.visa_free_count} (${r.visa_free_yoy}%). Source: ${r.source_url || 'not disclosed'}`);
+      const period = isEn ? translatePeriod(r.period_name) : r.period_name;
+      lines.push(`- ${r.year} ${period}: total entry/exit ${r.total_count} 10,000 trips (${r.total_yoy}% YoY); mainland ${r.mainland_count} (${r.mainland_yoy}%); HK/TW/MO ${r.hk_tw_mo_count} (${r.hk_tw_mo_yoy}%); foreigners ${r.foreign_count} (${r.foreign_yoy}%); visa-free foreigners ${r.visa_free_count} (${r.visa_free_yoy}%). Source: ${r.source_url || 'not disclosed'}`);
     });
   }
   return lines.join('\n');
@@ -2552,7 +2558,7 @@ async function chatSend() {
   try {
     const parsed = chatParseQuestion(question);
     const records = chatFindRecords(parsed);
-    const context = chatBuildContext(records);
+    const context = chatBuildContext(records, chatAnswerLang);
     const topicHint = chatDetectTopicHint(question);
     const response = await fetch('/api/narrative', {
       method: 'POST',
