@@ -359,12 +359,16 @@ export default {
         }
         await env.SUBSCRIBERS.put(rateKey, JSON.stringify({ ts: Date.now() }), { expirationTtl: 60 });
 
-        const systemPrompt = lang === 'en'
-          ? `You are Datavoy AI, an IR assistant for travel/transport executives answering analyst questions. Use ONLY the official data in the context. Match the user's specific topic to the right metric. Keep the answer short and direct: 3–5 bullets plus a one-line anchor to macro trend. Bold the key takeaway. Cite the source URL for every figure. Do not explain generic macro economics—only tie the data point to a simple macro narrative. Do not make up data. If the requested metric is missing or null, say so clearly instead of inventing a number. Today's date is 2026-08-07.`
-          : `你是 Datavoy AI，一位帮助旅游/交通企业高管回答分析师问题的 IR 助手。请仅使用上下文中的官方数据。把用户的具体话题对应到正确指标。回答要简短直接：3–5 个 bullet + 一句宏观锚定。加粗核心结论。每个数字都要标注来源链接。不要泛泛解释宏观经济，只把数据点简单联系到宏观叙事。不要编造数据。如果所需指标缺失或为 null，请明确说明，不要编造数字。今天是 2026-08-07。`;
+        const baseSystem = lang === 'en'
+          ? `You are Datavoy AI, an IR assistant for travel/transport executives answering analyst questions. You have access to ONLY the official data in the context below. Follow these rules exactly:`
+          : `你是 Datavoy AI，一位帮助旅游/交通企业高管回答分析师问题的 IR 助手。你只能使用下方上下文中的官方数据。严格遵守以下规则：`;
+        const rules = lang === 'en'
+          ? `Rules:\n1. ${topicHint || 'Match the user\'s specific topic to the right metric in the context.'}\n2. Start your answer by directly stating the relevant figure (e.g. railway YoY / aviation YoY / inbound foreigner YoY) from the matching data source.\n3. Use ONLY numbers that appear in the context. If the metric is missing or null, say exactly: "The context does not contain [metric] data for the requested period."\n4. Keep the answer to 3–5 bullets plus one short macro anchor sentence.\n5. Bold the key takeaway.\n6. Cite the source URL for every figure.\n7. Do not invent macro trends or figures. Do not write generic economic essays.`
+          : `规则：\n1. ${topicHint || '把用户的具体话题对应到上下文中的正确指标。'}\n2. 回答必须先直接给出相关指标数字（例如 railway YoY / aviation YoY / 外国人 YoY）。\n3. 只能使用上下文中出现的数字。如果指标缺失或为 null，请准确说明：「上下文中没有该时期的[指标]数据」。\n4. 回答控制在 3–5 个 bullet + 一句简短宏观锚定。\n5. 加粗核心结论。\n6. 每个数字都要标注来源链接。\n7. 不要编造宏观趋势或数字，不要写泛泛的经济分析。`;
+        const systemPrompt = `${baseSystem}\n\n${rules}\n\n${lang === 'en' ? 'Today\'s date is 2026-08-07.' : '今天是 2026-08-07。'}`;
         const userPrompt = lang === 'en'
-          ? `${topicHint ? topicHint + '\n\n' : ''}Official data context:\n${context}\n\nUser question: ${question}\n\nPlease answer in English.`
-          : `${topicHint ? topicHint + '\n\n' : ''}官方数据上下文：\n${context}\n\n用户问题：${question}\n\n请用中文回答。`;
+          ? `Official data context:\n${context}\n\nUser question: ${question}\n\nPlease answer in English. Remember: only use numbers from the context; if railway/aviation/inbound/etc. data is not in the context, say it is not available.`
+          : `官方数据上下文：\n${context}\n\n用户问题：${question}\n\n请用中文回答。注意：只能使用上下文中的数字；如果铁路/民航/入境等数据不在上下文中，请明确说明。`;
 
         const model = env.WORKERS_AI_MODEL || '@cf/meta/llama-3.1-8b-instruct-fp8';
         const aiResp = await env.AI.run(model, {
