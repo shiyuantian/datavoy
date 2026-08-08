@@ -2487,34 +2487,62 @@ function chatHideLoading() {
 function chatIsForecast(rec) {
   return rec && rec.source_url && /forecast/i.test(rec.source_url);
 }
+function chatFmtTrips(value, unit) {
+  if (value === null || value === undefined) return null;
+  const num = Number(value);
+  if (unit === '亿人次' || unit === '100M trips') {
+    return `${(num * 100).toLocaleString('en-US', { maximumFractionDigits: 1 })} million trips`;
+  }
+  if (unit === '万人次' || unit === '10,000 trips') {
+    if (num >= 10000) return `${(num / 10000).toLocaleString('en-US', { maximumFractionDigits: 2 })} billion trips`;
+    return `${(num / 100).toLocaleString('en-US', { maximumFractionDigits: 2 })} million trips`;
+  }
+  return `${num.toLocaleString('en-US')} ${unit || 'trips'}`;
+}
+function chatFmtSpending(value) {
+  if (value === null || value === undefined) return null;
+  return `${(Number(value) / 10000).toLocaleString('en-US', { maximumFractionDigits: 2 })} billion CNY`;
+}
 function chatBuildContext(records, lang) {
   const lines = [];
   const isEn = lang === 'en';
   lines.push(isEn
-    ? 'Use only the actual disclosed data below. IGNORE any forecast records. Holiday names are translated to English. When the user mentions a specific segment (e.g. train, railway, flight, aviation, highway, hotel, domestic trips, inbound, foreigner, visa-free), anchor your answer to the matching metric, not the broad total.'
-    : '只能使用下方实际已披露的数据，忽略任何预测数据。节假日名称已翻译为中文。当用户提到具体领域（例如火车/铁路、航班、公路、入境、外国、免签、国内游）时，请对应到正确指标，而不是用总口径。');
-  const recentMct = records.mct.filter(r => !chatIsForecast(r)).slice(0, 3);
-  const recentMot = records.mot.filter(r => !chatIsForecast(r)).slice(0, 3);
-  const recentNia = records.nia.filter(r => !chatIsForecast(r)).slice(0, 3);
+    ? 'Use only the actual disclosed data below. IGNORE any forecast records. Holiday names are translated to English. Units are converted to readable format: million/billion trips and billion CNY. When the user mentions a specific segment (e.g. train, railway, flight, aviation, highway, hotel, domestic trips, inbound, foreigner, visa-free), anchor your answer to the matching metric, not the broad total.'
+    : '只能使用下方实际已披露的数据，忽略任何预测数据。节假日名称已翻译为中文。单位已转换为易读格式。当用户提到具体领域（例如火车/铁路、航班、公路、入境、外国、免签、国内游）时，请对应到正确指标，而不是用总口径。');
+  const recentMct = records.mct.filter(r => !chatIsForecast(r)).slice(0, 2);
+  const recentMot = records.mot.filter(r => !chatIsForecast(r)).slice(0, 2);
+  const recentNia = records.nia.filter(r => !chatIsForecast(r)).slice(0, 2);
   if (recentMct.length) {
     lines.push(isEn ? 'MCT (Ministry of Culture and Tourism) actual data:' : '文旅部实际数据：');
     recentMct.forEach(r => {
       const holiday = isEn ? translateHoliday(r.holiday_name) : r.holiday_name;
-      lines.push(`- ${r.year} ${holiday}: domestic trips ${r.visitor_count} 100M trips (${r.visitor_yoy}% YoY), tourism revenue ${r.spending} 100M CNY (${r.spending_yoy}% YoY). Source: ${r.source_url || 'not disclosed'}`);
+      const trips = chatFmtTrips(r.visitor_count, '100M trips');
+      const revenue = chatFmtSpending(r.spending);
+      lines.push(`- ${r.year} ${holiday}: ${trips} domestic trips (${r.visitor_yoy}% YoY), tourism revenue ${revenue} (${r.spending_yoy}% YoY). Source: ${r.source_url || 'not disclosed'}`);
     });
   }
   if (recentMot.length) {
     lines.push(isEn ? 'MOT (Ministry of Transport) actual holiday transport data:' : '交通部实际节假日交通数据：');
     recentMot.forEach(r => {
       const holiday = isEn ? translateHoliday(r.holiday_name) : r.holiday_name;
-      lines.push(`- ${r.year} ${holiday}: total cross-region flow ${r.total_flow} 10,000 trips (${r.total_flow_yoy}% YoY). By mode — railway ${r.railway} 10,000 trips (${r.railway_yoy}% YoY), highway ${r.highway} 10,000 trips (${r.highway_yoy}% YoY), waterway ${r.waterway} 10,000 trips (${r.waterway_yoy}% YoY), aviation ${r.aviation} 10,000 trips (${r.aviation_yoy}% YoY). Source: ${r.source_url || 'not disclosed'}`);
+      const total = chatFmtTrips(r.total_flow, '10,000 trips');
+      const railway = chatFmtTrips(r.railway, '10,000 trips');
+      const highway = chatFmtTrips(r.highway, '10,000 trips');
+      const waterway = chatFmtTrips(r.waterway, '10,000 trips');
+      const aviation = chatFmtTrips(r.aviation, '10,000 trips');
+      lines.push(`- ${r.year} ${holiday}: ${total} total cross-region flow (${r.total_flow_yoy}% YoY). By mode — railway ${railway} (${r.railway_yoy}% YoY), highway ${highway} (${r.highway_yoy}% YoY), waterway ${waterway} (${r.waterway_yoy}% YoY), aviation ${aviation} (${r.aviation_yoy}% YoY). Source: ${r.source_url || 'not disclosed'}`);
     });
   }
   if (recentNia.length) {
     lines.push(isEn ? 'NIA (National Immigration Administration) actual data:' : '移民局实际数据：');
     recentNia.forEach(r => {
       const period = isEn ? translatePeriod(r.period_name) : r.period_name;
-      lines.push(`- ${r.year} ${period}: total entry/exit ${r.total_count} 10,000 trips (${r.total_yoy}% YoY); mainland ${r.mainland_count} (${r.mainland_yoy}%); HK/TW/MO ${r.hk_tw_mo_count} (${r.hk_tw_mo_yoy}%); foreigners ${r.foreign_count} (${r.foreign_yoy}%); visa-free foreigners ${r.visa_free_count} (${r.visa_free_yoy}%). Source: ${r.source_url || 'not disclosed'}`);
+      const total = chatFmtTrips(r.total_count, r.total_unit);
+      const mainland = chatFmtTrips(r.mainland_count, r.mainland_unit);
+      const hktwmo = chatFmtTrips(r.hk_tw_mo_count, r.hk_tw_mo_unit);
+      const foreign = chatFmtTrips(r.foreign_count, r.foreign_unit);
+      const visafree = chatFmtTrips(r.visa_free_count, r.visa_free_unit);
+      lines.push(`- ${r.year} ${period}: ${total} total entry/exit (${r.total_yoy}% YoY); mainland ${mainland} (${r.mainland_yoy}%); HK/TW/MO ${hktwmo} (${r.hk_tw_mo_yoy}%); foreigners ${foreign} (${r.foreign_yoy}%); visa-free foreigners ${visafree} (${r.visa_free_yoy}%). Source: ${r.source_url || 'not disclosed'}`);
     });
   }
   return lines.join('\n');
