@@ -2532,18 +2532,25 @@ function chatIsForecast(rec) {
 function chatFmtTrips(value, unit) {
   if (value === null || value === undefined) return null;
   const num = Number(value);
+  // Convert to million trips first, then to billion trips if large enough.
+  // 1 亿人次 = 100 million trips; 1 万人次 = 0.01 million trips.
+  let million = null;
   if (unit === '亿人次' || unit === '100M trips') {
-    return `${(num * 100).toLocaleString('en-US', { maximumFractionDigits: 1 })} million trips`;
+    million = num * 100;
+  } else if (unit === '万人次' || unit === '10,000 trips') {
+    million = num / 100;
+  } else {
+    return `${num.toLocaleString('en-US')} ${unit || 'trips'}`;
   }
-  if (unit === '万人次' || unit === '10,000 trips') {
-    if (num >= 10000) return `${(num / 10000).toLocaleString('en-US', { maximumFractionDigits: 2 })} billion trips`;
-    return `${(num / 100).toLocaleString('en-US', { maximumFractionDigits: 2 })} million trips`;
+  if (million >= 1000) {
+    return `${(million / 1000).toLocaleString('en-US', { maximumFractionDigits: 2 })} billion trips`;
   }
-  return `${num.toLocaleString('en-US')} ${unit || 'trips'}`;
+  return `${million.toLocaleString('en-US', { maximumFractionDigits: 2 })} million trips`;
 }
 function chatFmtSpending(value) {
   if (value === null || value === undefined) return null;
-  return `${(Number(value) / 10000).toLocaleString('en-US', { maximumFractionDigits: 2 })} billion CNY`;
+  // Values are stored in 亿元; 1 亿元 = 0.1 billion CNY.
+  return `${(Number(value) / 10).toLocaleString('en-US', { maximumFractionDigits: 2 })} billion CNY`;
 }
 function chatBuildContext(records, lang) {
   const lines = [];
