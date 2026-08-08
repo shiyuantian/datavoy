@@ -260,12 +260,18 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
 .chat-avatar { width:32px; height:32px; border-radius:50%; flex-shrink:0; display:grid; place-items:center; font-size:13px; font-weight:700; }
 .chat-message.user .chat-avatar { background:var(--primary); color:#fff; }
 .chat-message.assistant .chat-avatar { background:linear-gradient(135deg,var(--primary-light),#fff); color:var(--primary); border:1px solid rgba(14,116,144,.12); }
-.chat-bubble { padding:12px 16px; border-radius:16px; font-size:14px; line-height:1.7; word-break:break-word; }
+.chat-bubble { padding:12px 16px; border-radius:16px; font-size:14px; line-height:1.7; word-break:break-word; overflow-wrap:anywhere; }
 .chat-message.user .chat-bubble { background:var(--primary); color:#fff; border-bottom-right-radius:4px; }
 .chat-message.assistant .chat-bubble { background:#fff; border:1px solid var(--border); border-bottom-left-radius:4px; }
 .chat-bubble b, .chat-bubble strong { color:var(--primary); font-weight:700; }
 .chat-message.user .chat-bubble b, .chat-message.user .chat-bubble strong { color:#a5f3fc; }
 .chat-bubble a { color:var(--primary); text-decoration:underline; }
+.chat-bubble p { margin:0 0 10px; }
+.chat-bubble p:last-child { margin-bottom:0; }
+.chat-list { margin:0 0 10px; padding-left:18px; }
+.chat-list li { margin-bottom:6px; }
+.chat-list li:last-child { margin-bottom:0; }
+.chat-insight { background:var(--primary-light); border-left:4px solid var(--primary); padding:10px 12px; border-radius:0 10px 10px 0; margin-bottom:10px; font-weight:500; }
 .chat-actions { display:flex; gap:8px; margin-top:8px; }
 .chat-action-btn { padding:4px 10px; border-radius:6px; border:1px solid var(--border); background:#fff; color:#64748b; font-size:12px; cursor:pointer; transition:all .15s ease; }
 .chat-action-btn:hover { border-color:var(--primary); color:var(--primary); }
@@ -470,9 +476,9 @@ footer { max-width:1200px; margin:0 auto; padding:0 24px 40px; font-size:12px; c
           <div class="chat-welcome-icon"><svg><use href="#icon-message"></use></svg></div>
           <div class="chat-welcome-title" data-i18n="chat_welcome_title">我可以帮你做什么？</div>
           <div class="chat-suggestions" id="chat-suggestions">
-            <button class="chat-suggestion" data-prompt-zh="分析一下2026年端午旅游数据" data-prompt-en="Analyze the 2026 Dragon Boat travel data">分析一下2026年端午旅游数据</button>
-            <button class="chat-suggestion" data-prompt-zh="入境游恢复情况如何？" data-prompt-en="How is inbound tourism recovering?">入境游恢复情况如何？</button>
-            <button class="chat-suggestion" data-prompt-zh="交通部端午数据对投资有什么启示？" data-prompt-en="What does the MOT Dragon Boat data imply for investors?">交通部端午数据对投资有什么启示？</button>
+            <button class="chat-suggestion" data-i18n="chat_suggest_1" data-prompt-zh="分析一下2026年端午旅游数据" data-prompt-en="Analyze the 2026 Dragon Boat travel data">Analyze the 2026 Dragon Boat travel data</button>
+            <button class="chat-suggestion" data-i18n="chat_suggest_2" data-prompt-zh="入境游恢复情况如何？" data-prompt-en="How is inbound tourism recovering?">How is inbound tourism recovering?</button>
+            <button class="chat-suggestion" data-i18n="chat_suggest_3" data-prompt-zh="交通部端午数据对投资有什么启示？" data-prompt-en="What does the MOT Dragon Boat data imply for investors?">What does the MOT Dragon Boat data imply for investors?</button>
           </div>
         </div>
         <div class="chat-messages" id="chat-messages"></div>
@@ -926,6 +932,9 @@ const I18N = {
     home_narrative_title: '叙事生成',
     home_narrative_desc: '选择或输入一个数据问题，Datavoy 会基于官方数据自动生成含来源、有洞察的叙事。',
     chat_welcome_title: '想生成怎样的数据叙事？',
+    chat_suggest_1: '分析一下2026年端午旅游数据',
+    chat_suggest_2: '入境游恢复情况如何？',
+    chat_suggest_3: '交通部端午数据对投资有什么启示？',
     chat_input_placeholder: '输入问题，例如：2026年端午旅游表现如何？',
     chat_send: '生成叙事',
     chat_copy: '复制',
@@ -1102,6 +1111,9 @@ const I18N = {
     home_narrative_title: 'Narrative Generator',
     home_narrative_desc: 'Ask a data question and Datavoy will generate a source-backed, insightful narrative from official data.',
     chat_welcome_title: 'What narrative would you like to generate?',
+    chat_suggest_1: 'Analyze the 2026 Dragon Boat travel data',
+    chat_suggest_2: 'How is inbound tourism recovering?',
+    chat_suggest_3: 'What does the MOT Dragon Boat data imply for investors?',
     chat_input_placeholder: 'Ask a question, e.g. How was 2026 Dragon Boat travel?',
     chat_send: 'Generate Narrative',
     chat_copy: 'Copy',
@@ -1248,6 +1260,7 @@ function renderI18n() {
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
   document.querySelectorAll('[data-i18n-alt]').forEach(el => { el.alt = t(el.dataset.i18nAlt); });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
 }
 
 const HOLIDAY_NAMES = {
@@ -2428,10 +2441,17 @@ function chatEscapeHtml(text) {
   return d.innerHTML;
 }
 function chatRenderMarkdown(text) {
-  // Convert newlines, markdown links [text](url), bare URLs and **bold** to HTML
+  // Render a small, safe subset of markdown into responsive HTML.
+  // - Paragraphs are separated by blank lines.
+  // - Bullet lists (-, •, *) become <ul>.
+  // - **text** becomes <b>.
+  // - Markdown and bare URLs become clickable links.
   let html = chatEscapeHtml(text);
-  html = html.replace(/\n/g, '<br>');
-  // Capture bare URLs as placeholders so markdown links can be handled cleanly
+
+  // Bold **text** before URL capture so URLs inside bold still work.
+  html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+  // Capture bare URLs as placeholders so markdown links can be handled cleanly.
   const urls = [];
   const urlPattern = /(https?:\/\/[^\s<"')]+)/g;
   html = html.replace(urlPattern, url => { const i = urls.push(url) - 1; return `###URL${i}###`; });
@@ -2439,10 +2459,32 @@ function chatRenderMarkdown(text) {
   html = html.replace(/\[([^\]]+)\]\(###URL(\d+)###\)/g, (m, label, idx) => `<a href="${urls[idx]}" target="_blank">${label}</a>`);
   // Restore any remaining bare URLs as clickable links
   html = html.replace(/###URL(\d+)###/g, (m, idx) => `<a href="${urls[idx]}" target="_blank">${urls[idx]}</a>`);
-  // Bold **text** or <b>text</b>
-  html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+  // Handle literal <b> tags if the model outputs them
   html = html.replace(/&lt;b&gt;/g, '<b>').replace(/&lt;\/b&gt;/g, '</b>');
-  return html;
+
+  // Split into blocks (paragraphs separated by blank lines) and render lists properly.
+  const blocks = html.split(/\n\s*\n/);
+  const rendered = blocks.map(block => {
+    const lines = block.split('\n').map(l => l.trim()).filter(l => l !== '');
+    if (lines.length === 0) return '';
+
+    // Bullet list: every line starts with -, • or *
+    if (lines.every(l => /^[-•*]\s/.test(l))) {
+      const items = lines.map(l => `<li>${l.replace(/^[-•*]\s+/, '')}</li>`).join('');
+      return `<ul class="chat-list">${items}</ul>`;
+    }
+
+    // Highlight a standalone Key insight / 核心洞察 line.
+    if (lines.length === 1 && /^<b>(Key insight|核心洞察)[：:]?\s*/i.test(lines[0])) {
+      return `<div class="chat-insight">${lines[0]}</div>`;
+    }
+
+    // Regular paragraph: keep single newlines as <br> so the model's intended line breaks
+    // are preserved, but the paragraph itself wraps naturally with the screen width.
+    return `<p>${lines.join('<br>')}</p>`;
+  }).filter(Boolean);
+
+  return rendered.join('');
 }
 function chatAddMessage(role, text, isHtml = false) {
   const welcome = document.getElementById('chat-welcome');
@@ -2515,7 +2557,7 @@ function chatBuildContext(records, lang) {
   if (recentMct.length) {
     lines.push(isEn ? 'MCT (Ministry of Culture and Tourism) actual data:' : '文旅部实际数据：');
     recentMct.forEach(r => {
-      const holiday = isEn ? translateHoliday(r.holiday_name) : r.holiday_name;
+      const holiday = chatTranslateHoliday(r.holiday_name);
       const trips = chatFmtTrips(r.visitor_count, '100M trips');
       const revenue = chatFmtSpending(r.spending);
       lines.push(`- ${r.year} ${holiday}: ${trips} domestic trips (${r.visitor_yoy}% YoY), tourism revenue ${revenue} (${r.spending_yoy}% YoY). Source: ${r.source_url || 'not disclosed'}`);
@@ -2524,7 +2566,7 @@ function chatBuildContext(records, lang) {
   if (recentMot.length) {
     lines.push(isEn ? 'MOT (Ministry of Transport) actual holiday transport data:' : '交通部实际节假日交通数据：');
     recentMot.forEach(r => {
-      const holiday = isEn ? translateHoliday(r.holiday_name) : r.holiday_name;
+      const holiday = chatTranslateHoliday(r.holiday_name);
       const total = chatFmtTrips(r.total_flow, '10,000 trips');
       const railway = chatFmtTrips(r.railway, '10,000 trips');
       const highway = chatFmtTrips(r.highway, '10,000 trips');
@@ -2536,7 +2578,7 @@ function chatBuildContext(records, lang) {
   if (recentNia.length) {
     lines.push(isEn ? 'NIA (National Immigration Administration) actual data:' : '移民局实际数据：');
     recentNia.forEach(r => {
-      const period = isEn ? translatePeriod(r.period_name) : r.period_name;
+      const period = chatTranslatePeriod(r.period_name);
       const total = chatFmtTrips(r.total_count, r.total_unit);
       const mainland = chatFmtTrips(r.mainland_count, r.mainland_unit);
       const hktwmo = chatFmtTrips(r.hk_tw_mo_count, r.hk_tw_mo_unit);

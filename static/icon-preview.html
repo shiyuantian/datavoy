@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datavoy Icon 方案预览 · B/C 细化版</title>
+<style>
+:root { --primary:#0e7490; --bg:#f0f9ff; }
+body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif; margin:0; background:var(--bg); padding:40px 24px; color:#0f172a; }
+h1 { text-align:center; margin-bottom:8px; font-size:24px; }
+.subtitle { text-align:center; color:#64748b; margin-bottom:40px; font-size:14px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:24px; max-width:1100px; margin:0 auto; }
+.card { background:#fff; border-radius:16px; padding:24px; box-shadow:0 4px 20px rgba(14,116,144,.08); text-align:center; }
+.card h2 { font-size:17px; margin:0 0 8px; }
+.card .desc { font-size:13px; color:#64748b; margin:0 0 20px; min-height:40px; line-height:1.5; }
+.icon-box { width:80px; height:80px; margin:0 auto 20px; background:linear-gradient(135deg,var(--primary),#0d9488); border-radius:18px; display:grid; place-items:center; color:#fff; box-shadow:0 4px 12px rgba(14,116,144,.25); }
+.icon-box svg { width:48px; height:48px; }
+.sizes { display:flex; gap:16px; justify-content:center; align-items:flex-end; margin-top:16px; }
+.size { display:flex; flex-direction:column; align-items:center; gap:6px; font-size:12px; color:#64748b; }
+.size-box { background:linear-gradient(135deg,var(--primary),#0d9488); border-radius:8px; display:grid; place-items:center; color:#fff; }
+.size-box.s48 { width:48px; height:48px; border-radius:12px; }
+.size-box.s32 { width:32px; height:32px; border-radius:8px; }
+.size-box.s16 { width:16px; height:16px; border-radius:4px; }
+.size-box svg { width:60%; height:60%; }
+.note { max-width:700px; margin:40px auto 0; font-size:14px; color:#64748b; line-height:1.7; text-align:center; }
+</style>
+</head>
+<body>
+<h1>Datavoy Icon 方案预览 · B/C 细化版</h1>
+<p class="subtitle">在「地图+数据」和「地球+数据」两个方向上继续优化</p>
+<div class="grid">
+
+  <!-- B1: 地图航线 -->
+  <div class="card">
+    <h2>B1. 地图航线</h2>
+    <p class="desc">简化地图上，航线从起点蜿蜒上升到终点</p>
+    <div class="icon-box">
+      <svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;">
+        <path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.3" fill="currentColor"/>
+        <path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z"/>
+        <path d="M6 17c2-3 4-4 6-6s3-4 7-5" stroke-dasharray="1.5 1.5"/>
+        <circle cx="6" cy="17" r="1.3" fill="currentColor" stroke="none"/>
+        <path d="M19 6l2.5-1-1.2 2.5-1.3-1.5z" fill="currentColor" stroke="none"/>
+      </svg>
+    </div>
+    <div class="sizes">
+      <div class="size"><div class="size-box s48"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.3" fill="currentColor"/><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z"/><path d="M6 17c2-3 4-4 6-6s3-4 7-5" stroke-dasharray="1.5 1.5"/><circle cx="6" cy="17" r="1.3" fill="currentColor" stroke="none"/><path d="M19 6l2.5-1-1.2 2.5-1.3-1.5z" fill="currentColor" stroke="none"/></svg></div>48px</div>
+      <div class="size"><div class="size-box s32"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.3" fill="currentColor"/><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z"/><path d="M6 17c2-3 4-4 6-6s3-4 7-5" stroke-dasharray="1.5 1.5"/><circle cx="6" cy="17" r="1.3" fill="currentColor" stroke="none"/><path d="M19 6l2.5-1-1.2 2.5-1.3-1.5z" fill="currentColor" stroke="none"/></svg></div>32px</div>
+      <div class="size"><div class="size-box s16"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.3" fill="currentColor"/><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z"/><path d="M6 17c2-3 4-4 6-6s3-4 7-5" stroke-dasharray="1.5 1.5"/><circle cx="6" cy="17" r="1.3" fill="currentColor" stroke="none"/><path d="M19 6l2.5-1-1.2 2.5-1.3-1.5z" fill="currentColor" stroke="none"/></svg></div>16px</div>
+    </div>
+  </div>
+
+  <!-- B2: 地图趋势 -->
+  <div class="card">
+    <h2>B2. 地图趋势</h2>
+    <p class="desc">地图背景上，一条明显的上升折线穿过</p>
+    <div class="icon-box">
+      <svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;">
+        <path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.25" fill="currentColor"/>
+        <path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.7"/>
+        <path d="M5 16l4-3 3 1 4-4 4 1" stroke-width="2.2"/>
+        <path d="M17 11l2.5-1-1 2.8-1.5-1.8z" fill="currentColor" stroke="none"/>
+      </svg>
+    </div>
+    <div class="sizes">
+      <div class="size"><div class="size-box s48"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.25" fill="currentColor"/><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.7"/><path d="M5 16l4-3 3 1 4-4 4 1" stroke-width="2.2"/><path d="M17 11l2.5-1-1 2.8-1.5-1.8z" fill="currentColor" stroke="none"/></svg></div>48px</div>
+      <div class="size"><div class="size-box s32"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.25" fill="currentColor"/><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.7"/><path d="M5 16l4-3 3 1 4-4 4 1" stroke-width="2.2"/><path d="M17 11l2.5-1-1 2.8-1.5-1.8z" fill="currentColor" stroke="none"/></svg></div>32px</div>
+      <div class="size"><div class="size-box s16"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.25" fill="currentColor"/><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.7"/><path d="M5 16l4-3 3 1 4-4 4 1" stroke-width="2.2"/><path d="M17 11l2.5-1-1 2.8-1.5-1.8z" fill="currentColor" stroke="none"/></svg></div>16px</div>
+    </div>
+  </div>
+
+  <!-- B3: 地图热力 -->
+  <div class="card">
+    <h2>B3. 地图热力</h2>
+    <p class="desc">地图上散落大小不同的数据圆点，像热度分布</p>
+    <div class="icon-box">
+      <svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;">
+        <path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.3" fill="currentColor"/>
+        <path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z"/>
+        <circle cx="7" cy="10" r="1.6" fill="currentColor" stroke="none" opacity="0.9"/>
+        <circle cx="13" cy="8" r="2.2" fill="currentColor" stroke="none" opacity="0.7"/>
+        <circle cx="16" cy="15" r="1.4" fill="currentColor" stroke="none" opacity="0.85"/>
+        <circle cx="9" cy="17" r="1" fill="currentColor" stroke="none" opacity="0.6"/>
+      </svg>
+    </div>
+    <div class="sizes">
+      <div class="size"><div class="size-box s48"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.3" fill="currentColor"/><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z"/><circle cx="7" cy="10" r="1.6" fill="currentColor" stroke="none" opacity="0.9"/><circle cx="13" cy="8" r="2.2" fill="currentColor" stroke="none" opacity="0.7"/><circle cx="16" cy="15" r="1.4" fill="currentColor" stroke="none" opacity="0.85"/><circle cx="9" cy="17" r="1" fill="currentColor" stroke="none" opacity="0.6"/></svg></div>48px</div>
+      <div class="size"><div class="size-box s32"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.3" fill="currentColor"/><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z"/><circle cx="7" cy="10" r="1.6" fill="currentColor" stroke="none" opacity="0.9"/><circle cx="13" cy="8" r="2.2" fill="currentColor" stroke="none" opacity="0.7"/><circle cx="16" cy="15" r="1.4" fill="currentColor" stroke="none" opacity="0.85"/><circle cx="9" cy="17" r="1" fill="currentColor" stroke="none" opacity="0.6"/></svg></div>32px</div>
+      <div class="size"><div class="size-box s16"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z" opacity="0.3" fill="currentColor"/><path d="M3 6l4-2 5 2 6-3 3 2v14l-4 2-5-2-6 3-3-2V6z"/><circle cx="7" cy="10" r="1.6" fill="currentColor" stroke="none" opacity="0.9"/><circle cx="13" cy="8" r="2.2" fill="currentColor" stroke="none" opacity="0.7"/><circle cx="16" cy="15" r="1.4" fill="currentColor" stroke="none" opacity="0.85"/><circle cx="9" cy="17" r="1" fill="currentColor" stroke="none" opacity="0.6"/></svg></div>16px</div>
+    </div>
+  </div>
+
+  <!-- C1: 环球航线 -->
+  <div class="card">
+    <h2>C1. 环球航线</h2>
+    <p class="desc">地球配环绕航线，小飞机沿轨道飞向上升箭头</p>
+    <div class="icon-box">
+      <svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z"/>
+        <path d="M3 12h18"/>
+        <path d="M5 16c3-1 5-3 7-5s4-4 7-4" opacity="0.5" stroke-dasharray="1.5 1.5"/>
+        <path d="M5 16l2.5 1.5-.5-2.8z" fill="currentColor" stroke="none"/>
+        <path d="M19 7l2.5-1.2-1.2 2.8-1.3-1.6z" fill="currentColor" stroke="none"/>
+      </svg>
+    </div>
+    <div class="sizes">
+      <div class="size"><div class="size-box s48"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="9"/><path d="M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z"/><path d="M3 12h18"/><path d="M5 16c3-1 5-3 7-5s4-4 7-4" opacity="0.5" stroke-dasharray="1.5 1.5"/><path d="M5 16l2.5 1.5-.5-2.8z" fill="currentColor" stroke="none"/><path d="M19 7l2.5-1.2-1.2 2.8-1.3-1.6z" fill="currentColor" stroke="none"/></svg></div>48px</div>
+      <div class="size"><div class="size-box s32"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="9"/><path d="M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z"/><path d="M3 12h18"/><path d="M5 16c3-1 5-3 7-5s4-4 7-4" opacity="0.5" stroke-dasharray="1.5 1.5"/><path d="M5 16l2.5 1.5-.5-2.8z" fill="currentColor" stroke="none"/><path d="M19 7l2.5-1.2-1.2 2.8-1.3-1.6z" fill="currentColor" stroke="none"/></svg></div>32px</div>
+      <div class="size"><div class="size-box s16"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="9"/><path d="M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9z"/><path d="M3 12h18"/><path d="M5 16c3-1 5-3 7-5s4-4 7-4" opacity="0.5" stroke-dasharray="1.5 1.5"/><path d="M5 16l2.5 1.5-.5-2.8z" fill="currentColor" stroke="none"/><path d="M19 7l2.5-1.2-1.2 2.8-1.3-1.6z" fill="currentColor" stroke="none"/></svg></div>16px</div>
+    </div>
+  </div>
+
+  <!-- C2: 环球图表 -->
+  <div class="card">
+    <h2>C2. 环球图表</h2>
+    <p class="desc">地球在前，三根上升的柱状图在后</p>
+    <div class="icon-box">
+      <svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;">
+        <circle cx="10" cy="12" r="7"/>
+        <path d="M10 5c2 1.8 3 4.2 3 7s-1 5.2-3 7c-2-1.8-3-4.2-3-7s1-5.2 3-7z"/>
+        <path d="M3 12h14"/>
+        <rect x="15" y="10" width="2.4" height="8" rx="0.5" fill="currentColor" stroke="none" opacity="0.85"/>
+        <rect x="18" y="7" width="2.4" height="11" rx="0.5" fill="currentColor" stroke="none" opacity="0.65"/>
+        <rect x="21" y="12" width="2.4" height="6" rx="0.5" fill="currentColor" stroke="none" opacity="0.9"/>
+      </svg>
+    </div>
+    <div class="sizes">
+      <div class="size"><div class="size-box s48"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><circle cx="10" cy="12" r="7"/><path d="M10 5c2 1.8 3 4.2 3 7s-1 5.2-3 7c-2-1.8-3-4.2-3-7s1-5.2 3-7z"/><path d="M3 12h14"/><rect x="15" y="10" width="2.4" height="8" rx="0.5" fill="currentColor" stroke="none" opacity="0.85"/><rect x="18" y="7" width="2.4" height="11" rx="0.5" fill="currentColor" stroke="none" opacity="0.65"/><rect x="21" y="12" width="2.4" height="6" rx="0.5" fill="currentColor" stroke="none" opacity="0.9"/></svg></div>48px</div>
+      <div class="size"><div class="size-box s32"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><circle cx="10" cy="12" r="7"/><path d="M10 5c2 1.8 3 4.2 3 7s-1 5.2-3 7c-2-1.8-3-4.2-3-7s1-5.2 3-7z"/><path d="M3 12h14"/><rect x="15" y="10" width="2.4" height="8" rx="0.5" fill="currentColor" stroke="none" opacity="0.85"/><rect x="18" y="7" width="2.4" height="11" rx="0.5" fill="currentColor" stroke="none" opacity="0.65"/><rect x="21" y="12" width="2.4" height="6" rx="0.5" fill="currentColor" stroke="none" opacity="0.9"/></svg></div>32px</div>
+      <div class="size"><div class="size-box s16"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><circle cx="10" cy="12" r="7"/><path d="M10 5c2 1.8 3 4.2 3 7s-1 5.2-3 7c-2-1.8-3-4.2-3-7s1-5.2 3-7z"/><path d="M3 12h14"/><rect x="15" y="10" width="2.4" height="8" rx="0.5" fill="currentColor" stroke="none" opacity="0.85"/><rect x="18" y="7" width="2.4" height="11" rx="0.5" fill="currentColor" stroke="none" opacity="0.65"/><rect x="21" y="12" width="2.4" height="6" rx="0.5" fill="currentColor" stroke="none" opacity="0.9"/></svg></div>16px</div>
+    </div>
+  </div>
+
+  <!-- C3: 环球定位 -->
+  <div class="card">
+    <h2>C3. 环球定位</h2>
+    <p class="desc">地球 + 定位钉，钉子里嵌着微型上升折线</p>
+    <div class="icon-box">
+      <svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;">
+        <circle cx="9" cy="10" r="6"/>
+        <path d="M9 4c1.7 1.5 2.5 3.5 2.5 6s-.8 4.5-2.5 6c-1.7-1.5-2.5-3.5-2.5-6s.8-4.5 2.5-6z"/>
+        <path d="M3 10h12"/>
+        <path d="M16 6c-1.5 0-2.5 1-2.5 2.5S16 13 16 13s2.5-2 2.5-4.5S17.5 6 16 6z" fill="currentColor" stroke="none"/>
+        <path d="M14.5 9.5l1-1 .8.8 1.2-1.2" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="sizes">
+      <div class="size"><div class="size-box s48"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><circle cx="9" cy="10" r="6"/><path d="M9 4c1.7 1.5 2.5 3.5 2.5 6s-.8 4.5-2.5 6c-1.7-1.5-2.5-3.5-2.5-6s.8-4.5 2.5-6z"/><path d="M3 10h12"/><path d="M16 6c-1.5 0-2.5 1-2.5 2.5S16 13 16 13s2.5-2 2.5-4.5S17.5 6 16 6z" fill="currentColor" stroke="none"/><path d="M14.5 9.5l1-1 .8.8 1.2-1.2" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>48px</div>
+      <div class="size"><div class="size-box s32"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><circle cx="9" cy="10" r="6"/><path d="M9 4c1.7 1.5 2.5 3.5 2.5 6s-.8 4.5-2.5 6c-1.7-1.5-2.5-3.5-2.5-6s.8-4.5 2.5-6z"/><path d="M3 10h12"/><path d="M16 6c-1.5 0-2.5 1-2.5 2.5S16 13 16 13s2.5-2 2.5-4.5S17.5 6 16 6z" fill="currentColor" stroke="none"/><path d="M14.5 9.5l1-1 .8.8 1.2-1.2" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>32px</div>
+      <div class="size"><div class="size-box s16"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><circle cx="9" cy="10" r="6"/><path d="M9 4c1.7 1.5 2.5 3.5 2.5 6s-.8 4.5-2.5 6c-1.7-1.5-2.5-3.5-2.5-6s.8-4.5 2.5-6z"/><path d="M3 10h12"/><path d="M16 6c-1.5 0-2.5 1-2.5 2.5S16 13 16 13s2.5-2 2.5-4.5S17.5 6 16 6z" fill="currentColor" stroke="none"/><path d="M14.5 9.5l1-1 .8.8 1.2-1.2" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>16px</div>
+    </div>
+  </div>
+
+</div>
+<p class="note">你挑一个方案（B1 / B2 / B3 / C1 / C2 / C3），我把它更新到网站的左上角和 favicon。<br>也可以混搭，比如「B1 的航线 + C2 的地球」。</p>
+</body>
+</html>
